@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">DetectorService</string>
+
+    <string name="hello_world">Hello world!</string>
+
+    <string name="menu_settings">Settings</string>
+
+    <string name="startService">Start Service</string>
+
+    <string name="stopService">Stop Service</string>
+</resources>

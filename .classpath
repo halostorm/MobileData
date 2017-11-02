@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="app/build/generated/source/buildConfig/androidTest/debug"/>
+	<classpathentry kind="src" path="app/build/generated/source/buildConfig/debug"/>
+	<classpathentry kind="src" path="app/build/generated/source/buildConfig/release"/>
+	<classpathentry kind="src" path="app/build/generated/source/r/androidTest/debug"/>
+	<classpathentry kind="src" path="app/build/generated/source/r/debug"/>
+	<classpathentry kind="src" path="app/build/generated/source/r/release"/>
+	<classpathentry kind="src" path="app/src/androidTest/java"/>
+	<classpathentry kind="src" path="app/src/main/java"/>
+	<classpathentry kind="src" path="app/src/test/java"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/classes_08c86985f67123294746b93393d86ca43d7dae46.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/classes_273be6cecd6f9f0399ed19b62cd8273047933946.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/classes_32c44eb6b75e681eb5458803f4136f4aea569938.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/classes_533dbe7d10eab8f9ed64020dbc8626fc01fdf6ea.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/classes_84d050e01bab6f499934e9d0f0d17cb4c4cd428c.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/classes_96bc6cd4f3cfb13a32abb7c3fecce3cfb3cde1b0.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/classes_ab78df842e3b6b89f7ce8e2b199e653589e89bca.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/classes_cebbb27573dbb63a8e2dc1be91ddcb832eb0d79c.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/classes_cfe24e35992962f02ebf81dc7b9f83af59b44a56.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/classes_f5b9b627ea7514b7d3f9a31994d973c49a2786d9.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/commons-compress-1.9_6c5c4a2638d21cd4d85f897c1ca6d4ada99e92f4.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/constraint-layout-solver-1.0.2_b1499de96766e3033744be9c7e83fd61fee80815.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/debug_f96642cdecdeb8276f4e06ed3cb184e8867d9de4.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/gson-2.2.4_d8f59725d94dc05e8917d31902ba6514df6c0f44.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/Jama-1.0.2_ace35eeec885ac337f72224ec55908f37e19891e.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/support-annotations-25.2.0_7d91f1668b256deb7bfb9964c753dbdc973a69d6.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/Xutils3.0_bc42080df58d3dfcb0744e96458aa9b0b2155fe6.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/debug/xz-1.5_6b0d6a21fa3ae9790abd4555600e49faf0cc94c6.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/classes_08c86985f67123294746b93393d86ca43d7dae46.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/classes_273be6cecd6f9f0399ed19b62cd8273047933946.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/classes_32c44eb6b75e681eb5458803f4136f4aea569938.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/classes_533dbe7d10eab8f9ed64020dbc8626fc01fdf6ea.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/classes_84d050e01bab6f499934e9d0f0d17cb4c4cd428c.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/classes_96bc6cd4f3cfb13a32abb7c3fecce3cfb3cde1b0.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/classes_ab78df842e3b6b89f7ce8e2b199e653589e89bca.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/classes_cebbb27573dbb63a8e2dc1be91ddcb832eb0d79c.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/classes_cfe24e35992962f02ebf81dc7b9f83af59b44a56.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/classes_f5b9b627ea7514b7d3f9a31994d973c49a2786d9.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/commons-compress-1.9_6c5c4a2638d21cd4d85f897c1ca6d4ada99e92f4.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/constraint-layout-solver-1.0.2_b1499de96766e3033744be9c7e83fd61fee80815.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/gson-2.2.4_d8f59725d94dc05e8917d31902ba6514df6c0f44.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/Jama-1.0.2_ace35eeec885ac337f72224ec55908f37e19891e.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/release_c6b875ebd145b878ccac5d6fcd734d07fbdaca83.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/support-annotations-25.2.0_7d91f1668b256deb7bfb9964c753dbdc973a69d6.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/Xutils3.0_bc42080df58d3dfcb0744e96458aa9b0b2155fe6.jar"/>
+	<classpathentry kind="lib" path="app/build/intermediates/pre-dexed/release/xz-1.5_6b0d6a21fa3ae9790abd4555600e49faf0cc94c6.jar"/>
+	<classpathentry kind="lib" path="app/libs/commons-compress-1.9.jar"/>
+	<classpathentry kind="lib" path="app/libs/Jama-1.0.2.jar"/>
+	<classpathentry kind="lib" path="app/libs/Xutils3.0.jar"/>
+	<classpathentry kind="lib" path="app/libs/xz-1.5.jar"/>
+	<classpathentry kind="lib" path="build/generated/mockable-android-25.jar"/>
+	<classpathentry kind="lib" path="build/generated/mockable-android-26.jar"/>
+	<classpathentry kind="lib" path="gradle/wrapper/gradle-wrapper.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="E:/DetectorService/app/libs/Xutils3.0.jar"/>
+	<classpathentry kind="lib" path="E:/DetectorService/app/libs/android-support-v4.jar"/>
+	<classpathentry kind="src" path=".apt_generated">
+		<attributes>
+			<attribute name="optional" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="D:/Program Files (x86)/Android/android-sdk/extras/android/support/annotations/android-support-annotations.jar"/>
+	<classpathentry kind="output" path="app/build/intermediates/classes/debug"/>
+</classpath>
