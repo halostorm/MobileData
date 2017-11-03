@@ -4,6 +4,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 import com.ustc.wsn.detector.Application.AppResourceApplication;
 import com.ustc.wsn.detector.bean.AcceleratorData;
@@ -80,9 +81,11 @@ public class DetectorSensorListener implements SensorEventListener {
                     setMagData();
                     //bear数据优先选择GPS提供，其次选择惯导提供
                     gpsBear = gps.getCurrentBear();
-                    if (gpsBear != null) {
+                    if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
+                        Log.i(TAG,"GPS__bear");
                         setBearData(gpsBear);
                     } else {
+                        Log.i(TAG,"AM__bear");
                         calculateOrientation();
                         setBearData(String.valueOf(getAngleData()));
                     }

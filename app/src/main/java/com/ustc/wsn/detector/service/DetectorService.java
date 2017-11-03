@@ -523,14 +523,14 @@ public class DetectorService extends Service {
 					stdOfMeanNow = getStdVar(meanListNow);
 					stdOfStdNow = getStdVar(stdVarListNow);
 
-					Log.i(TAG, String.valueOf(meanOfStdPre));
-					Log.i(TAG, String.valueOf(meanOfStdNow));
+					Log.d(TAG, String.valueOf(meanOfStdPre));
+					Log.d(TAG, String.valueOf(meanOfStdNow));
 
-					Log.i(TAG, String.valueOf(Math.abs(meanOfStdPre - meanOfStdNow)));
-					Log.i(TAG, String.valueOf(stdOfStdPre) + "--" + String.valueOf(stdOfStdNow));
+					Log.d(TAG, String.valueOf(Math.abs(meanOfStdPre - meanOfStdNow)));
+					Log.d(TAG, String.valueOf(stdOfStdPre) + "--" + String.valueOf(stdOfStdNow));
 
-					Log.i(TAG, String.valueOf(Math.abs(meanOfMeanPre - meanOfMeanNow)));
-					Log.i(TAG, String.valueOf(stdOfMeanPre) + "--" + String.valueOf(stdOfMeanNow));
+					Log.d(TAG, String.valueOf(Math.abs(meanOfMeanPre - meanOfMeanNow)));
+					Log.d(TAG, String.valueOf(stdOfMeanPre) + "--" + String.valueOf(stdOfMeanNow));
 
 					// Log.i(TAG, "第一次定位1");
 					// 大数定理-假设检验,差异明显则切分

@@ -96,17 +96,6 @@ public class AutoUploadSeriver extends Service {
 
         if (file.length() == 0) return;
 
-        if (file.getName().contains("raw") && file.getName().contains(".txt")) {
-            //判断文件是否是当前正在写入的文件
-            long lastModifiedTime = file.lastModified();
-            long currentTime = System.currentTimeMillis();
-            if(currentTime - lastModifiedTime>60*60*1000000)
-            {
-                mUploadBeen.add(new UploadBean(file.getName(), file.getPath(), new File(foldersPath).getName(), foldersPath));
-            }
-            return;
-        }
-
         boolean isAdd = false;
         //check if the file has been upload
         if (mFileBeans != null && mFileBeans.size() != 0)
@@ -118,6 +107,16 @@ public class AutoUploadSeriver extends Service {
             }
         if (isAdd) return;
 
+        if (file.getName().contains("raw") && file.getName().contains(".txt")) {
+            //判断文件是否是当前正在写入的文件
+            long lastModifiedTime = file.lastModified();
+            long currentTime = System.currentTimeMillis();
+            if(currentTime - lastModifiedTime>5*60*60*1000)
+            {
+                mUploadBeen.add(new UploadBean(file.getName(), file.getPath(), new File(foldersPath).getName(), foldersPath));
+            }
+            return;
+        }
         mUploadBeen.add(new UploadBean(file.getName(), file.getPath(), new File(foldersPath).getName(), foldersPath));
     }
 

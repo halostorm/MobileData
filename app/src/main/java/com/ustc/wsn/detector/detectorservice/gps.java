@@ -9,6 +9,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import java.lang.Float;
 
 import com.ustc.wsn.detector.bean.LocationData;
 
@@ -85,8 +86,8 @@ public class gps {
 		if (bear != null)// 非空
 		{
 			return bear;
-		} else
-			return null;
+		}
+		return null;
 	}
 
 	public void closeLocation() {
