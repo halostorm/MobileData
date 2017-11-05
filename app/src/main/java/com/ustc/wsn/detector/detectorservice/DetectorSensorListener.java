@@ -1,4 +1,7 @@
 package com.ustc.wsn.detector.detectorservice;
+/**
+ * Created by halo on 2017/7/1.
+ */
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -82,10 +85,10 @@ public class DetectorSensorListener implements SensorEventListener {
                     //bear数据优先选择GPS提供，其次选择惯导提供
                     gpsBear = gps.getCurrentBear();
                     if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
-                        Log.i(TAG,"GPS__bear");
+                        Log.d(TAG,"GPS__bear");
                         setBearData(gpsBear);
                     } else {
-                        Log.i(TAG,"AM__bear");
+                        Log.d(TAG,"AM__bear");
                         calculateOrientation();
                         setBearData(String.valueOf(getAngleData()));
                     }
@@ -96,6 +99,35 @@ public class DetectorSensorListener implements SensorEventListener {
                 }
             }
         }).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!threadDisable_data_update) {
+                    try {
+                        Thread.sleep(25);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    // do
+                    //bear数据优先选择GPS提供，其次选择惯导提供
+                    gpsBear = gps.getCurrentBear();
+                    if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
+                        Log.d(TAG,"GPS__bear");
+                        setBearData(gpsBear);
+                    } else {
+                        Log.d(TAG,"AM__bear");
+                        calculateOrientation();
+                        setBearData(String.valueOf(getAngleData()));
+                    }
+                    //gps.setCurrentLocationToNull();
+
+                    // setDirectAng();
+                    // setRotationData();
+                }
+            }
+        }).start();
+
     }
     // storeData = new StoreData();
     // this.resource = resource;
@@ -112,7 +144,7 @@ public class DetectorSensorListener implements SensorEventListener {
         // storeData = new StoreData();
         switch (event.sensor.getType()) {
             case Sensor.TYPE_ACCELEROMETER:
-                // Log.i("Detector", "onSensorChanged: " + "Accelerator" + ", x: "
+                // Log.d("Detector", "onSensorChanged: " + "Accelerator" + ", x: "
                 // + event.values[0] + ", y: " + event.values[1] + ", z: "
                 // + event.values[2]);
                 if (event.values != null) {
@@ -156,7 +188,7 @@ public class DetectorSensorListener implements SensorEventListener {
                 }
                 break;
             case Sensor.TYPE_GYROSCOPE:
-                // Log.i("Detector", "onSensorChanged: " + "Gyro" + ", x: "
+                // Log.d("Detector", "onSensorChanged: " + "Gyro" + ", x: "
                 // + event.values[0] + ", y: " + event.values[1] + ", z: "
                 // + event.values[2]);
                 if (event.values != null) {
@@ -173,11 +205,11 @@ public class DetectorSensorListener implements SensorEventListener {
                 }
                 break;
             case Sensor.TYPE_MAGNETIC_FIELD:
-                // Log.i("Detector", "onSensorChanged: " + "Gyro" + ", x: "
+                // Log.d("Detector", "onSensorChanged: " + "Gyro" + ", x: "
                 // + event.values[0] + ", y: " + event.values[1] + ", z: "
                 // + event.values[2]);
                 if (event.values != null) {
-                    //Log.i(TAG, "mag:" + event.values[0] + " " + event.values[1] + " " + event.values[2]);
+                    //Log.d(TAG, "mag:" + event.values[0] + " " + event.values[1] + " " + event.values[2]);
                     this.magNow = (new MagnetData(event.values)).toString();
 
                     magnetOri = new float[3];
@@ -196,7 +228,7 @@ public class DetectorSensorListener implements SensorEventListener {
                 }
                 break;
             // case Sensor.TYPE_ROTATION_VECTOR:
-            // Log.i("Detector", "onSensorChanged: " + "Gyro" + ", x: "
+            // Log.d("Detector", "onSensorChanged: " + "Gyro" + ", x: "
             // + event.values[0] + ", y: " + event.values[1] + ", z: "
             // + event.values[2]);
             // if (event.values != null) {
@@ -259,7 +291,7 @@ public class DetectorSensorListener implements SensorEventListener {
 
     public void setBearData(String bear) {
         if (((bear_cur + 1) % Data_Size != bear_old)) {// 不满
-            //Log.i(TAG,"bear"+bear);
+            //Log.d(TAG,"bear"+bear);
             this.bearData[bear_cur] = bear;
             bear_cur = (bear_cur + 1) % Data_Size;
         }
@@ -322,30 +354,30 @@ public class DetectorSensorListener implements SensorEventListener {
         SensorManager.getRotationMatrix(R, null, accelOri, magnetOri);
         SensorManager.getOrientation(R, values);
         // test
-        // Log.i(TAG, "origin"+R[0]+" "+R[1]+" "+R[2]+" "+R[3]+" "+R[4]+"
+        // Log.d(TAG, "origin"+R[0]+" "+R[1]+" "+R[2]+" "+R[3]+" "+R[4]+"
         // "+R[5]+" "+R[6]+" "+R[7]+" "+R[8]);
         // eulerAnglesToQuaternion(values,q);
         // quaternionToRotationMatrix(q,R);
-        // Log.i(TAG, "after"+R[0]+" "+R[1]+" "+R[2]+" "+R[3]+" "+R[4]+"
+        // Log.d(TAG, "after"+R[0]+" "+R[1]+" "+R[2]+" "+R[3]+" "+R[4]+"
         // "+R[5]+" "+R[6]+" "+R[7]+" "+R[8]);
         // test
         // 要经过一次数据格式的转换，转换为度
 
         values[0] = (float) Math.toDegrees(values[0]);
         directionAngle = values[0];
-        // Log.i(TAG, values[0]+"");
+        // Log.d(TAG, values[0]+"");
         // values[1] = (float) Math.toDegrees(values[1]);
         // values[2] = (float) Math.toDegrees(values[2]);
 		/*
-		 * if(values[0] >= -5 && values[0] < 5){ Log.i(TAG, "正北"); } else
-		 * if(values[0] >= 5 && values[0] < 85){ Log.i(TAG, "东北"); } else
-		 * if(values[0] >= 85 && values[0] <=95){ Log.i(TAG, "正东"); } else
-		 * if(values[0] >= 95 && values[0] <175){ Log.i(TAG, "东南"); } else
+		 * if(values[0] >= -5 && values[0] < 5){ Log.d(TAG, "正北"); } else
+		 * if(values[0] >= 5 && values[0] < 85){ Log.d(TAG, "东北"); } else
+		 * if(values[0] >= 85 && values[0] <=95){ Log.d(TAG, "正东"); } else
+		 * if(values[0] >= 95 && values[0] <175){ Log.d(TAG, "东南"); } else
 		 * if((values[0] >= 175 && values[0] <= 180) || (values[0]) >= -180 &&
-		 * values[0] < -175){ Log.i(TAG, "正南"); } else if(values[0] >= -175 &&
-		 * values[0] <-95){ Log.i(TAG, "西南"); } else if(values[0] >= -95 &&
-		 * values[0] < -85){ Log.i(TAG, "正西"); } else if(values[0] >= -85 &&
-		 * values[0] <-5){ Log.i(TAG, "西北"); }
+		 * values[0] < -175){ Log.d(TAG, "正南"); } else if(values[0] >= -175 &&
+		 * values[0] <-95){ Log.d(TAG, "西南"); } else if(values[0] >= -95 &&
+		 * values[0] < -85){ Log.d(TAG, "正西"); } else if(values[0] >= -85 &&
+		 * values[0] <-5){ Log.d(TAG, "西北"); }
 		 */
     }
 

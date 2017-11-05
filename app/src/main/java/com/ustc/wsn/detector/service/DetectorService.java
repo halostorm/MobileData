@@ -1,4 +1,7 @@
 package com.ustc.wsn.detector.service;
+/**
+ * Created by halo on 2017/7/1.
+ */
 
 import android.annotation.SuppressLint;
 import android.app.Service;
@@ -219,9 +222,9 @@ public class DetectorService extends Service {
 								bear[i] = String.valueOf(-1);
 							} else {
 								bear[i] = bearData;
-								//Log.i(TAG,"bear:"+bearData);
+								//Log.d(TAG,"bear:"+bearData);
 							}
-							Log.i(TAG,"bear:"+bear[i]);
+							Log.d(TAG,"bear:"+bear[i]);
 							// rotationDatatest[i] = rotationData.toString();
 							float[] accTemp = new float[3];
 							float[] gyroTemp = new float[3];
@@ -256,7 +259,7 @@ public class DetectorService extends Service {
 							 * Math.atan2(2 * Q[0] * Q[1] + 2 * Q[2] * Q[3], 1 -
 							 * 2 * Q[1] * Q[1] - 2 * Q[2] * Q[2]);
 							 * 
-							 * // Log.i(TAG,String.valueOf(Q[0])+" //
+							 * // Log.d(TAG,String.valueOf(Q[0])+" //
 							 * "+String.valueOf(Q[1])+" "+String.valueOf(Q[2])
 							 * // +" "+String.valueOf(Q[3]));
 							 * 
@@ -293,7 +296,7 @@ public class DetectorService extends Service {
 							 */
 
 							/*
-							 * Log.i(TAG, String.valueOf(T[0][0])
+							 * Log.d(TAG, String.valueOf(T[0][0])
 							 * +" "+String.valueOf(T[0][1])
 							 * +" "+String.valueOf(T[0][2])
 							 * +" "+String.valueOf(T[1][0])
@@ -532,7 +535,7 @@ public class DetectorService extends Service {
 					Log.d(TAG, String.valueOf(Math.abs(meanOfMeanPre - meanOfMeanNow)));
 					Log.d(TAG, String.valueOf(stdOfMeanPre) + "--" + String.valueOf(stdOfMeanNow));
 
-					// Log.i(TAG, "第一次定位1");
+					// Log.d(TAG, "第一次定位1");
 					// 大数定理-假设检验,差异明显则切分
 					if ((meanOfStdPre > 0.1 || meanOfStdNow > 0.1)// 条件层1
 							&& (Math.abs(meanOfStdPre - meanOfStdNow) > 5 * Math.min(stdOfStdPre, stdOfStdNow))) {
@@ -655,7 +658,7 @@ public class DetectorService extends Service {
 	 * sensorListener.getMagData(); if (magTemp != null) mag =
 	 * magTemp.split("\t"); } } while (rot != null) { if (rot.getTime() <
 	 * timeBase) { rot = sensorListener.getRotationData(); } }
-	 * threadDisable_sensorInit = true; } Log.i(TAG, "init complete");
+	 * threadDisable_sensorInit = true; } Log.d(TAG, "init complete");
 	 * threadDisable_sensorInit = true; } }).start(); threadDisable_sensorInit =
 	 * true; }
 	 */
@@ -674,9 +677,9 @@ public class DetectorService extends Service {
 					// File inputFileCombine = sd.getCombineDataFile();
 
 					if (inputFileRaw.length() > 5* 1024 * 1024) {
-						Log.i(TAG, "begin");
+						Log.d(TAG, "begin");
 						File outputFile = sd.getz7RawDataFile();
-						Log.i(TAG, "package");
+						Log.d(TAG, "package");
 						String inputPath = inputFileRaw.getPath();
 						String outputPath = outputFile.getPath();
 
@@ -693,7 +696,7 @@ public class DetectorService extends Service {
 					}
 					/*
 					 * if (inputFileCombine.length() > 12*1024* 1024) { File
-					 * outputFile = sd.getz7CombineDataFile(); Log.i(TAG,
+					 * outputFile = sd.getz7CombineDataFile(); Log.d(TAG,
 					 * "package"); String inputPath =
 					 * inputFileCombine.getPath(); String outputPath =
 					 * outputFile.getPath();

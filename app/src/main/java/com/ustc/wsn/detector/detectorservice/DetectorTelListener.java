@@ -1,4 +1,7 @@
 package com.ustc.wsn.detector.detectorservice;
+/**
+ * Created by halo on 2017/7/1.
+ */
 
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
