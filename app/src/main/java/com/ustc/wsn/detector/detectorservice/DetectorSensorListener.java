@@ -85,10 +85,10 @@ public class DetectorSensorListener implements SensorEventListener {
                     //bear数据优先选择GPS提供，其次选择惯导提供
                     gpsBear = gps.getCurrentBear();
                     if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
-                        Log.d(TAG,"GPS__bear");
+                       // Log.d(TAG,"GPS__bear");
                         setBearData(gpsBear);
                     } else {
-                        Log.d(TAG,"AM__bear");
+                      //  Log.d(TAG,"AM__bear");
                         calculateOrientation();
                         setBearData(String.valueOf(getAngleData()));
                     }
@@ -113,10 +113,10 @@ public class DetectorSensorListener implements SensorEventListener {
                     //bear数据优先选择GPS提供，其次选择惯导提供
                     gpsBear = gps.getCurrentBear();
                     if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
-                        Log.d(TAG,"GPS__bear");
+                        //Log.d(TAG,"GPS__bear");
                         setBearData(gpsBear);
                     } else {
-                        Log.d(TAG,"AM__bear");
+                        //Log.d(TAG,"AM__bear");
                         calculateOrientation();
                         setBearData(String.valueOf(getAngleData()));
                     }

@@ -151,8 +151,12 @@ public class StoreData {
 
 		return rawFile;
 	}
-
 	public File getz7RawDataFile() {
+
+		return z7RawFile;
+	}
+
+	public File getNewz7RawDataFile() {
 		z7RawFile = outputFile.getz7RawFile();
 		return z7RawFile;
 	}

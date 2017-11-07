@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.ustc.wsn.detector.bean.FileBean;
@@ -13,21 +14,27 @@ import com.ustc.wsn.detector.dao.SQLOperate;
 import com.ustc.wsn.detector.db.MessageDBHelper;
 import com.ustc.wsn.detector.utils.GsonUtils;
 import com.ustc.wsn.detector.utils.MD5Util;
+import com.ustc.wsn.detector.utils.TimeUtil;
+import com.ustc.wsn.detector.utils.z7Test;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.String;
+import java.util.StringTokenizer;
 
 /**
  * Created by chong on 2017/8/25.
  */
 
-public class AutoUploadSeriver extends Service {
 
+public class AutoUploadSeriver extends Service {
+    protected static final String TAG = null;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -113,7 +120,21 @@ public class AutoUploadSeriver extends Service {
             long currentTime = System.currentTimeMillis();
             if(currentTime - lastModifiedTime>5*60*60*1000)
             {
-                mUploadBeen.add(new UploadBean(file.getName(), file.getPath(), new File(foldersPath).getName(), foldersPath));
+                Log.d(TAG,file.getPath());
+                String inputPath = file.getPath();
+                StringTokenizer st = new StringTokenizer(file.getPath(), ".");
+                String z7Name = st.nextToken();
+                File z7Raw = new File(z7Name+"_.7z");
+                String outputPath = z7Raw.getPath();
+                try {
+                    z7Test.z7(inputPath, outputPath);
+                    Log.d(TAG,"packdone");
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                file.delete();
+                mUploadBeen.add(new UploadBean(z7Raw.getName(), z7Raw.getPath(), new File(foldersPath).getName(), foldersPath));
             }
             return;
         }

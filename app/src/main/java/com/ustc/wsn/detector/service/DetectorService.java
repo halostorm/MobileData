@@ -526,14 +526,15 @@ public class DetectorService extends Service {
 					stdOfMeanNow = getStdVar(meanListNow);
 					stdOfStdNow = getStdVar(stdVarListNow);
 
-					Log.d(TAG, String.valueOf(meanOfStdPre));
-					Log.d(TAG, String.valueOf(meanOfStdNow));
+					//.d(TAG, String.valueOf(meanOfStdPre));
+					//Log.d(TAG, String.valueOf(meanOfStdNow));
 
-					Log.d(TAG, String.valueOf(Math.abs(meanOfStdPre - meanOfStdNow)));
-					Log.d(TAG, String.valueOf(stdOfStdPre) + "--" + String.valueOf(stdOfStdNow));
+					//Log.d(TAG, String.valueOf(Math.abs(meanOfStdPre - meanOfStdNow)));
+					//Log.d(TAG, String.valueOf(stdOfStdPre) + "--" + String.valueOf(stdOfStdNow));
 
-					Log.d(TAG, String.valueOf(Math.abs(meanOfMeanPre - meanOfMeanNow)));
-					Log.d(TAG, String.valueOf(stdOfMeanPre) + "--" + String.valueOf(stdOfMeanNow));
+					//Log.d(TAG, String.valueOf(Math.abs(meanOfMeanPre - meanOfMeanNow)));
+					//
+					// Log.d(TAG, String.valueOf(stdOfMeanPre) + "--" + String.valueOf(stdOfMeanNow));
 
 					// Log.d(TAG, "第一次定位1");
 					// 大数定理-假设检验,差异明显则切分
@@ -678,11 +679,11 @@ public class DetectorService extends Service {
 
 					if (inputFileRaw.length() > 5* 1024 * 1024) {
 						Log.d(TAG, "begin");
-						File outputFile = sd.getz7RawDataFile();
+						File outputFile = sd.getz7RawDataFile();//使用当前7z在文件
+						sd.getNewz7RawDataFile();//创建新的7z文件备下次使用
 						Log.d(TAG, "package");
 						String inputPath = inputFileRaw.getPath();
 						String outputPath = outputFile.getPath();
-
 						rawFileReadFlag = true;
 						sd.newRawDataFile();
 						rawFileReadFlag = false;
