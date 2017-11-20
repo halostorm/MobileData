@@ -114,82 +114,94 @@ public class DetectorActivity extends Activity implements OnClickListener {
 				startService(serviceIntent);
                 serviceStart = true;
                 bindService(serviceIntent, conn, Context.BIND_AUTO_CREATE);
+                Toast.makeText(this, "Service starts successful！", Toast.LENGTH_SHORT).show();
 				break;
 			case R.id.btnStopService:
+                unbindService(conn);
 				stopService(serviceIntent);
+                Toast.makeText(this, "Service has been closed！", Toast.LENGTH_SHORT).show();
                 serviceStart = false;
 				break;
 			case R.id.btnStatic:
                 if(serviceStart == true) {
                     msgService.stateLabel = 1;
+                    Toast.makeText(this, "Hold still！", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 else
-                    Toast.makeText(this, "请先Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
 				break;
 			case R.id.btnWalk:
                 if(serviceStart == true) {
+                    Toast.makeText(this, "Start walking！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 2;
                     break;
                 }
                 else
-                    Toast.makeText(this, "请先Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
                 break;
 			case R.id.btnRun:
                 if(serviceStart == true) {
+                    Toast.makeText(this, "Start running！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 3;
                     break;
                 }
                 else
-                    Toast.makeText(this, "请先Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
                 break;
 			case R.id.btnElevator:
                 if(serviceStart == true) {
+                    Toast.makeText(this, "Be in elevator！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 4;
                     break;
                 }
                 else
-                    Toast.makeText(this, "请先Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
                 break;
 			case R.id.btnBike:
                 if(serviceStart == true) {
+                    Toast.makeText(this, "Start riding bicycle！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 5;
                     break;
                 }
                 else
-                    Toast.makeText(this, "请先Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
                 break;
 			case R.id.btnCar:
                 if(serviceStart == true) {
+                    Toast.makeText(this, "Be in a vehicle！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 6;
                     break;
                 }
                 else
-                    Toast.makeText(this, "请先Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
                 break;
 			case R.id.btnUpstairs:
                 if(serviceStart == true) {
+                    Toast.makeText(this, "Go upstairs！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 7;
                     break;
                 }
                 else
-                    Toast.makeText(this, "请先Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
                 break;
 			case R.id.btnDownstairs:
                 if(serviceStart == true) {
+                    Toast.makeText(this, "Go downstairs！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 8;
                     break;
                 }
                 else
-                    Toast.makeText(this, "请先Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.btnStopLabel:
                 if(serviceStart == true) {
+                    Toast.makeText(this, "Closed Label！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 0;
                     break;
                 }
                 else
-                    Toast.makeText(this, "请先Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
                 break;
 		}
 	}

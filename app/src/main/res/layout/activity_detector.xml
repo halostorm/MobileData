@@ -6,16 +6,13 @@
     <Button
         android:id="@+id/btnStartService"
         android:layout_width="fill_parent"
-        android:layout_height="45dp"
-        android:background= "#B4EEB4"
-
+        android:layout_height="wrap_content"
         android:text="@string/startService" />
 
     <Button
         android:id="@+id/btnStopService"
         android:layout_width="fill_parent"
-        android:layout_height="45dp"
-        android:background= "#C5C1AA"
+        android:layout_height="wrap_content"
         android:text="@string/stopService" />
     <Button
         android:id="@+id/btnStatic"
@@ -66,8 +63,7 @@
     <Button
         android:id="@+id/btnStopLabel"
         android:layout_width="fill_parent"
-        android:layout_height="45dp"
-        android:background= "#F0E68C"
+        android:layout_height="wrap_content"
         android:text="StopLabel" />
 
 
