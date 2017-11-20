@@ -510,7 +510,7 @@ public class DetectorService extends Service {
 
                     for (int i_2 = 0; i_2 < windowSize; i_2++) {
                         if (i_2 == 0) {
-                            outStoreRaw[i_2] = windowTime[i_2] + "\t" + String.valueOf(accMeanX) + "\t"
+                            outStoreRaw[i_2] = windowTime[i_2] + "\t" + cLabel+"\t"+ String.valueOf(accMeanX) + "\t"
                                     + String.valueOf(accMeanY) + "\t" + String.valueOf(accMeanZ) + "\t"
                                     + String.valueOf(gyroMeanX) + "\t" + String.valueOf(gyroMeanY) + "\t"
                                     + String.valueOf(gyroMeanZ) + "\t" + String.valueOf(magMeanX) + "\t"
@@ -519,13 +519,13 @@ public class DetectorService extends Service {
                                     + String.valueOf(accY[i_2]) + "\t" + String.valueOf(accZ[i_2]) + "\t"
                                     + String.valueOf(gyroX[i_2]) + "\t" + String.valueOf(gyroY[i_2]) + "\t"
                                     + String.valueOf(gyroZ[i_2]) + "\t" + String.valueOf(magX[i_2]) + "\t"
-                                    + String.valueOf(magY[i_2]) + "\t" + String.valueOf(magZ[i_2]) + "\t" + bear[i_2] + "\t" + cLabel;
+                                    + String.valueOf(magY[i_2]) + "\t" + String.valueOf(magZ[i_2]) + "\t" + bear[i_2];
                         } else {
-                            outStoreRaw[i_2] = windowTime[i_2] + "\t" + String.valueOf(accX[i_2]) + "\t"
+                            outStoreRaw[i_2] = windowTime[i_2] + "\t" + cLabel+"\t"+  String.valueOf(accX[i_2]) + "\t"
                                     + String.valueOf(accY[i_2]) + "\t" + String.valueOf(accZ[i_2]) + "\t"
                                     + String.valueOf(gyroX[i_2]) + "\t" + String.valueOf(gyroY[i_2]) + "\t"
                                     + String.valueOf(gyroZ[i_2]) + "\t" + String.valueOf(magX[i_2]) + "\t"
-                                    + String.valueOf(magY[i_2]) + "\t" + String.valueOf(magZ[i_2]) + "\t" + bear[i_2] + "\t" + cLabel;
+                                    + String.valueOf(magY[i_2]) + "\t" + String.valueOf(magZ[i_2]) + "\t" + bear[i_2];
                         }
                     }
 
