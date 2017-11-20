@@ -16,4 +16,50 @@
         android:layout_height="wrap_content"
         android:text="Stop Service" />
 
+    <Button
+        android:id="@+id/btnStatic"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Static" />
+
+    <Button
+        android:id="@+id/btnWalk"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Walk" />
+    <Button
+        android:id="@+id/btnRun"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Run" />
+
+    <Button
+        android:id="@+id/btnElevator"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Elevator" />
+    <Button
+        android:id="@+id/btnBike"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Ride bike" />
+
+
+    <Button
+        android:id="@+id/btnCar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Car" />
+
+    <Button
+        android:id="@+id/btnUpstairs"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Upstairs" />
+    <Button
+        android:id="@+id/btnDownstairs"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Downstairs" />
+
 </LinearLayout>

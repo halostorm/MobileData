@@ -6,14 +6,70 @@
     <Button
         android:id="@+id/btnStartService"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="45dp"
+        android:background= "#B4EEB4"
+
         android:text="@string/startService" />
 
     <Button
         android:id="@+id/btnStopService"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="45dp"
+        android:background= "#C5C1AA"
         android:text="@string/stopService" />
+    <Button
+        android:id="@+id/btnStatic"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Static" />
+
+
+    <Button
+        android:id="@+id/btnWalk"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Walk" />
+    <Button
+        android:id="@+id/btnRun"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Run" />
+
+    <Button
+        android:id="@+id/btnElevator"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Elevator" />
+    <Button
+        android:id="@+id/btnBike"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Ride bike" />
+
+
+    <Button
+        android:id="@+id/btnCar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Car" />
+
+    <Button
+        android:id="@+id/btnUpstairs"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Upstairs" />
+    <Button
+        android:id="@+id/btnDownstairs"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Downstairs" />
+    <Button
+        android:id="@+id/btnStopLabel"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:background= "#F0E68C"
+        android:text="StopLabel" />
+
 
 </LinearLayout><!-- <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" -->
 <!-- xmlns:tools="http://schemas.android.com/tools" -->

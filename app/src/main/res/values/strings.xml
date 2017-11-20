@@ -8,4 +8,22 @@
     <string name="startService">Start Service</string>
 
     <string name="stopService">Stop Service</string>
+
+    <string name="Static">Static</string>
+
+    <string name="Walk">Walk</string>
+
+    <string name="Run">Run</string>
+
+    <string name="Elevator">Elevator</string>
+
+    <string name="Bike">Bike</string>
+
+    <string name="Car">Car</string>
+
+    <string name="Upstairs">Upstairs</string>
+
+    <string name="DownStairs">DownStairs</string>
+
+    <string name="StopLabel">StopLabel</string>
 </resources>
