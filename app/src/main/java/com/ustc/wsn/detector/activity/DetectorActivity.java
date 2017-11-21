@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -17,10 +18,14 @@ import android.widget.Toast;
 
 import com.ustc.wsn.detector.service.DetectorService;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import detector.wsn.ustc.com.detectorservice.R;
 
 public class DetectorActivity extends Activity implements OnClickListener {
 
+    Boolean isExit = false;
 	private Intent serviceIntent;
 	private LocationManager loc_int;
 	//private volatile int stateLabel;
@@ -84,11 +89,44 @@ public class DetectorActivity extends Activity implements OnClickListener {
 	};
 
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode==KeyEvent.KEYCODE_BACK){
+            exitByDoubleClick();
+        }
+        return false;
+    }
+
+    private void exitByDoubleClick() {
+        Timer tExit=null;
+        if(!isExit){
+            isExit=true;
+            Toast.makeText(this,"再按一次退出程序!",Toast.LENGTH_SHORT).show();
+            tExit=new Timer();
+            tExit.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    isExit=false;//取消退出
+                }
+            },1000);// 如果1秒钟内没有按下返回键，则启动定时器取消掉刚才执行的任务
+        }else{
+            finish();
+            System.exit(0);
+        }
+    }
+
+//    @Override
+//    public void onBackPressed() {
+//        Intent home = new Intent(Intent.ACTION_MAIN);
+//        home.addCategory(Intent.CATEGORY_HOME);
+//        startActivity(home);
+//    }
+
 
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
-		unbindService(conn);
+		//unbindService(conn);
 		super.onDestroy();
 	}
 
@@ -125,7 +163,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
 			case R.id.btnStatic:
                 if(serviceStart == true) {
                     msgService.stateLabel = 1;
-                    Toast.makeText(this, "Hold still！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<1> Hold still！", Toast.LENGTH_SHORT).show();
                     break;
                 }
                 else
@@ -133,7 +171,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
 				break;
 			case R.id.btnWalk:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "Start walking！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<2> Start walking！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 2;
                     break;
                 }
@@ -142,7 +180,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 break;
 			case R.id.btnRun:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "Start running！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<3> Start running！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 3;
                     break;
                 }
@@ -151,7 +189,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 break;
 			case R.id.btnElevator:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "Be in elevator！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<4> Be in elevator！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 4;
                     break;
                 }
@@ -160,7 +198,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 break;
 			case R.id.btnBike:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "Start riding bicycle！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<5> Start riding bicycle！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 5;
                     break;
                 }
@@ -169,7 +207,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 break;
 			case R.id.btnCar:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "Be in a vehicle！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<6> Be in a vehicle！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 6;
                     break;
                 }
@@ -178,7 +216,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 break;
 			case R.id.btnUpstairs:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "Go upstairs！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<7> Go upstairs！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 7;
                     break;
                 }
@@ -187,7 +225,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 break;
 			case R.id.btnDownstairs:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "Go downstairs！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<8> Go downstairs！", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 8;
                     break;
                 }
