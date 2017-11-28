@@ -24,6 +24,7 @@ public class DetectorSensorListener implements SensorEventListener {
     // 传感器数据缓冲池
     private boolean threadDisable_data_update = false;
     private static int Data_Size = 10000;// sensor 缓冲池大小为1000
+    private static float alpha = (float) 0.8;
     private String[] accData;
     private String[] gyroData;
     private String[] magData;
@@ -48,6 +49,7 @@ public class DetectorSensorListener implements SensorEventListener {
     // private int rot_old;
 
     private float[] accelOri;
+    private float[] gravity;
     private float[] magnetOri;
     private float directionAngle;
     private String gpsBear;
@@ -66,6 +68,7 @@ public class DetectorSensorListener implements SensorEventListener {
 
         accelOri = new float[3];
         magnetOri = new float[3];
+        gravity = new float[3];
         gpsBear = new String();
         // rotationData = new RotationData[Data_Size];
 
@@ -82,20 +85,6 @@ public class DetectorSensorListener implements SensorEventListener {
                     setAccData();
                     setGyroData();
                     setMagData();
-                    //bear数据优先选择GPS提供，其次选择惯导提供
-                    gpsBear = gps.getCurrentBear();
-                    if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
-                       // Log.d(TAG,"GPS__bear");
-                        setBearData(gpsBear);
-                    } else {
-                      //  Log.d(TAG,"AM__bear");
-                        calculateOrientation();
-                        setBearData(String.valueOf(getAngleData()));
-                    }
-                    //gps.setCurrentLocationToNull();
-
-                    // setDirectAng();
-                    // setRotationData();
                 }
             }
         }).start();
@@ -113,12 +102,13 @@ public class DetectorSensorListener implements SensorEventListener {
                     //bear数据优先选择GPS提供，其次选择惯导提供
                     gpsBear = gps.getCurrentBear();
                     if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
-                        //Log.d(TAG,"GPS__bear");
-                        setBearData(gpsBear);
+                        Log.d(TAG,"GPS__bear："+gpsBear);
+                        setBearData("GPS"+gpsBear);
                     } else {
-                        //Log.d(TAG,"AM__bear");
                         calculateOrientation();
-                        setBearData(String.valueOf(getAngleData()));
+                        String tmp = String.valueOf(getAngleData());
+                        setBearData("AM"+tmp);
+                        Log.d(TAG,"AM__bear："+ tmp);
                     }
                     //gps.setCurrentLocationToNull();
 
@@ -154,6 +144,10 @@ public class DetectorSensorListener implements SensorEventListener {
                     accelOri[0] = event.values[0];
                     accelOri[1] = event.values[1];
                     accelOri[2] = event.values[2];
+
+                    gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+                    gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+                    gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
                     // AcceleratorData accData = new AcceleratorData(event.values,
                     // System.currentTimeMillis());
                     // boolean road = resource.roadIsOK(accData, null);
@@ -351,7 +345,7 @@ public class DetectorSensorListener implements SensorEventListener {
         float[] values = new float[3];
         // float[] q = new float[4];
         float[] R = new float[9];
-        SensorManager.getRotationMatrix(R, null, accelOri, magnetOri);
+        SensorManager.getRotationMatrix(R, null, gravity, magnetOri);
         SensorManager.getOrientation(R, values);
         // test
         // Log.d(TAG, "origin"+R[0]+" "+R[1]+" "+R[2]+" "+R[3]+" "+R[4]+"
@@ -364,6 +358,10 @@ public class DetectorSensorListener implements SensorEventListener {
         // 要经过一次数据格式的转换，转换为度
 
         values[0] = (float) Math.toDegrees(values[0]);
+        if(values[0] < 0)
+        {
+            values[0] += 360;
+        }
         directionAngle = values[0];
         // Log.d(TAG, values[0]+"");
         // values[1] = (float) Math.toDegrees(values[1]);

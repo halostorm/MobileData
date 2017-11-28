@@ -249,7 +249,7 @@ public class DetectorService extends Service {
                                 bear[i] = bearData;
                                 //Log.d(TAG,"bear:"+bearData);
                             }
-                            Log.d(TAG, "bear:" + bear[i]);
+                            //Log.d(TAG, "bear:" + bear[i]);
                             // rotationDatatest[i] = rotationData.toString();
                             float[] accTemp = new float[3];
                             float[] gyroTemp = new float[3];

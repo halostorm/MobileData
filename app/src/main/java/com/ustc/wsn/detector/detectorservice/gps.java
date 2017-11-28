@@ -53,7 +53,7 @@ public class gps {
 		if (location != null) {
 			slocation[loc_cur] = (new LocationData(location.getLongitude(), location.getLatitude(),
 					System.currentTimeMillis(), location.getSpeed(), location.getBearing())).toString();
-			bear = String.valueOf(location.getBearing());
+			//bear = String.valueOf(location.getBearing());
 			loc_cur = (loc_cur + 1) % DataSize;
 		}
 		// store(location);
@@ -165,7 +165,7 @@ public class gps {
 			if (location != null) {
 				slocation[loc_cur] = (new LocationData(location.getLongitude(), location.getLatitude(),
 						System.currentTimeMillis(), location.getSpeed(), location.getBearing())).toString();
-				bear = String.valueOf(location.getBearing());
+				//bear = String.valueOf(location.getBearing());
 				loc_cur = (loc_cur + 1) % DataSize;
 			}
 		}
