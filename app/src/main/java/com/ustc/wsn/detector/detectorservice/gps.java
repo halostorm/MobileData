@@ -26,7 +26,9 @@ public class gps {
 	private static String bear;
 	private int loc_cur;
 	private int loc_old;
-
+	private static int bear_count=0;
+	private static int last_bear_count=0;
+	private static int bear_same_count=0;
 	// private StoreData sd;
 
 	/**
@@ -68,7 +70,7 @@ public class gps {
 
 		// 1秒更新一次，或最小位移变化超过1米更新一次；
 		// 注意：此处更新准确度非常低，推荐在service里面启动一个Thread，在run中sleep(10000);然后执行handler.sendMessage(),更新位置
-		lm.requestLocationUpdates(bestProvider, 1000, 1, locationListener);
+		lm.requestLocationUpdates(bestProvider, 5000, 10, locationListener);
 	}
 
 	public String getLocation() {
@@ -85,12 +87,23 @@ public class gps {
 		bear = null;
 	}
 
+
 	public static String getCurrentBear() {
-		if (bear != null)// 非空
+		if (bear != null&&bear_same_count<256*2)// 非空且bear相同时间不超过两个窗口
 		{
+			if(bear_count==last_bear_count)//相等则bear没更新
+			{
+				bear_same_count++;
+			}
+			last_bear_count=bear_count;
 			return bear;
 		}
-		return null;
+		else{//bear不能用
+			bear_same_count=0;
+			bear = null;
+			return bear;
+		}
+
 	}
 
 	public void closeLocation() {
@@ -116,6 +129,7 @@ public class gps {
 				slocation[loc_cur] = (new LocationData(location.getLongitude(), location.getLatitude(),
 						System.currentTimeMillis(), location.getSpeed(), location.getBearing())).toString();
 				bear = String.valueOf(location.getBearing());
+				bear_count++;
 				loc_cur = (loc_cur + 1) % DataSize;
 			}
 			/*

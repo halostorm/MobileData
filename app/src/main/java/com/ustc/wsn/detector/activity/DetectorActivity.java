@@ -7,9 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,6 +21,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.ustc.wsn.detector.service.DetectorService;
+import com.ustc.wsn.detector.utils.UploadManagers;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,7 +36,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
 	//private volatile int stateLabel;
 	private DetectorService msgService;
     private boolean serviceStart = false;
-
+    protected static final String TAG = null;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -61,6 +66,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
 		Button Upstairs =(Button) findViewById(R.id.btnUpstairs);
 		Button Downstairs =(Button) findViewById(R.id.btnDownstairs);
         Button StopLabel =(Button) findViewById(R.id.btnStopLabel);
+        Button StartUpload =(Button) findViewById(R.id.btnStartUpload);
 		Static.setOnClickListener(this);
 		Walk.setOnClickListener(this);
 		Run.setOnClickListener(this);
@@ -70,6 +76,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
 		Upstairs.setOnClickListener(this);
 		Downstairs.setOnClickListener(this);
         StopLabel.setOnClickListener(this);
+        StartUpload.setOnClickListener(this);
 
 		//stateLabel();
 		serviceIntent = new Intent(this, DetectorService.class);
@@ -93,6 +100,9 @@ public class DetectorActivity extends Activity implements OnClickListener {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode==KeyEvent.KEYCODE_BACK){
             exitByDoubleClick();
+        }
+        if(keyCode==KeyEvent.KEYCODE_HOME){
+            //exitByDoubleClick();
         }
         return false;
     }
@@ -152,97 +162,131 @@ public class DetectorActivity extends Activity implements OnClickListener {
 				startService(serviceIntent);
                 serviceStart = true;
                 bindService(serviceIntent, conn, Context.BIND_AUTO_CREATE);
-                Toast.makeText(this, "Service starts successful！", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "服务已启动", Toast.LENGTH_SHORT).show();
 				break;
 			case R.id.btnStopService:
-                unbindService(conn);
-				stopService(serviceIntent);
-                Toast.makeText(this, "Service has been closed！", Toast.LENGTH_SHORT).show();
-                serviceStart = false;
-				break;
-			case R.id.btnStatic:
                 if(serviceStart == true) {
-                    msgService.stateLabel = 1;
-                    Toast.makeText(this, "<1> Hold still！", Toast.LENGTH_SHORT).show();
+                    unbindService(conn);
+                    stopService(serviceIntent);
+                    Toast.makeText(this, "服务已关闭！", Toast.LENGTH_SHORT).show();
+                    serviceStart = false;
                     break;
                 }
                 else
-                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
+                break;
+			case R.id.btnStatic:
+                if(serviceStart == true) {
+                    msgService.stateLabel = 1;
+                    Toast.makeText(this, "<1>当前状态：静止！", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                else
+                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
 				break;
 			case R.id.btnWalk:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "<2> Start walking！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<2> 当前状态：步行", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 2;
                     break;
                 }
                 else
-                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
                 break;
 			case R.id.btnRun:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "<3> Start running！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<3> 当前状态：跑步", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 3;
                     break;
                 }
                 else
-                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
                 break;
 			case R.id.btnElevator:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "<4> Be in elevator！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<4> 当前状态：乘坐电梯", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 4;
                     break;
                 }
                 else
-                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
                 break;
 			case R.id.btnBike:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "<5> Start riding bicycle！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<5> 当前状态：骑自行车", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 5;
                     break;
                 }
                 else
-                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
                 break;
 			case R.id.btnCar:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "<6> Be in a vehicle！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<6> 当前状态：坐车", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 6;
                     break;
                 }
                 else
-                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
                 break;
 			case R.id.btnUpstairs:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "<7> Go upstairs！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<7>当前状态：上楼梯", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 7;
                     break;
                 }
                 else
-                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
                 break;
 			case R.id.btnDownstairs:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "<8> Go downstairs！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "<8> 当前状态：下楼梯", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 8;
                     break;
                 }
                 else
-                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.btnStopLabel:
                 if(serviceStart == true) {
-                    Toast.makeText(this, "Closed Label！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "已关闭标记", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 0;
                     break;
                 }
                 else
-                    Toast.makeText(this, "Please Start Service！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.btnStartUpload:
+                int netType = getNetworkType();
+                if (netType == -1) {
+                    Toast.makeText(DetectorActivity.this,"请开启网络连接",Toast.LENGTH_SHORT).show();
+                }
+                if (netType == ConnectivityManager.TYPE_WIFI) {
+                    Toast.makeText(DetectorActivity.this,"当前是Wifi连接，请放心使用",Toast.LENGTH_SHORT).show();
+                    String psw = "OK";
+                    Intent intent = this.getIntent();
+                    psw=intent.getStringExtra("userId");
+                    //Toast.makeText(DetectorActivity.this,psw,Toast.LENGTH_SHORT).show();
+                    UploadManagers.initAutoUploadSeriver(DetectorActivity.this,
+                            Environment.getExternalStorageDirectory().getPath() + "/DetectorService",psw);
+                } else if (netType == ConnectivityManager.TYPE_MOBILE) {
+                    Toast.makeText(DetectorActivity.this,"为避免数据流量消耗，请切换至Wifi再上传",Toast.LENGTH_SHORT).show();
+                }
                 break;
 		}
 	}
+    private int getNetworkType() {
+        ConnectivityManager connectMgr = (ConnectivityManager) this
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo info = connectMgr.getActiveNetworkInfo();
+        if (info !=null) {
+            return info.getType();
+        } else {
+            return -1;
+        }
+    }
+
 /*
 	public void stateLabel()
 	{

@@ -7,64 +7,69 @@
         android:id="@+id/btnStartService"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/startService" />
+        android:text="启动服务" />
 
     <Button
         android:id="@+id/btnStopService"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/stopService" />
+        android:text="停止服务" />
+    <Button
+        android:id="@+id/btnStartUpload"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="上传数据" />
     <Button
         android:id="@+id/btnStatic"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Static" />
+        android:text="标记静止" />
 
 
     <Button
         android:id="@+id/btnWalk"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Walk" />
+        android:text="标记步行" />
     <Button
         android:id="@+id/btnRun"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Run" />
+        android:text="标记跑步" />
 
     <Button
         android:id="@+id/btnElevator"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Elevator" />
+        android:text="标记乘电梯" />
     <Button
         android:id="@+id/btnBike"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Ride bike" />
+        android:text="标记骑自行车" />
 
 
     <Button
         android:id="@+id/btnCar"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Car" />
+        android:text="标记坐车" />
 
     <Button
         android:id="@+id/btnUpstairs"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Upstairs" />
+        android:text="标记上楼梯" />
     <Button
         android:id="@+id/btnDownstairs"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Downstairs" />
+        android:text="标记下楼梯" />
     <Button
         android:id="@+id/btnStopLabel"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="StopLabel" />
+        android:text="关闭标记" />
 
 
 </LinearLayout><!-- <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" -->

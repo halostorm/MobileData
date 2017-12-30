@@ -134,7 +134,7 @@ public class DetectorService extends Service {
             public void run() {
                 while (!threadDisable_gps) {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(5000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -853,7 +853,8 @@ public class DetectorService extends Service {
         // resource = new AppResource();
 
         // return super.onStartCommand(intent, flags, startId);
-        return START_REDELIVER_INTENT;
+        return START_NOT_STICKY;
+        //return START_REDELIVER_INTENT;
     }
 
 }

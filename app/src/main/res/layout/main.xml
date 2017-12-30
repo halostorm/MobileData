@@ -8,58 +8,58 @@
         android:id="@+id/btnStartService"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Start Service" />
+        android:text="启动服务" />
 
     <Button
         android:id="@+id/btnStopService"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Stop Service" />
+        android:text="停止服务" />
 
     <Button
         android:id="@+id/btnStatic"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Static" />
+        android:text="静止" />
 
     <Button
         android:id="@+id/btnWalk"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Walk" />
+        android:text="步行" />
     <Button
         android:id="@+id/btnRun"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Run" />
+        android:text="跑步" />
 
     <Button
         android:id="@+id/btnElevator"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Elevator" />
+        android:text="乘电梯" />
     <Button
         android:id="@+id/btnBike"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Ride bike" />
+        android:text="骑自行车" />
 
 
     <Button
         android:id="@+id/btnCar"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Car" />
+        android:text="坐车" />
 
     <Button
         android:id="@+id/btnUpstairs"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Upstairs" />
+        android:text="上楼梯" />
     <Button
         android:id="@+id/btnDownstairs"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Downstairs" />
+        android:text="下楼梯" />
 
 </LinearLayout>

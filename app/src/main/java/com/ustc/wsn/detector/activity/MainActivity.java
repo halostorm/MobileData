@@ -19,6 +19,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import com.ustc.wsn.detector.utils.UploadManagers;
 
@@ -80,6 +82,8 @@ public class MainActivity extends Activity {
 
     }
 
+
+
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -92,8 +96,9 @@ public class MainActivity extends Activity {
                 Toast.makeText(MainActivity.this,"手机号码只能为11位",Toast.LENGTH_SHORT).show();
                 return;
             }
-            UploadManagers.initAutoUploadSeriver(MainActivity.this, Environment.getExternalStorageDirectory().getPath() + "/DetectorService",psw);
-            startActivity(new Intent(MainActivity.this,DetectorActivity.class));
+            Intent intent=new Intent(MainActivity.this,DetectorActivity.class);
+            intent.putExtra("userId",psw);
+            startActivity(intent);
             finish();
         }
     };
