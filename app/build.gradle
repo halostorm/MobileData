@@ -4,7 +4,7 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
     defaultConfig {
-        applicationId "com.ustc.wsn.detector"
+        applicationId "com.ustc.wsn.mydataapp"
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 1

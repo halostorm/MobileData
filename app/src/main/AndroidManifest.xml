@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="detector.wsn.ustc.com.detectorservice">
+          package="detector.wsn.ustc.com.mydataapp">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -14,14 +14,14 @@
 
     -
     <application
-        android:name="com.ustc.wsn.detector.Application.AppResourceApplication"
+        android:name="com.ustc.wsn.mydataapp.Application.AppResourceApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:persistent="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.ustc.wsn.detector.activity.MainActivity"
+            android:name="com.ustc.wsn.mydataapp.activity.MainActivity"
             android:label="@string/app_name">
             <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.MAIN"/>
@@ -29,20 +29,20 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.ustc.wsn.detector.activity.DetectorActivity"/>
+        <activity android:name="com.ustc.wsn.mydataapp.activity.DetectorActivity"/>
         <service
-            android:name="com.ustc.wsn.detector.service.DetectorService"
+            android:name="com.ustc.wsn.mydataapp.service.DetectorService"
             android:enabled="true">
             <intent-filter android:priority="1000">
-                <action android:name="com.ustc.wsn.detector.activity.DetectorActivity" />
+                <action android:name="com.ustc.wsn.mydataapp.activity.DetectorActivity" />
             </intent-filter>
 
         </service>
 
         <service
-            android:name="com.ustc.wsn.detector.service.AutoUploadSeriver">
+            android:name="com.ustc.wsn.mydataapp.service.AutoUploadSeriver">
             <intent-filter android:priority="1000">
-                <action android:name="com.ustc.wsn.detector.service.AutoUploadSeriver" />
+                <action android:name="com.ustc.wsn.mydataapp.service.AutoUploadSeriver" />
             </intent-filter>
         </service>
 

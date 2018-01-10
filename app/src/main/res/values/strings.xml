@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">DetectorService</string>
+    <string name="app_name">MyDataApp</string>
 
     <string name="hello_world">Hello world!</string>
 
@@ -8,6 +8,8 @@
     <string name="startService">Start Service</string>
 
     <string name="stopService">Stop Service</string>
+
+    <string name="StartUpload">StartUpload</string>
 
     <string name="Static">Static</string>
 
