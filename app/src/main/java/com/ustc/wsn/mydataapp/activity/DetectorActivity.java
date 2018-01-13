@@ -19,6 +19,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.ustc.wsn.mydataapp.detectorservice.outputFile;
 import com.ustc.wsn.mydataapp.service.DetectorService;
 import com.ustc.wsn.mydataapp.utils.UploadManagers;
 
@@ -30,7 +31,7 @@ import detector.wsn.ustc.com.mydataapp.R;
 public class DetectorActivity extends Activity implements OnClickListener {
 
     Boolean isExit = false;
-	private Intent serviceIntent;
+	private Intent DetectorserviceIntent;
 	private LocationManager loc_int;
 	//private volatile int stateLabel;
 	private DetectorService msgService;
@@ -78,7 +79,8 @@ public class DetectorActivity extends Activity implements OnClickListener {
         StartUpload.setOnClickListener(this);
 
 		//stateLabel();
-		serviceIntent = new Intent(this, DetectorService.class);
+        new outputFile();//create data path
+        DetectorserviceIntent = new Intent(this, DetectorService.class);
 		//bindService(serviceIntent, conn, Context.BIND_AUTO_CREATE);
 
 	}
@@ -158,15 +160,15 @@ public class DetectorActivity extends Activity implements OnClickListener {
 		Toast.makeText(this, "Start", Toast.LENGTH_LONG);
 		switch (view.getId()) {
 			case R.id.btnStartService:
-				startService(serviceIntent);
+				startService(DetectorserviceIntent);
                 serviceStart = true;
-                bindService(serviceIntent, conn, Context.BIND_AUTO_CREATE);
+                bindService(DetectorserviceIntent, conn, Context.BIND_AUTO_CREATE);
                 Toast.makeText(this, "服务已启动", Toast.LENGTH_SHORT).show();
 				break;
 			case R.id.btnStopService:
                 if(serviceStart == true) {
                     unbindService(conn);
-                    stopService(serviceIntent);
+                    stopService(DetectorserviceIntent);
                     Toast.makeText(this, "服务已关闭！", Toast.LENGTH_SHORT).show();
                     serviceStart = false;
                     break;

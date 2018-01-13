@@ -13,7 +13,7 @@ import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
 import com.ustc.wsn.mydataapp.bean.AcceleratorData;
 import com.ustc.wsn.mydataapp.bean.GyroData;
 import com.ustc.wsn.mydataapp.bean.MagnetData;
-import com.ustc.wsn.mydataapp.bean.RotationData;
+//import com.ustc.wsn.mydataapp.bean.RotationData;
 import com.ustc.wsn.mydataapp.utils.TimeUtil;
 
 public class DetectorSensorListener implements SensorEventListener {
@@ -30,7 +30,7 @@ public class DetectorSensorListener implements SensorEventListener {
     private String[] gyroData;
     private String[] magData;
     private String[] bearData;
-    private String[] rotationData;
+    //private String[] rotationData;
 
     private String accNow;
     private String gyroNow;
@@ -54,6 +54,7 @@ public class DetectorSensorListener implements SensorEventListener {
     private float[] magnetOri;
     private float directionAngle;
     private String gpsBear;
+    private float[] DCM;
    // private int bear_count=0;
 
     public DetectorSensorListener(AppResourceApplication resource) {
@@ -72,6 +73,8 @@ public class DetectorSensorListener implements SensorEventListener {
         magnetOri = new float[3];
         gravity = new float[3];
         gpsBear = new String();
+        DCM = new float[]{1,0,0,0,1,0,0,0,1};
+
         // rotationData = new RotationData[Data_Size];
 
         new Thread(new Runnable() {
@@ -84,10 +87,11 @@ public class DetectorSensorListener implements SensorEventListener {
                         e.printStackTrace();
                     }
                     // do
+                    calculateOrientation();
                     setAccData();
                     setGyroData();
                     setMagData();
-                    setRotData();
+                    //setRotData();
                 }
             }
         }).start();
@@ -106,25 +110,20 @@ public class DetectorSensorListener implements SensorEventListener {
                     gpsBear = gps.getCurrentBear();
 
                     if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
-                        Log.d(TAG,"GPS__bear："+gpsBear);
+                        //Log.d(TAG,"GPS__bear："+gpsBear);
                         setBearData(gpsBear);
                     } else{
                         calculateOrientation();
                         String tmp = String.valueOf(getAngleData());
                         setBearData(tmp);
-                        Log.d(TAG,"AM__bear："+ tmp);
+                        //Log.d(TAG,"AM__bear："+ tmp);
                     }
-                    //gps.setCurrentLocationToNull();
-
-                    // setDirectAng();
-                    // setRotationData();
                 }
             }
         }).start();
 
     }
-    // storeData = new StoreData();
-    // this.resource = resource;
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -138,12 +137,10 @@ public class DetectorSensorListener implements SensorEventListener {
         // storeData = new StoreData();
         switch (event.sensor.getType()) {
             case Sensor.TYPE_ACCELEROMETER:
-                // Log.d("Detector", "onSensorChanged: " + "Accelerator" + ", x: "
-                // + event.values[0] + ", y: " + event.values[1] + ", z: "
-                // + event.values[2]);
                 if (event.values != null) {
-                    this.accNow = (new AcceleratorData(event.values)).toString();
-
+                    float[] accEarth = phoneToEarth(event.values);
+                    this.accNow = (new AcceleratorData(accEarth)).toString();
+                    Log.d(TAG,"accNow："+ accNow);
                     accelOri = new float[3];
                     accelOri[0] = event.values[0];
                     accelOri[1] = event.values[1];
@@ -152,86 +149,35 @@ public class DetectorSensorListener implements SensorEventListener {
                     gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
                     gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
                     gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
-                    // AcceleratorData accData = new AcceleratorData(event.values,
-                    // System.currentTimeMillis());
-                    // boolean road = resource.roadIsOK(accData, null);
-                    // boolean stop = resource.suddenStop(accData, null);
-                    // boolean shift = resource.suddenShift(accData, null);
-                    // resource.updataAccDatas(accData);
-                    // StoreData storeData = new StoreData();
-                    // try {
-                    // storeData.storeDataAccelerator(accData);
-                    // } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    // e.printStackTrace();
-                    // }
-                /*
-				 * if (road == false || shift == false || stop == false) {
-				 * String headString = "[";
-				 *
-				 * if (shift == false) headString += "1 "; else headString +=
-				 * "0 ";
-				 *
-				 * if (stop == false) headString += " 2"; else headString +=
-				 * " 0";
-				 *
-				 * if (road == false) headString += " 3"; else headString +=
-				 * " 0";
-				 *
-				 * headString += "]"; //resource.AddMsgToQueue(headString +
-				 * "\t$\t" + resource.getData().toStringExcptLoc(), 0); }
-				 */
-
-                    // storeData.storeDataAccelerator(accData);
                 }
                 break;
             case Sensor.TYPE_GYROSCOPE:
-                // Log.d("Detector", "onSensorChanged: " + "Gyro" + ", x: "
-                // + event.values[0] + ", y: " + event.values[1] + ", z: "
-                // + event.values[2]);
                 if (event.values != null) {
-                    this.gyroNow = (new GyroData(event.values)).toString();
-                    // gyroData = new GyroData(event.values,
-                    // System.currentTimeMillis());
-                    // resource.updateGyroDatas(gyroData);
-                    // try {
-                    // storeData.storeDataGyroscope(gyroData);
-                    // } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    // e.printStackTrace();
-                    // }
+                    float[] gyroEarth = phoneToEarth(event.values);
+                    this.gyroNow = (new GyroData(gyroEarth)).toString();
+                    Log.d(TAG,"gyroNow："+ gyroNow);
                 }
                 break;
             case Sensor.TYPE_MAGNETIC_FIELD:
-                // Log.d("Detector", "onSensorChanged: " + "Gyro" + ", x: "
-                // + event.values[0] + ", y: " + event.values[1] + ", z: "
-                // + event.values[2]);
                 if (event.values != null) {
-                    //Log.d(TAG, "mag:" + event.values[0] + " " + event.values[1] + " " + event.values[2]);
-                    this.magNow = (new MagnetData(event.values)).toString();
-
+                    float[] magEarth = phoneToEarth(event.values);
+                    this.magNow = (new MagnetData(magEarth)).toString();
+                    Log.d(TAG,"magNow："+ magNow);
                     magnetOri = new float[3];
                     magnetOri[0] = event.values[0];
                     magnetOri[1] = event.values[1];
                     magnetOri[2] = event.values[2];
-                    // magData = new MagnetData(event.values,
-                    // System.currentTimeMillis());
-                    // resource.updateMagDatas(magData);
-                    // try {
-                    // storeData.storeDataMagnetic(magData);
-                    // } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    // e.printStackTrace();
-                    // }
                 }
                 break;
+                /*
             case Sensor.TYPE_ROTATION_VECTOR:
                 Log.d("Detector", "onSensorChanged: " + "Gyro" + ", x: "
                         + event.values[0] + ", y: " + event.values[1] + ", z: " + event.values[2]);
                 if (event.values != null) {
                     this.RotationNow = (new RotationData(event.values)).toString();
-                    break;
                 }
+                break;
+                */
         }
 
     }
@@ -276,6 +222,7 @@ public class DetectorSensorListener implements SensorEventListener {
         }
     }
 
+    /*
     public void setRotData() {
         if (((rot_cur + 1) % Data_Size != rot_old) && RotationNow != null) {// 不满
             if (RotationNow != null) {
@@ -287,7 +234,7 @@ public class DetectorSensorListener implements SensorEventListener {
             rot_cur = (rot_cur + 1) % Data_Size;
         }
     }
-
+   */
     public void setBearData(String bear) {
         if (((bear_cur + 1) % Data_Size != bear_old)) {// 不满
             //Log.d(TAG,"bear"+bear);
@@ -305,11 +252,6 @@ public class DetectorSensorListener implements SensorEventListener {
             return null;
     }
 
-    /*
-     * public void setRotationData() { if ((rot_cur + 1) % Data_Size != rot_old)
-     * {// 不满 this.rotationData[rot_cur] = RotationNow; rot_cur = (rot_cur + 1)
-     * % Data_Size; } }
-     */
     public String getAccData() {
         if (acc_cur != acc_old) { // 不空
             int i = acc_old;
@@ -337,6 +279,7 @@ public class DetectorSensorListener implements SensorEventListener {
             return null;
     }
 
+    /*
     public String getRotData() {
         if (rot_cur != rot_old) {// 不空
             int i = rot_old;
@@ -345,52 +288,38 @@ public class DetectorSensorListener implements SensorEventListener {
         } else
             return null;
     }
+    */
 
     public float getAngleData() {
         return directionAngle;
     }
 
-    /*
-     * public RotationData getRotationData() { if (rot_cur != rot_old) {// 不空
-     * int i = rot_old; rot_old = (rot_old + 1) % Data_Size; return
-     * rotationData[i]; } else return null; }
-     */
+    public float[] phoneToEarth(float[] values)
+    {
+        float[] valuesEarth = new float[3];
+        for(int i =0;i<3;i++)
+        {
+            for(int j=0;j<3;j++)
+            {
+                valuesEarth[i] += values[j]*DCM[3*i+j];
+            }
+        }
+        return valuesEarth;
+    }
+
     public void calculateOrientation() {
         float[] values = new float[3];
         // float[] q = new float[4];
         float[] R = new float[9];
         SensorManager.getRotationMatrix(R, null, gravity, magnetOri);
         SensorManager.getOrientation(R, values);
-        // test
-        // Log.d(TAG, "origin"+R[0]+" "+R[1]+" "+R[2]+" "+R[3]+" "+R[4]+"
-        // "+R[5]+" "+R[6]+" "+R[7]+" "+R[8]);
-        // eulerAnglesToQuaternion(values,q);
-        // quaternionToRotationMatrix(q,R);
-        // Log.d(TAG, "after"+R[0]+" "+R[1]+" "+R[2]+" "+R[3]+" "+R[4]+"
-        // "+R[5]+" "+R[6]+" "+R[7]+" "+R[8]);
-        // test
-        // 要经过一次数据格式的转换，转换为度
-
+        DCM = R;
         values[0] = (float) Math.toDegrees(values[0]);
         if(values[0] < 0)
         {
             values[0] += 360;
         }
         directionAngle = values[0];
-        // Log.d(TAG, values[0]+"");
-        // values[1] = (float) Math.toDegrees(values[1]);
-        // values[2] = (float) Math.toDegrees(values[2]);
-		/*
-		 * if(values[0] >= -5 && values[0] < 5){ Log.d(TAG, "正北"); } else
-		 * if(values[0] >= 5 && values[0] < 85){ Log.d(TAG, "东北"); } else
-		 * if(values[0] >= 85 && values[0] <=95){ Log.d(TAG, "正东"); } else
-		 * if(values[0] >= 95 && values[0] <175){ Log.d(TAG, "东南"); } else
-		 * if((values[0] >= 175 && values[0] <= 180) || (values[0]) >= -180 &&
-		 * values[0] < -175){ Log.d(TAG, "正南"); } else if(values[0] >= -175 &&
-		 * values[0] <-95){ Log.d(TAG, "西南"); } else if(values[0] >= -95 &&
-		 * values[0] < -85){ Log.d(TAG, "正西"); } else if(values[0] >= -85 &&
-		 * values[0] <-5){ Log.d(TAG, "西北"); }
-		 */
     }
 
     public void eulerAnglesToQuaternion(float angle[], float q[]) {
