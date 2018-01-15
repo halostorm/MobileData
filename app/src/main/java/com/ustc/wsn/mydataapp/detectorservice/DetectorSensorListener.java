@@ -87,7 +87,7 @@ public class DetectorSensorListener implements SensorEventListener {
                         e.printStackTrace();
                     }
                     // do
-                    calculateOrientation();
+
                     setAccData();
                     setGyroData();
                     setMagData();
@@ -107,13 +107,13 @@ public class DetectorSensorListener implements SensorEventListener {
                     }
                     // do
                     //bear数据优先选择GPS提供，其次选择惯导提供
+                    calculateOrientation();
                     gpsBear = gps.getCurrentBear();
-
                     if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
                         //Log.d(TAG,"GPS__bear："+gpsBear);
                         setBearData(gpsBear);
                     } else{
-                        calculateOrientation();
+                        //calculateOrientation();
                         String tmp = String.valueOf(getAngleData());
                         setBearData(tmp);
                         //Log.d(TAG,"AM__bear："+ tmp);
