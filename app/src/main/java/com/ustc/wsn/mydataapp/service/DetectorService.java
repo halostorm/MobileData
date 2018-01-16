@@ -9,16 +9,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-import android.os.Binder;
 
 import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
 import com.ustc.wsn.mydataapp.bean.CellInfo;
-import com.ustc.wsn.mydataapp.detectorservice.DetectorSensorListener;
 import com.ustc.wsn.mydataapp.bean.StoreData;
+import com.ustc.wsn.mydataapp.detectorservice.DetectorSensorListener;
 import com.ustc.wsn.mydataapp.detectorservice.gps;
-import com.ustc.wsn.mydataapp.detectorservice.outputFile;
 import com.ustc.wsn.mydataapp.utils.z7Test;
 
 import java.io.File;

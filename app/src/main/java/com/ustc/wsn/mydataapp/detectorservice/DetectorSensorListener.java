@@ -2,18 +2,16 @@ package com.ustc.wsn.mydataapp.detectorservice;
 /**
  * Created by halo on 2017/7/1.
  */
-
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
-
+import org.apache.commons.math3.filter.KalmanFilter;
 import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
 import com.ustc.wsn.mydataapp.bean.AcceleratorData;
 import com.ustc.wsn.mydataapp.bean.GyroData;
 import com.ustc.wsn.mydataapp.bean.MagnetData;
-//import com.ustc.wsn.mydataapp.bean.RotationData;
 import com.ustc.wsn.mydataapp.utils.TimeUtil;
 
 public class DetectorSensorListener implements SensorEventListener {
@@ -23,6 +21,7 @@ public class DetectorSensorListener implements SensorEventListener {
     // private Data SensorData;
     // private StoreData storeData;
     // 传感器数据缓冲池
+    private DetectorSensorListener mContext = DetectorSensorListener.this;
     private boolean threadDisable_data_update = false;
     private static int Data_Size = 10000;// sensor 缓冲池大小为1000
     private static float alpha = (float) 0.8;
@@ -73,9 +72,7 @@ public class DetectorSensorListener implements SensorEventListener {
         magnetOri = new float[3];
         gravity = new float[3];
         gpsBear = new String();
-        DCM = new float[]{1,0,0,0,1,0,0,0,1};
-
-        // rotationData = new RotationData[Data_Size];
+        DCM = new float[]{1,0,0,0,1,0,0,0,1};// rotationData = new RotationData[Data_Size];
 
         new Thread(new Runnable() {
             @Override
@@ -123,7 +120,6 @@ public class DetectorSensorListener implements SensorEventListener {
         }).start();
 
     }
-
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
