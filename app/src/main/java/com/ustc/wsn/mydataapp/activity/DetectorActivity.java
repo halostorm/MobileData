@@ -31,7 +31,7 @@ import detector.wsn.ustc.com.mydataapp.R;
 public class DetectorActivity extends Activity implements OnClickListener {
 
     Boolean isExit = false;
-	private Intent DetectorserviceIntent;
+    protected Intent DetectorserviceIntent;
 	private LocationManager loc_int;
 	//private volatile int stateLabel;
 	private DetectorService msgService;

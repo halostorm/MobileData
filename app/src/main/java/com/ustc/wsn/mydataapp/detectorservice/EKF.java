@@ -1,5 +1,7 @@
 package com.ustc.wsn.mydataapp.detectorservice;
 
+import android.util.Log;
+
 import static java.lang.Math.asin;
 import static java.lang.Math.atan2;
 
@@ -9,12 +11,45 @@ import static java.lang.Math.atan2;
 
 public class EKF {
 
-    static float[] Ji = new float[9];
-    static boolean Ji_not_empty;
-    static float[] x_apo = new float[12];
-    static float[] P_apo = new float[144];
-    static float[] Q = new float[144];
-    static boolean Q_not_empty;
+    private static final String TAG = null;
+    public static float[] Ji;
+    public static boolean Ji_not_empty;
+    public static float[] x_apo;
+    public static float[] P_apo;
+    public static float[] Q;
+    public static boolean Q_not_empty;
+
+    /* state vector x has the following entries [ax,ay,az||mx,my,mz||wox,woy,woz||wx,wy,wz]' */
+    public float[] z_k;
+    /**
+     * < Measurement vector
+     */
+    public float[] x_aposteriori_k;
+    /**
+     * < states
+     */
+    public float[] P_aposteriori_k;
+    /**
+     * < init: diagonal matrix with big values
+     */
+
+    public float[] x_aposteriori;
+    public float[] P_aposteriori;
+    public float[] gravity;
+    public float[] gravityNew;
+    /* output euler angles */
+    public float[] euler;
+    public float[] euler_pre;
+
+    public float[] Rot_matrix;
+    /**
+     * < init: identity matrix
+     */
+
+    public float[] debugOutput;
+    public int[] update_vect;
+    public float[] DCM ;
+    public float[] q;
 
 /* Function Declarations */
 //static void AttitudeEKF_init(void);
@@ -22,6 +57,49 @@ public class EKF {
 //static void inv(final float x[9], float y[9]);
 //static void mrdivide(final float A[108], final float B[81], float y[108]);
 //static float norm(final float x[3]);
+
+    public EKF() {
+        String TAG = null;
+        Ji = new float[9];
+        Ji_not_empty = false;
+        x_apo = new float[12];
+        P_apo = new float[144];
+        Q = new float[144];
+        Q_not_empty = false;
+
+    /* state vector x has the following entries [ax,ay,az||mx,my,mz||wox,woy,woz||wx,wy,wz]' */
+        z_k = new float[]{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 9.81f, 0.2f, -0.2f, 0.2f};
+        /**
+         * < Measurement vector
+         */
+        x_aposteriori_k = new float[12];
+        /**
+         * < states
+         */
+        P_aposteriori_k = new float[]{100.f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100.f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100.f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100.f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100.f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100.f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100.f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100.f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100.f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0f, 100.0f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0f, 0, 100.0f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0f, 0, 0, 100.0f,};
+        /**
+         * < init: diagonal matrix with big values
+         */
+
+        x_aposteriori = new float[12];
+        P_aposteriori = new float[144];
+        gravity = new float[3];
+        gravityNew = new float[3];
+    /* output euler angles */
+        euler = new float[]{0.0f, 0.0f, 0.0f};
+        euler_pre = new float[]{0.0f, 0.0f, 0.0f};
+
+        Rot_matrix = new float[]{1.f, 0, 0, 0, 1.f, 0, 0, 0, 1.f};
+        /**
+         * < init: identity matrix
+         */
+
+        debugOutput = new float[]{0.0f, 0.0f, 0.0f, 0.0f};
+
+        update_vect = new int[3];
+        DCM = new float[9];
+        q = new float[]{1.f, 0.f, 0.f, 0.f};
+    }
 
     /* Function Definitions */
     static void AttitudeEKF_init() {
@@ -37,13 +115,10 @@ public class EKF {
         }
     }
 
-    /*
-     *
-     */
     static void b_mrdivide(final float[] A, final float[] B, float[] y) {//static void b_mrdivide(final float[] A[72], final float[] B, float[] y[72]) {
 
         float[] b_A = new float[36];
-        char[] ipiv = new char[6];
+        int[] ipiv = new int[6];
         int i1;
         int iy;
         int j;
@@ -60,7 +135,7 @@ public class EKF {
                 b_A[iy + 6 * i1] = B[i1 + 6 * iy];
             }
 
-            ipiv[i1] = (char) (1 + i1);
+            ipiv[i1] = (int) (1 + i1);
         }
 
         for (j = 0; j < 5; j++) {
@@ -79,7 +154,7 @@ public class EKF {
 
             if (b_A[c + iy] != 0.0F) {
                 if (iy != 0) {
-                    ipiv[j] = (char) ((j + iy) + 1);
+                    ipiv[j] = (int) ((j + iy) + 1);
                     ix = j;
                     iy += j;
                     for (k = 0; k < 6; k++) {
@@ -249,12 +324,9 @@ public class EKF {
         y[p3 + 2] = absx11;
     }
 
-    /*
-     *
-     */
     static void mrdivide(final float[] A, final float[] B, float[] y) {//float A[108], final float B[81], float y[108]
         float[] b_A = new float[81];
-        char[] ipiv = new char[9];
+        int[] ipiv = new int[9];
         int i0;
         int iy;
         int j;
@@ -271,7 +343,7 @@ public class EKF {
                 b_A[iy + 9 * i0] = B[i0 + 9 * iy];
             }
 
-            ipiv[i0] = (char) (1 + i0);
+            ipiv[i0] = (int) (1 + i0);
         }
 
         for (j = 0; j < 8; j++) {
@@ -290,7 +362,7 @@ public class EKF {
 
             if (b_A[c + iy] != 0.0F) {
                 if (iy != 0) {
-                    ipiv[j] = (char) ((j + iy) + 1);
+                    ipiv[j] = (int) ((j + iy) + 1);
                     ix = j;
                     iy += j;
                     for (k = 0; k < 9; k++) {
@@ -374,9 +446,6 @@ public class EKF {
         }
     }
 
-    /*
-     *
-     */
     static float norm(final float[] x) {//float x[3]
         float y;
         float scale;
@@ -404,9 +473,9 @@ public class EKF {
      * function [xa_apo,Pa_apo,Rot_matrix,eulerAngles,debugOutput]...
      *     = AttitudeEKF(approx_prediction,use_inertia_matrix,zFlag,dt,z,q_rotSpeed,q_rotAcc,q_acc,q_mag,r_gyro,r_accel,r_mag,J)
      */
-    static void AttitudeEKF(char approx_prediction, char use_inertia_matrix, final char[] zFlag, float dt, final float[] z, float q_rotSpeed, float q_rotAcc, float q_acc, float q_mag, float r_gyro, float r_accel, float r_mag, final float[] J, float[] xa_apo, float[] Pa_apo, float[] Rot_matrix, float[] eulerAngles, float[] debugOutput, float[] euler_pre) {
-        //unsigned char approx_prediction, unsigned char use_inertia_matrix,
-        //final unsigned char zFlag[3], float dt, final float z[9], float q_rotSpeed,
+    static void AttitudeEKF(int approx_prediction, int use_inertia_matrix, final int[] zFlag, float dt, final float[] z, float q_rotSpeed, float q_rotAcc, float q_acc, float q_mag, float r_gyro, float r_accel, float r_mag, final float[] J, float[] xa_apo, float[] Pa_apo, float[] Rot_matrix, float[] eulerAngles, float[] debugOutput, float[] euler_pre) {
+        //unsigned int approx_prediction, unsigned int use_inertia_matrix,
+        //final unsigned int zFlag[3], float dt, final float z[9], float q_rotSpeed,
         //float q_rotAcc, float q_acc, float q_mag, float r_gyro, float r_accel,
         //float r_mag, final float J[9], float xa_apo[12], float Pa_apo[144],
         //float Rot_matrix[9], float eulerAngles[3], float debugOutput[4], float euler_pre[3]) {
@@ -421,7 +490,7 @@ public class EKF {
         float[] wak = new float[3];
         float[] O = new float[9];
         float[] b_O = new float[9];
-        final char[] iv0 = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+        final int[] iv0 = {1, 0, 0, 0, 1, 0, 0, 0, 1};
 
         float[] fv2 = new float[3];
         float maxval;
@@ -429,25 +498,25 @@ public class EKF {
         float[] fv3 = new float[9];
         float[] fv4 = new float[3];
         float[] x_apr = new float[12];
-        char[] I = new char[144];
+        int[] I = new int[144];
         float[] A_lin = new float[144];
-        final char[] iv1 = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        final int[] iv1 = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         float[] b_A_lin = new float[144];
         float[] v = new float[12];
         float[] P_apr = new float[144];
         float[] a = new float[108];
-        final char[] b_a = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+        final int[] b_a = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 
         float[] S_k = new float[81];
-        final char[] b = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+        final int[] b = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 
         float[] b_r_gyro = new float[9];
         float[] K_k = new float[108];
         float[] b_S_k = new float[36];
-        final char[] c_a = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        final int[] c_a = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-        final char[] b_b = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        final int[] b_b = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         float[] c_r_gyro = new float[3];
         float[] B = new float[36];
@@ -455,26 +524,26 @@ public class EKF {
         float a21;
         float[] Y = new float[36];
         float[] d_a = new float[72];
-        final char[] e_a = {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        final int[] e_a = {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-        final char[] c_b = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0};
+        final int[] c_b = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0};
 
         float[] d_r_gyro = new float[6];
         float[] c_S_k = new float[6];
         float[] b_K_k = new float[72];
-        final char[] f_a = {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
+        final int[] f_a = {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
 
-        final char[] d_b = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+        final int[] d_b = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 
         float[] b_z = new float[6];
 
 	/* LQG Position Estimator and Controller */
     /*  Observer: */
     /*         x[n|n]   = x[n|n-1] + M(y[n] - Cx[n|n-1] - Du[n]) */
-	/*         x[n+1|n] = Ax[n|n] + Bu[n] */
-	/*  */
-	/*  $Author: Tobias Naegeli $    $Date: 2014 $    $Revision: 3 $ */
-	/*  */
+    /*         x[n+1|n] = Ax[n|n] + Bu[n] */
+    /*  */
+    /*  $Author: Tobias Naegeli $    $Date: 2014 $    $Revision: 3 $ */
+    /*  */
 	/*  */
 	/*  Arguments: */
 	/*  approx_prediction: if 1 then the exponential map is approximated with a */
@@ -519,11 +588,11 @@ public class EKF {
         }
 
 	/* % copy the states */
-	/* 'AttitudeEKF:72' wx=  x_apo(1); */
+	/* 'AttitudeEKF:72' wx=  x_apo[1]; */
 	/*  x  body angular rate */
-	/* 'AttitudeEKF:73' wy=  x_apo(2); */
+	/* 'AttitudeEKF:73' wy=  x_apo[2]; */
 	/*  y  body angular rate */
-	/* 'AttitudeEKF:74' wz=  x_apo(3); */
+	/* 'AttitudeEKF:74' wz=  x_apo[3]; */
 	/*  z  body angular rate */
 	/* 'AttitudeEKF:76' wax=  x_apo(4); */
 	/*  x  body angular acceleration */
@@ -607,7 +676,7 @@ public class EKF {
         if (approx_prediction == 1) {
 		/* e^(Odt)=I+dt*O+dt^2/2!O^2 */
 		/*  so we do a first order approximation of the exponential map */
-		/* 'AttitudeEKF:110' zek =(O*dt+single(eye(3)))*[zex;zey;zez]; */
+		/* 'AttitudeEKF:110' zek =(O*dt+single(eye[3]))*[zex;zey;zez]; */
             for (r2 = 0; r2 < 3; r2++) {
                 for (i = 0; i < 3; i++) {
                     b_O[i + 3 * r2] = O[i + 3 * r2] * dt + (float) iv0[i + 3 * r2];
@@ -625,7 +694,7 @@ public class EKF {
             }
         } else {
 		/* 'AttitudeEKF:112' else */
-		/* 'AttitudeEKF:113' zek =(single(eye(3))+O*dt+dt^2/2*O^2)*[zex;zey;zez]; */
+		/* 'AttitudeEKF:113' zek =(single(eye[3])+O*dt+dt^2/2*O^2)*[zex;zey;zez]; */
             maxval = dt * dt / 2.0F;
             for (r2 = 0; r2 < 3; r2++) {
                 for (i = 0; i < 3; i++) {
@@ -661,7 +730,7 @@ public class EKF {
         if (approx_prediction == 1) {
 		/* e^(Odt)=I+dt*O+dt^2/2!O^2 */
 		/*  so we do a first order approximation of the exponential map */
-		/* 'AttitudeEKF:124' muk =(O*dt+single(eye(3)))*[mux;muy;muz]; */
+		/* 'AttitudeEKF:124' muk =(O*dt+single(eye[3]))*[mux;muy;muz]; */
             for (r2 = 0; r2 < 3; r2++) {
                 for (i = 0; i < 3; i++) {
                     b_O[i + 3 * r2] = O[i + 3 * r2] * dt + (float) iv0[i + 3 * r2];
@@ -679,7 +748,7 @@ public class EKF {
             }
         } else {
 		/* 'AttitudeEKF:125' else */
-		/* 'AttitudeEKF:126' muk =(single(eye(3))+O*dt+dt^2/2*O^2)*[mux;muy;muz]; */
+		/* 'AttitudeEKF:126' muk =(single(eye[3])+O*dt+dt^2/2*O^2)*[mux;muy;muz]; */
             maxval = dt * dt / 2.0F;
             for (r2 = 0; r2 < 3; r2++) {
                 for (i = 0; i < 3; i++) {
@@ -734,15 +803,15 @@ public class EKF {
 	/* 'AttitudeEKF:139' MA=[0,muz,-muy; */
 	/* 'AttitudeEKF:140'     -muz,0,mux; */
 	/* 'AttitudeEKF:141'     muy,-mux,0]'; */
-	/* 'AttitudeEKF:143' E=single(eye(3)); */
-	/* 'AttitudeEKF:144' Z=single(zeros(3)); */
+	/* 'AttitudeEKF:143' E=single(eye[3]); */
+	/* 'AttitudeEKF:144' Z=single(zeros[3]); */
 	/* 'AttitudeEKF:146' A_lin=[ Z,  E,  Z,  Z */
 	/* 'AttitudeEKF:147'     Z,  Z,  Z,  Z */
 	/* 'AttitudeEKF:148'     EZ, Z,  O,  Z */
 	/* 'AttitudeEKF:149'     MA, Z,  Z,  O]; */
 	/* 'AttitudeEKF:151' A_lin=eye(12)+A_lin*dt; */
-        //memset( & I[0] memset( & I[0], 0, 144 U * sizeof(signed char));
-        I = new char[144];
+        //memset( & I[0] memset( & I[0], 0, 144 U * sizeof(signed int));
+        I = new int[144];
         for (i = 0; i < 12; i++) {
             I[i + 12 * i] = 1;
             for (r2 = 0; r2 < 3; r2++) {
@@ -864,7 +933,7 @@ public class EKF {
         }
 
 	/* % update */
-	/* 'AttitudeEKF:167' if zFlag(1)==1&&zFlag(2)==1&&zFlag(3)==1 */
+	/* 'AttitudeEKF:167' if zFlag[1]==1&&zFlag[2]==1&&zFlag[3]==1 */
         if ((zFlag[0] == 1) && (zFlag[1] == 1) && (zFlag[2] == 1)) {
 		/*      R=[r_gyro,0,0,0,0,0,0,0,0; */
 		/*          0,r_gyro,0,0,0,0,0,0,0; */
@@ -950,8 +1019,8 @@ public class EKF {
             }
 
 		/* 'AttitudeEKF:195' P_apo=(eye(12)-K_k*H_k)*P_apr; */
-            //memset( & I[0], 0, 144 U * sizeof(signed char));
-            I = new char[144];
+            //memset( & I[0], 0, 144 U * sizeof(signed int));
+            I = new int[144];
             for (i = 0; i < 12; i++) {
                 I[i + 12 * i] = 1;
             }
@@ -977,7 +1046,7 @@ public class EKF {
             }
         } else {
 		/* 'AttitudeEKF:196' else */
-		/* 'AttitudeEKF:197' if zFlag(1)==1&&zFlag(2)==0&&zFlag(3)==0 */
+		/* 'AttitudeEKF:197' if zFlag[1]==1&&zFlag[2]==0&&zFlag[3]==0 */
             if ((zFlag[0] == 1) && (zFlag[1] == 0) && (zFlag[2] == 0)) {
 			/* 'AttitudeEKF:199' R=[r_gyro,0,0; */
 			/* 'AttitudeEKF:200'             0,r_gyro,0; */
@@ -1099,8 +1168,8 @@ public class EKF {
                 }
 
 			/* 'AttitudeEKF:216' P_apo=(eye(12)-K_k*H_k(1:3,1:12))*P_apr; */
-                //memset( & I[0], 0, 144 U * sizeof(signed char));
-                I = new char[144];
+                //memset( & I[0], 0, 144 U * sizeof(signed int));
+                I = new int[144];
                 for (i = 0; i < 12; i++) {
                     I[i + 12 * i] = 1;
                 }
@@ -1126,7 +1195,7 @@ public class EKF {
                 }
             } else {
 			/* 'AttitudeEKF:217' else */
-			/* 'AttitudeEKF:218' if  zFlag(1)==1&&zFlag(2)==1&&zFlag(3)==0 */
+			/* 'AttitudeEKF:218' if  zFlag[1]==1&&zFlag[2]==1&&zFlag[3]==0 */
                 if ((zFlag[0] == 1) && (zFlag[1] == 1) && (zFlag[2] == 0)) {
 				/*              R=[r_gyro,0,0,0,0,0; */
 				/*                  0,r_gyro,0,0,0,0; */
@@ -1204,8 +1273,8 @@ public class EKF {
                     }
 
 				/* 'AttitudeEKF:242' P_apo=(eye(12)-K_k*H_k(1:6,1:12))*P_apr; */
-                    //memset( & I[0], 0, 144 U * sizeof(signed char));
-                    I = new char[144];
+                    //memset( & I[0], 0, 144 U * sizeof(signed int));
+                    I = new int[144];
                     for (i = 0; i < 12; i++) {
                         I[i + 12 * i] = 1;
                     }
@@ -1231,7 +1300,7 @@ public class EKF {
                     }
                 } else {
 				/* 'AttitudeEKF:243' else */
-				/* 'AttitudeEKF:244' if  zFlag(1)==1&&zFlag(2)==0&&zFlag(3)==1 */
+				/* 'AttitudeEKF:244' if  zFlag[1]==1&&zFlag[2]==0&&zFlag[3]==1 */
                     if ((zFlag[0] == 1) && (zFlag[1] == 0) && (zFlag[2] == 1)) {
 					/*                  R=[r_gyro,0,0,0,0,0; */
 					/*                      0,r_gyro,0,0,0,0; */
@@ -1317,8 +1386,8 @@ public class EKF {
                         }
 
 					/* 'AttitudeEKF:266' P_apo=(eye(12)-K_k*H_k(1:6,1:12))*P_apr; */
-                        //memset( & I[0], 0, 144 U * sizeof(signed char));
-                        I = new char[144];
+                        //memset( & I[0], 0, 144 U * sizeof(signed int));
+                        I = new int[144];
                         for (i = 0; i < 12; i++) {
                             I[i + 12 * i] = 1;
                         }
@@ -1350,7 +1419,7 @@ public class EKF {
                         }
 
 					/* 'AttitudeEKF:269' P_apo=P_apr; */
-                       // memcpy( & P_apo[0], &P_apr[0], 144 U * sizeof(float));
+                        // memcpy( & P_apo[0], &P_apr[0], 144 U * sizeof(float));
                         P_apo = P_apr.clone();
                     }
                 }
@@ -1361,15 +1430,15 @@ public class EKF {
 	/* 'AttitudeEKF:278' z_n_b = -x_apo(7:9)./norm(x_apo(7:9)); */
         //maxval = norm( * (float( *)[3])&x_apo[6]);
         float[] x_po_temp = new float[3];
-        x_po_temp[0]=x_apo[6];
-        x_po_temp[1]=x_apo[7];
-        x_po_temp[2]=x_apo[8];
+        x_po_temp[0] = x_apo[6];
+        x_po_temp[1] = x_apo[7];
+        x_po_temp[2] = x_apo[8];
         maxval = norm(x_po_temp);
         //a21 = norm( * (float( *)[3])&x_apo[9]);
         x_po_temp = new float[3];
-        x_po_temp[0]=x_apo[9];
-        x_po_temp[1]=x_apo[10];
-        x_po_temp[2]=x_apo[11];
+        x_po_temp[0] = x_apo[9];
+        x_po_temp[1] = x_apo[10];
+        x_po_temp[2] = x_apo[11];
         a21 = norm(x_po_temp);
         for (i = 0; i < 3; i++) {
 		/* 'AttitudeEKF:279' m_n_b = x_apo(10:12)./norm(x_apo(10:12)); */
@@ -1421,6 +1490,7 @@ public class EKF {
 	/* 'AttitudeEKF:297' eulerAngles=[phi;theta;psi]; */
 
         eulerAngles[0] = (float) atan2(Rot_matrix[7], Rot_matrix[8]);
+        //Log.d((String) TAG, "eulerAngles0：" + eulerAngles[0]);
         eulerAngles[1] = -(float) asin(Rot_matrix[6]);
         eulerAngles[2] = (float) atan2(Rot_matrix[3], Rot_matrix[0]);
     }
@@ -1434,5 +1504,91 @@ public class EKF {
     void AttitudeEKF_terminate() {
 	/* (no terminate code required) */
     }
+
+    float[] translate_to_BODY(float[] q, float[] data) {
+
+        float[] data_BODY = new float[3];
+        float q0q0 = q[0] * q[0];
+        float q1q1 = q[1] * q[1];
+        float q2q2 = q[2] * q[2];
+        float q3q3 = q[3] * q[3];
+
+        data_BODY[0] = data[0] * (q0q0 + q1q1 - q2q2 - q3q3) + data[1] * 2.0f * (q[1] * q[2] + q[0] * q[3]) + data[2] * 2.0f * (q[1] * q[3] - q[0] * q[2]);
+
+        data_BODY[1] = data[0] * 2.0f * (q[1] * q[2] - q[0] * q[3]) + data[1] * (q0q0 - q1q1 + q2q2 - q3q3) + data[2] * 2.0f * (q[2] * q[3] + q[0] * q[1]);
+
+        data_BODY[2] = data[0] * 2.0f * (q[1] * q[3] + q[0] * q[2]) + data[1] * 2.0f * (q[2] * q[3] - q[0] * q[1]) + data[2] * (q0q0 - q1q1 - q2q2 + q3q3);
+
+        return data_BODY;
+    }
+
+    float[] translate_to_NED(float[] q, float[] data) {
+
+        float[] data_NED = new float[3];
+        float q0q0 = q[0] * q[0];
+        float q1q1 = q[1] * q[1];
+        float q2q2 = q[2] * q[2];
+        float q3q3 = q[3] * q[3];
+
+        data_NED[0] = data[0] * (q0q0 + q1q1 - q2q2 - q3q3) + data[1] * 2.0f * (q[1] * q[2] - q[0] * q[3]) + data[2] * 2.0f * (q[1] * q[3] + q[0] * q[2]);
+
+        data_NED[1] = data[0] * 2.0f * (q[1] * q[2] + q[0] * q[3]) + data[1] * (q0q0 - q1q1 + q2q2 - q3q3) + data[2] * 2.0f * (q[2] * q[3] - q[0] * q[1]);
+
+        data_NED[2] = data[0] * 2.0f * (q[1] * q[3] - q[0] * q[2]) + data[1] * 2.0f * (q[2] * q[3] + q[0] * q[1]) + data[2] * (q0q0 - q1q1 - q2q2 + q3q3);
+
+        return data_NED;
+    }
+
+    void DCMfrom_euler(float roll, float pitch, float yaw) {
+        float cp = (float) Math.cos(pitch);
+        float sp = (float) Math.sin(pitch);
+        float sr = (float) Math.sin(roll);
+        float cr = (float) Math.cos(roll);
+        float sy = (float) Math.sin(yaw);
+        float cy = (float) Math.cos(yaw);
+
+        DCM[0] = cp * cy;
+        DCM[1] = (sr * sp * cy) - (cr * sy);
+        DCM[2] = (cr * sp * cy) + (sr * sy);
+        DCM[3] = cp * sy;
+        DCM[4] = (sr * sp * sy) + (cr * cy);
+        DCM[5] = (cr * sp * sy) - (sr * cy);
+        DCM[6] = -sp;
+        DCM[7] = sr * cp;
+        DCM[8] = cr * cp;
+    }
+
+    float[] Qfrom_euler(float roll, float pitch, float yaw) {
+        float cosPhi_2 = (float) (Math.cos(roll / (float) 2.0));
+        float cosTheta_2 = (float) (Math.cos(pitch / (float) 2.0));
+        float cosPsi_2 = (float) (Math.cos(yaw / (float) 2.0));
+        float sinPhi_2 = (float) (Math.sin(roll / (float) 2.0));
+        float sinTheta_2 = (float) (Math.sin(pitch / (float) 2.0));
+        float sinPsi_2 = (float) (Math.sin(yaw / (float) 2.0));
+        q[0] = cosPhi_2 * cosTheta_2 * cosPsi_2 + sinPhi_2 * sinTheta_2 * sinPsi_2;
+        q[1] = sinPhi_2 * cosTheta_2 * cosPsi_2 - cosPhi_2 * sinTheta_2 * sinPsi_2;
+        q[2] = cosPhi_2 * sinTheta_2 * cosPsi_2 + sinPhi_2 * cosTheta_2 * sinPsi_2;
+        q[3] = cosPhi_2 * cosTheta_2 * sinPsi_2 - sinPhi_2 * sinTheta_2 * cosPsi_2;
+
+        return q;
+    }
+
+    float[] Q_multiply(float[] p, float[] q) {
+        float[] r = new float[4];
+        r[0] = p[0] * q[0] - p[1] * q[1] - p[2] * q[2] - p[3] * q[3];
+        r[1] = p[0] * q[1] + p[1] * q[0] - p[2] * q[3] + p[3] * q[2];
+        r[2] = p[0] * q[2] + p[1] * q[3] + p[2] * q[0] - p[3] * q[1];
+        r[3] = p[0] * q[3] - p[1] * q[2] + p[2] * q[1] + p[3] * q[0];
+        return r;
+    }
+
+    float[] Qfrom_DCM(float[] dcm) {
+        float[] q = new float[4];
+        q[0] = (float) ((0.5) * (Math.sqrt((1) + dcm[0] + dcm[4] + dcm[8])));
+        q[1] = ((dcm[7] - dcm[5]) / ((4) * q[0]));
+        q[2] = ((dcm[2] - dcm[6]) / ((4) * q[0]));
+        q[3] = ((dcm[3] - dcm[1]) / ((4) * q[0]));
+        return q;
+    }
+
 }
-/* End of code generation (AttitudeEKF.c) */

@@ -32,7 +32,6 @@ public class DetectorService extends Service {
     ArrayList<CellInfo> cellIds = null;
     private static int windowSize = 256;// 256
     private static int sampleSize = 150;// 150
-    private static int windowSamplingSize = 50;
     private boolean threadDisable_sensor = false;
     private boolean threadDisable_gps = false;
     private boolean threadDisable_sensorPackage;
@@ -47,10 +46,11 @@ public class DetectorService extends Service {
     private StoreData sd;
     private gps sgps;
     private String location;
+    private String[] ACC = new String[windowSize];
+    private String[] GYRO = new String[windowSize];
+    private String[] MAG = new String[windowSize];
+    private String[] BEAR = new String[windowSize];
 
-    private float[] accDataNorm = new float[windowSize];
-    private float[] gyroDataNorm = new float[windowSize];
-    private float[] magDataNorm = new float[windowSize];
     /**
      * 返回一个Binder对象
      */
@@ -119,19 +119,6 @@ public class DetectorService extends Service {
     public void sensorDataHandle() {
         // Sensor更新线程
         new Thread(new Runnable() {
-
-            float meanOfMeanPre = 0;
-            float meanOfStdPre = 0;
-            float stdOfMeanPre = 0;
-            float stdOfStdPre = 0;
-            // 初始化统计量
-            float meanOfMeanNow = 0;
-            float meanOfStdNow = 0;
-            float stdOfMeanNow = 0;
-            float stdOfStdNow = 0;
-
-            int stateSize = 0;// 状态包含的数据量 = 250*窗口数
-
             @Override
             public void run() {
                 while (!threadDisable_sensor) {
@@ -144,26 +131,11 @@ public class DetectorService extends Service {
                     int i = 0;
 
                     String[] outStoreRaw = new String[windowSize];
-
-                    String[] windowTime = new String[windowSize];
-
-                    float[] accX = new float[windowSize];
-                    float[] accY = new float[windowSize];
-                    float[] accZ = new float[windowSize];
-
-                    float[] gyroX = new float[windowSize];
-                    float[] gyroY = new float[windowSize];
-                    float[] gyroZ = new float[windowSize];
-
-                    float[] magX = new float[windowSize];
-                    float[] magY = new float[windowSize];
-                    float[] magZ = new float[windowSize];
-                    String[] bear = new String[windowSize];
-
                     String accData;
                     String gyroData;
                     String magData;
                     String bearData;
+
                     int cLabel = stateLabel;
                     while (i < windowSize) {
                         accData = sensorListener.getAccData();
@@ -173,87 +145,16 @@ public class DetectorService extends Service {
 
                         // rotationData = sensorListener.getRotationData();
                         // 转化数据
-                        if (accData == null)
-                            Log.d(TAG, "accNull");
-                        if (gyroData == null)
-                            Log.d(TAG, "gyroNull");
-                        if (magData == null)
-                            Log.d(TAG, "magNull");
-                        // if (rotationData == null)
-                        // Log.d(TAG, "rotNull");
+                        if (accData == null) Log.d(TAG, "accNull");
+                        if (gyroData == null) Log.d(TAG, "gyroNull");
+                        if (magData == null) Log.d(TAG, "magNull");
+                        if (bearData == null) Log.d(TAG, "bearNull");
 
-                        if (accData != null && gyroData != null && magData != null) {
-
-                            if (bearData == null) {
-                                bear[i] = String.valueOf(-1);
-                            } else {
-                                bear[i] = bearData;
-                                //Log.d(TAG,"bear:"+bearData);
-                            }
-                            //Log.d(TAG, "bear:" + bear[i]);
-                            // rotationDatatest[i] = rotationData.toString();
-                            float[] accTemp = new float[3];
-                            float[] gyroTemp = new float[3];
-                            float[] magTemp = new float[3];
-
-                            String accTransTime = new String();
-                            // String gyroTransTime = new String();
-                            // String magTransTime = new String();
-
-
-                            String[] accArray = new String[5];
-                            accArray = accData.split("\t");
-                            // get raw data
-                            accTransTime = accArray[1];
-                            windowTime[i] = accTransTime;
-                            accTemp[0] = Float.parseFloat(accArray[2]);
-                            accTemp[1] = Float.parseFloat(accArray[3]);
-                            accTemp[2] = Float.parseFloat(accArray[4]);
-
-                            accX[i] = accTemp[0];
-                            accY[i] = accTemp[1];
-                            accZ[i] = accTemp[2];
-
-                            accDataNorm[i] = (float) Math
-                                    .sqrt(accTemp[0] * accTemp[0] + accTemp[1] * accTemp[1] + accTemp[2] * accTemp[2]);
-
-                            String[] gyroArray = new String[5];
-                            gyroArray = gyroData.split("\t");
-
-                            // gyroTransTime = gyroArray[1];
-                            gyroTemp[0] = Float.parseFloat(gyroArray[2]);
-                            gyroTemp[1] = Float.parseFloat(gyroArray[3]);
-                            gyroTemp[2] = Float.parseFloat(gyroArray[4]);
-
-                            gyroDataNorm[i] = (float) Math.sqrt(
-                                    gyroTemp[0] * gyroTemp[0] + gyroTemp[1] * gyroTemp[1] + gyroTemp[2] * gyroTemp[2]);
-
-                            gyroX[i] = gyroTemp[0];
-                            gyroY[i] = gyroTemp[1];
-                            gyroZ[i] = gyroTemp[2];
-							/*
-							 * for (int j = 0; j < 3; j++) { for (int k = 0; k <
-							 * 3; k++) { gyroDataTemp[j] += T[j][k] *
-							 * gyroTemp[k]; } } gyroDataTrans[i] = gyroTransTime
-							 * + "\t" + String.valueOf(gyroDataTemp[0]) + "\t" +
-							 * String.valueOf(gyroDataTemp[1]) + "\t" +
-							 * String.valueOf(gyroDataTemp[2]);
-							 */
-                            String[] magArray = new String[5];
-                            magArray = magData.split("\t");
-
-                            // magTransTime = magArray[1];
-                            magTemp[0] = Float.parseFloat(magArray[2]);
-                            magTemp[1] = Float.parseFloat(magArray[3]);
-                            magTemp[2] = Float.parseFloat(magArray[4]);
-
-                            magDataNorm[i] = (float) Math
-                                    .sqrt(magTemp[0] * magTemp[0] + magTemp[1] * magTemp[1] + magTemp[2] * magTemp[2]);
-
-                            magX[i] = magTemp[0];
-                            magY[i] = magTemp[1];
-                            magZ[i] = magTemp[2];
-
+                        if (accData != null && gyroData != null && magData != null && bearData != null) {
+                            ACC[i] = accData;
+                            GYRO[i] = gyroData;
+                            MAG[i] = magData;
+                            BEAR[i] = bearData;
                             i++;
                         }
                         // 如果出現緩衝池空，則停止讀取，等待5s
@@ -264,14 +165,9 @@ public class DetectorService extends Service {
                                 e.printStackTrace();
                             }
                         }
-
                     }
                     for (int i_2 = 0; i_2 < windowSize; i_2++) {
-                        outStoreRaw[i_2] = cLabel+ "\t"+windowTime[i_2] + "\t" + String.valueOf(accX[i_2]) + "\t"
-                                + String.valueOf(accY[i_2]) + "\t" + String.valueOf(accZ[i_2]) + "\t"
-                                + String.valueOf(gyroX[i_2]) + "\t" + String.valueOf(gyroY[i_2]) + "\t"
-                                + String.valueOf(gyroZ[i_2]) + "\t" + String.valueOf(magX[i_2]) + "\t"
-                                + String.valueOf(magY[i_2]) + "\t" + String.valueOf(magZ[i_2]) + "\t" + bear[i_2];
+                        outStoreRaw[i_2] = cLabel + "\t" + "\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2]+"\t" + BEAR[i_2];
                     }
                     /*
                     // 均值压缩
@@ -434,10 +330,8 @@ public class DetectorService extends Service {
                         // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
-
                 }
             }
-
         }).start();
 
     }
@@ -564,7 +458,6 @@ public class DetectorService extends Service {
         sm.unregisterListener(sensorListener);
         threadDisable_gps = true;
         threadDisable_sensor = true;
-        // threadDisable_sensorInit = true;
         threadDisable_sensorPackage = true;
         if (sgps != null) {
             sgps.closeLocation();
