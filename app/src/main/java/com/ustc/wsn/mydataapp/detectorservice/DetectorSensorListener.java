@@ -17,7 +17,11 @@ import com.ustc.wsn.mydataapp.utils.TimeUtil;
 
 public class DetectorSensorListener implements SensorEventListener {
 
-    private static final String TAG = null;
+    private final String TAG = DetectorSensorListener.this.toString();
+    private static final int Attitude_ANDROID = 1;
+    private static final int Attitude_EKF = 2;
+    private static final int Attitude_FCF = 3;
+    private static int AttitudeMode = Attitude_ANDROID;
     // private AppResource resource;
     // private Data SensorData;
     // private StoreData storeData;
@@ -46,15 +50,27 @@ public class DetectorSensorListener implements SensorEventListener {
     private int mag_old;
     private int bear_old;
 
-    private volatile float[] gravity;
+    private volatile float[] gravityOri;
     private volatile float[] magnetOri;
     private volatile float[] linear_acceleration;
     private float bearAngle;
     private String gpsBear;
     private volatile float[] DCM;
-    private float mag_decl = -0.091f; //合肥磁偏角
-    private boolean gravityOriNew = false;
+    private boolean gravityOriOriNew = false;
     private boolean magOriNew = false;
+
+
+    private EKF ekf;
+    private ekfParams ekfP;
+    private ekfParamsHandle ekfPH;
+    private float mag_decl = -0.091f; //合肥磁偏角
+    private float[] gyroOri;
+    private boolean gyroOriNew = false;
+    private long time;
+    private long timeOld;
+    private float dt;
+
+    private FCF fcf;
 
     public DetectorSensorListener(AppResourceApplication resource) {
         // TODO Auto-generated constructor stub
@@ -69,11 +85,25 @@ public class DetectorSensorListener implements SensorEventListener {
         bearData = new String[Data_Size];
 
         magnetOri = new float[3];
-        gravity = new float[3];
+        gravityOri = new float[3];
+        gyroOri = new float[3];
         linear_acceleration = new float[3];
         gpsBear = new String();
         DCM = new float[]{1, 0, 0, 0, 1, 0, 0, 0, 1};
 
+        setAttitudeMode(Attitude_ANDROID);
+
+        if(AttitudeMode == Attitude_EKF) {
+            ekfPH = new ekfParamsHandle();
+            ekfP = new ekfParams();
+            ekf = new EKF();
+        }
+        if(AttitudeMode == Attitude_FCF) {
+            fcf= new FCF();
+        }
+
+        time = System.currentTimeMillis();
+        timeOld = System.currentTimeMillis();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -83,9 +113,67 @@ public class DetectorSensorListener implements SensorEventListener {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    if (gravityOriNew && magOriNew) {
-                        //Log.d(TAG, "calculateOrientation");
-                        calculateOrientation();
+                    if (gravityOriOriNew && magOriNew && gyroOriNew) {
+                        if(AttitudeMode == Attitude_EKF) {
+                            ekf.update_vect[0] = 1;
+                            ekf.update_vect[1] = 1;
+                            ekf.update_vect[2] = 1;
+
+                            ekf.z_k[0] = gyroOri[1];
+                            ekf.z_k[1] = gyroOri[0];
+                            ekf.z_k[2] = -gyroOri[2];
+
+                            ekf.z_k[3] = gravityOri[1];
+                            ekf.z_k[4] = gravityOri[0];
+                            ekf.z_k[5] = -gravityOri[2];
+
+                            ekf.z_k[6] = magnetOri[1];
+                            ekf.z_k[7] = magnetOri[0];
+                            ekf.z_k[8] = -magnetOri[2];
+
+                            ekf.x_aposteriori_k[0] = ekf.z_k[0];
+                            ekf.x_aposteriori_k[1] = ekf.z_k[1];
+                            ekf.x_aposteriori_k[2] = ekf.z_k[2];
+                            ekf.x_aposteriori_k[3] = 0.0f;
+                            ekf.x_aposteriori_k[4] = 0.0f;
+                            ekf.x_aposteriori_k[5] = 0.0f;
+                            ekf.x_aposteriori_k[6] = ekf.z_k[3];
+                            ekf.x_aposteriori_k[7] = ekf.z_k[4];
+                            ekf.x_aposteriori_k[8] = ekf.z_k[5];
+                            ekf.x_aposteriori_k[9] = ekf.z_k[6];
+                            ekf.x_aposteriori_k[10] = ekf.z_k[7];
+                            ekf.x_aposteriori_k[11] = ekf.z_k[8];
+                            //Log.d(TAG, "calculateOrientation");
+                            ekfP.parameters_update(ekfPH);
+                            ekf.AttitudeEKF(0, // approx_prediction
+                                    ekfP.use_moment_inertia, ekf.update_vect, dt, ekf.z_k, ekfP.q[0], // q_rotSpeed,
+                                    ekfP.q[1], // q_rotAcc
+                                    ekfP.q[2], // q_acc
+                                    ekfP.q[3], // q_mag
+                                    ekfP.r[0], // r_gyro
+                                    ekfP.r[1], // r_accel
+                                    ekfP.r[2], // r_mag
+                                    ekfP.moment_inertia_J, ekf.x_aposteriori_k, ekf.P_aposteriori_k, ekf.Rot_matrix, ekf.euler, ekf.debugOutput, ekf.euler_pre);
+                        }
+                        if(AttitudeMode == Attitude_ANDROID) {
+                            calculateOrientation();
+                        }
+                        if(AttitudeMode == Attitude_FCF) {
+                            //FCF
+                            fcf.acc[0] = gravityOri[1];
+                            fcf.acc[1] = gravityOri[0];
+                            fcf.acc[2] = -gravityOri[2];
+
+                            fcf.gyro[0] = gyroOri[1];
+                            fcf.gyro[1] = gyroOri[0];
+                            fcf.gyro[2] = -gyroOri[2];
+
+                            fcf.mag[0] = magnetOri[1];
+                            fcf.mag[1] = magnetOri[0];
+                            fcf.mag[2] = -magnetOri[2];
+                            fcf.dt = dt;
+                            fcf.Filter();
+                        }
                     }
                 }
             }
@@ -120,6 +208,10 @@ public class DetectorSensorListener implements SensorEventListener {
 
     }
 
+    public void setAttitudeMode(final int Mode)
+    {
+        AttitudeMode = Mode;
+    }
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // TODO Auto-generated method stub
@@ -134,32 +226,101 @@ public class DetectorSensorListener implements SensorEventListener {
             case Sensor.TYPE_ACCELEROMETER:
                 if (event.values != null) {
                     //Log.d(TAG,"acc:"+accNow);
-                    gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
-                    gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
-                    gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
-                    linear_acceleration[0] = event.values[0] - gravity[0];
-                    linear_acceleration[1] = event.values[1] - gravity[1];
-                    linear_acceleration[2] = event.values[2] - gravity[2];
-                    gravityOriNew = true;
-                    float[] worldData = phoneToEarth(linear_acceleration);
+                    gravityOri[0] = alpha * gravityOri[0] + (1 - alpha) * event.values[0];
+                    gravityOri[1] = alpha * gravityOri[1] + (1 - alpha) * event.values[1];
+                    gravityOri[2] = alpha * gravityOri[2] + (1 - alpha) * event.values[2];
+                    linear_acceleration[0] = event.values[0] - gravityOri[0];
+                    linear_acceleration[1] = event.values[1] - gravityOri[1];
+                    linear_acceleration[2] = event.values[2] - gravityOri[2];
+                    gravityOriOriNew = true;
+
+                    float[] worldData=new float[3];
+                    float[] temp = new float[3];
+                    if(AttitudeMode == Attitude_EKF) {
+                        worldData = phoneToEarth(ekf.Rot_matrix, event.values);
+                        temp = new float[3];
+                        temp[0] = worldData[1];
+                        temp[1] = worldData[0];
+                        temp[2] = -worldData[2];
+                    }
+                    if(AttitudeMode == Attitude_ANDROID) {
+                        worldData = phoneToEarth(DCM, event.values);
+                    }
+                    if(AttitudeMode == Attitude_FCF) {
+                        //worldData = phoneToEarth(DCM, event.values);
+                        worldData = fcf.translate_to_BODY(fcf.q_est,event.values);
+                        temp = new float[3];
+                        temp[0] = worldData[1];
+                        temp[1] = worldData[0];
+                        temp[2] = -worldData[2];
+                    }
                     //Log.d(TAG,"accRaw:"+String.valueOf(event.values[2]));
-                    this.accNow = (new AcceleratorData(worldData)).toString();
+                    this.accNow = (new AcceleratorData(temp)).toString();
                 }
                 break;
             case Sensor.TYPE_GYROSCOPE:
                 if (event.values != null) {
-                    float[] worldData = phoneToEarth(event.values);
-                    this.gyroNow = (new GyroData(worldData)).toString();
+                    gyroOri[0] = event.values[0];
+                    gyroOri[1] = event.values[1];
+                    gyroOri[2] = event.values[2];
+
+                    time = System.currentTimeMillis();
+                    dt = (time - timeOld) / 1000.0f;
+                    timeOld = time;
+                    gyroOriNew = true;
+                    float[] worldData=new float[3];
+                    float[] temp = new float[3];
+
+                    if(AttitudeMode == Attitude_EKF) {
+                        worldData = phoneToEarth(ekf.Rot_matrix, event.values);
+                        temp = new float[3];
+                        temp[0] = worldData[1];
+                        temp[1] = worldData[0];
+                        temp[2] = -worldData[2];
+                    }
+                    if(AttitudeMode == Attitude_ANDROID) {
+                        worldData = phoneToEarth(DCM, event.values);
+                    }
+                    if(AttitudeMode == Attitude_FCF) {
+                        //worldData = phoneToEarth(DCM, event.values);
+                        worldData = fcf.translate_to_BODY(fcf.q_est,event.values);
+                        temp = new float[3];
+                        temp[0] = worldData[1];
+                        temp[1] = worldData[0];
+                        temp[2] = -worldData[2];
+                    }
+
+                    this.gyroNow = (new GyroData(temp)).toString();
                 }
                 break;
             case Sensor.TYPE_MAGNETIC_FIELD:
                 if (event.values != null) {
-                    float[] worldData = phoneToEarth(event.values);
-                    this.magNow = (new MagnetData(worldData)).toString();
                     magnetOri[0] = event.values[0];
                     magnetOri[1] = event.values[1];
                     magnetOri[2] = event.values[2];
                     magOriNew = true;
+                    float[] worldData=new float[3];
+                    float[] temp = new float[3];
+                    if(AttitudeMode == Attitude_EKF) {
+                        worldData = phoneToEarth(ekf.Rot_matrix, event.values);
+                        temp = new float[3];
+                        temp[0] = worldData[1];
+                        temp[1] = worldData[0];
+                        temp[2] = -worldData[2];
+                    }
+                    if(AttitudeMode == Attitude_ANDROID) {
+                        worldData = phoneToEarth(DCM, event.values);
+                    }
+                    if(AttitudeMode == Attitude_FCF) {
+                        //worldData = phoneToEarth(DCM, event.values);
+                        worldData = fcf.translate_to_BODY(fcf.q_est,event.values);
+                        temp = new float[3];
+                        temp[0] = worldData[1];
+                        temp[1] = worldData[0];
+                        temp[2] = -worldData[2];
+                    }
+
+                    this.magNow = (new MagnetData(temp)).toString();
                 }
                 break;
         }
@@ -271,7 +432,7 @@ public class DetectorSensorListener implements SensorEventListener {
         return bearAngle;
     }
 
-    public float[] phoneToEarth(float[] values) {
+    public float[] phoneToEarth(float[] DCM, float[] values) {
         float[] valuesEarth = new float[3];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -284,7 +445,7 @@ public class DetectorSensorListener implements SensorEventListener {
     public void calculateOrientation() {
         float[] values = new float[3];
         //float[] R = new float[9];
-        SensorManager.getRotationMatrix(DCM, null, gravity, magnetOri);
+        SensorManager.getRotationMatrix(DCM, null, gravityOri, magnetOri);
         SensorManager.getOrientation(DCM, values);
         values[0] = (float) Math.toDegrees(values[0]);
         values[1] = (float) Math.toDegrees(values[1]);

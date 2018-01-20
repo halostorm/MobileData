@@ -19,13 +19,13 @@ public class FCF {
     float gain_m;
     float std_norm_m;
     float threshold_m;
-    long time_k, time_k_1;
+    //long time_k, time_k_1;
 
     public FCF() {
-       //gain_a = 0.005f;
-        //gain_m = 0.01f;
-        gain_a = 0.905f;
-        gain_m = 0.91f;
+        gain_a = 0.005f;
+        gain_m = 0.01f;
+        //gain_a = 0.905f;
+        //gain_m = 0.91f;
         std_norm_m = 0.285f;
         threshold_m = 0.5f;
         acc = new float[3];
@@ -35,8 +35,8 @@ public class FCF {
         last_q = new float[4];
         q_est = new float[4];
         time = 0.f;
-        time_k_1=time_k = System.currentTimeMillis();
-        dt = 0.025f;
+        //time_k_1=time_k = System.currentTimeMillis();
+        //dt = 0.025f;
 
         q_est[0] = 1.0f;
         q_est[1] = 0.0f;
