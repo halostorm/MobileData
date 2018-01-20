@@ -48,6 +48,7 @@ public class DetectorSensorListener implements SensorEventListener {
 
     private volatile float[] gravity;
     private volatile float[] magnetOri;
+    private volatile float[] linear_acceleration;
     private float bearAngle;
     private String gpsBear;
     private volatile float[] DCM;
@@ -69,6 +70,7 @@ public class DetectorSensorListener implements SensorEventListener {
 
         magnetOri = new float[3];
         gravity = new float[3];
+        linear_acceleration = new float[3];
         gpsBear = new String();
         DCM = new float[]{1, 0, 0, 0, 1, 0, 0, 0, 1};
 
@@ -105,12 +107,12 @@ public class DetectorSensorListener implements SensorEventListener {
 
                     gpsBear = gps.getCurrentBear();
                     if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
-                        Log.d(TAG,"GPS__bear："+gpsBear);
+                        Log.d(TAG, "GPS__bear：" + gpsBear);
                         setBearData(gpsBear);
                     } else {
                         String tmp = String.valueOf(getBear());
                         setBearData(tmp);
-                        Log.d(TAG,"AM__bear："+ tmp);
+                        Log.d(TAG, "AM__bear：" + tmp);
                     }
                 }
             }
@@ -131,14 +133,17 @@ public class DetectorSensorListener implements SensorEventListener {
         switch (event.sensor.getType()) {
             case Sensor.TYPE_ACCELEROMETER:
                 if (event.values != null) {
-                    float[] worldData = phoneToEarth(event.values);
-                    //Log.d(TAG,"accRaw:"+String.valueOf(event.values[2]));
-                    this.accNow = (new AcceleratorData(worldData)).toString();
                     //Log.d(TAG,"acc:"+accNow);
                     gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
                     gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
                     gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+                    linear_acceleration[0] = event.values[0] - gravity[0];
+                    linear_acceleration[1] = event.values[1] - gravity[1];
+                    linear_acceleration[2] = event.values[2] - gravity[2];
                     gravityOriNew = true;
+                    float[] worldData = phoneToEarth(linear_acceleration);
+                    //Log.d(TAG,"accRaw:"+String.valueOf(event.values[2]));
+                    this.accNow = (new AcceleratorData(worldData)).toString();
                 }
                 break;
             case Sensor.TYPE_GYROSCOPE:
