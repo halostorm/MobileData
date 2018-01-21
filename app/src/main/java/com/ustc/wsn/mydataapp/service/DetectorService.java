@@ -33,7 +33,7 @@ public class DetectorService extends Service {
     private static int windowSize = 256;// 256
     private static int sampleSize = 150;// 150
     private boolean threadDisable_sensor = false;
-    private boolean threadDisable_gps = false;
+
     private boolean threadDisable_sensorPackage;
     private volatile boolean rawFileReadFlag = false;
 
@@ -44,11 +44,10 @@ public class DetectorService extends Service {
     private Sensor magnetic;
     private DetectorSensorListener sensorListener;
     private StoreData sd;
-    private gps sgps;
-    private String location;
     private String[] ACC = new String[windowSize];
     private String[] GYRO = new String[windowSize];
     private String[] MAG = new String[windowSize];
+    private String[] ROT = new String[windowSize];
     private String[] BEAR = new String[windowSize];
 
     /**
@@ -76,7 +75,6 @@ public class DetectorService extends Service {
         super.onCreate();
         //stateLabel();//监听标签
         sd = new StoreData();//create data store class
-        location = new String();
         initSensor();// init sensor
         sensorDataHandle();//begin reading sensor data
 
@@ -87,6 +85,7 @@ public class DetectorService extends Service {
             e2.printStackTrace();
         }
 
+        /*
         sgps = new gps(mContext);// start gps
         // GPS thread
         new Thread(new Runnable() {
@@ -113,6 +112,7 @@ public class DetectorService extends Service {
                 }
             }
         }).start();
+        */
 
     }
 
@@ -135,6 +135,7 @@ public class DetectorService extends Service {
                     String gyroData;
                     String magData;
                     String bearData;
+                    String rotData;
 
                     int cLabel = stateLabel;
                     while (i < windowSize) {
@@ -142,6 +143,7 @@ public class DetectorService extends Service {
                         gyroData = sensorListener.getGyroData();
                         magData = sensorListener.getMagData();
                         bearData = sensorListener.getBearData();
+                        rotData = sensorListener.getRotData();
 
                         // rotationData = sensorListener.getRotationData();
                         // 转化数据
@@ -149,12 +151,14 @@ public class DetectorService extends Service {
                         if (gyroData == null) Log.d(TAG, "gyroNull");
                         if (magData == null) Log.d(TAG, "magNull");
                         if (bearData == null) Log.d(TAG, "bearNull");
+                        if (rotData == null) Log.d(TAG, "rotNull");
 
-                        if (accData != null && gyroData != null && magData != null && bearData != null) {
+                        if (accData != null && gyroData != null && magData != null && bearData != null&&rotData!=null) {
                             ACC[i] = accData;
                             GYRO[i] = gyroData;
                             MAG[i] = magData;
                             BEAR[i] = bearData;
+                            ROT[i] = rotData;
                             i++;
                         }
                         // 如果出現緩衝池空，則停止讀取，等待5s
@@ -167,7 +171,9 @@ public class DetectorService extends Service {
                         }
                     }
                     for (int i_2 = 0; i_2 < windowSize; i_2++) {
-                        outStoreRaw[i_2] = cLabel + "\t" + "\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2]+"\t" + BEAR[i_2];
+                        //outStoreRaw[i_2] = cLabel + "\t" +"q0"+ "\t" +"q1"+ "\t" +"q2"+"\t" +"q3"+ "\t"
+                         //       + ROT[i_2]+"\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2]+"\t" + BEAR[i_2];
+                        outStoreRaw[i_2] = cLabel + "\t" +ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2]+"\t" + BEAR[i_2];
                     }
                     /*
                     // 均值压缩
@@ -456,13 +462,9 @@ public class DetectorService extends Service {
         super.onDestroy();
         sensorListener.closeSensorThread();
         sm.unregisterListener(sensorListener);
-        threadDisable_gps = true;
         threadDisable_sensor = true;
         threadDisable_sensorPackage = true;
-        if (sgps != null) {
-            sgps.closeLocation();
-            sgps = null;
-        }
+
     }
 
     @Override

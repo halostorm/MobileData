@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.ustc.wsn.mydataapp.detectorservice.outputFile;
 import com.ustc.wsn.mydataapp.service.DetectorService;
+import com.ustc.wsn.mydataapp.service.GpsService;
 import com.ustc.wsn.mydataapp.utils.UploadManagers;
 
 import java.util.Timer;
@@ -32,6 +33,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
 
     Boolean isExit = false;
     protected Intent DetectorserviceIntent;
+    protected Intent GpsserviceIntent;
 	private LocationManager loc_int;
 	//private volatile int stateLabel;
 	private DetectorService msgService;
@@ -81,6 +83,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
 		//stateLabel();
         new outputFile();//create data path
         DetectorserviceIntent = new Intent(this, DetectorService.class);
+        GpsserviceIntent = new Intent(this, GpsService.class);
 		//bindService(serviceIntent, conn, Context.BIND_AUTO_CREATE);
 
 	}
@@ -161,6 +164,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
 		switch (view.getId()) {
 			case R.id.btnStartService:
 				startService(DetectorserviceIntent);
+				startService(GpsserviceIntent);
                 serviceStart = true;
                 bindService(DetectorserviceIntent, conn, Context.BIND_AUTO_CREATE);
                 Toast.makeText(this, "服务已启动", Toast.LENGTH_SHORT).show();
@@ -169,6 +173,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 if(serviceStart == true) {
                     unbindService(conn);
                     stopService(DetectorserviceIntent);
+                    stopService(GpsserviceIntent);
                     Toast.makeText(this, "服务已关闭！", Toast.LENGTH_SHORT).show();
                     serviceStart = false;
                     break;

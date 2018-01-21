@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="detector.wsn.ustc.com.mydataapp">
+    package="detector.wsn.ustc.com.mydataapp">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     -
     <application
         android:name="com.ustc.wsn.mydataapp.Application.AppResourceApplication"
@@ -24,28 +23,29 @@
             android:name="com.ustc.wsn.mydataapp.activity.MainActivity"
             android:label="@string/app_name">
             <intent-filter android:priority="1000">
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.ustc.wsn.mydataapp.activity.DetectorActivity" />
 
-        <activity android:name="com.ustc.wsn.mydataapp.activity.DetectorActivity"/>
         <service
             android:name="com.ustc.wsn.mydataapp.service.DetectorService"
             android:enabled="true">
             <intent-filter android:priority="1000">
                 <action android:name="com.ustc.wsn.mydataapp.activity.DetectorActivity" />
             </intent-filter>
-
         </service>
-
-        <service
-            android:name="com.ustc.wsn.mydataapp.service.AutoUploadSeriver">
+        <service android:name="com.ustc.wsn.mydataapp.service.AutoUploadSeriver">
             <intent-filter android:priority="1000">
                 <action android:name="com.ustc.wsn.mydataapp.service.AutoUploadSeriver" />
             </intent-filter>
         </service>
-
+        <service
+            android:name="com.ustc.wsn.mydataapp.service.GpsService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
