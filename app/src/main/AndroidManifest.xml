@@ -45,6 +45,15 @@
         <service
             android:name="com.ustc.wsn.mydataapp.service.GpsService"
             android:enabled="true"
+            android:exported="true" />
+
+        <activity
+            android:name="com.ustc.wsn.mydataapp.activity.SimulationActivity"
+            android:label="@string/title_activity_simulation" />
+
+        <service
+            android:name="com.ustc.wsn.mydataapp.service.ChartService"
+            android:enabled="true"
             android:exported="true"></service>
     </application>
 

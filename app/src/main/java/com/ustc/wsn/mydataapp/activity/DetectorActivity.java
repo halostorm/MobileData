@@ -34,6 +34,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
     Boolean isExit = false;
     protected Intent DetectorserviceIntent;
     protected Intent GpsserviceIntent;
+    protected Intent SimpleActivityIntent;
 	private LocationManager loc_int;
 	//private volatile int stateLabel;
 	private DetectorService msgService;
@@ -69,6 +70,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
 		Button Downstairs =(Button) findViewById(R.id.btnDownstairs);
         Button StopLabel =(Button) findViewById(R.id.btnStopLabel);
         Button StartUpload =(Button) findViewById(R.id.btnStartUpload);
+        Button ViewData = (Button) findViewById(R.id.btnViewData);
 		Static.setOnClickListener(this);
 		Walk.setOnClickListener(this);
 		Run.setOnClickListener(this);
@@ -79,11 +81,13 @@ public class DetectorActivity extends Activity implements OnClickListener {
 		Downstairs.setOnClickListener(this);
         StopLabel.setOnClickListener(this);
         StartUpload.setOnClickListener(this);
+        ViewData.setOnClickListener(this);
 
 		//stateLabel();
         new outputFile();//create data path
         DetectorserviceIntent = new Intent(this, DetectorService.class);
         GpsserviceIntent = new Intent(this, GpsService.class);
+        SimpleActivityIntent = new Intent(this,SimulationActivity.class);
 		//bindService(serviceIntent, conn, Context.BIND_AUTO_CREATE);
 
 	}
@@ -169,6 +173,13 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 bindService(DetectorserviceIntent, conn, Context.BIND_AUTO_CREATE);
                 Toast.makeText(this, "服务已启动", Toast.LENGTH_SHORT).show();
 				break;
+            case R.id.btnViewData:
+                if(serviceStart == true) {
+                    startActivity(SimpleActivityIntent);
+                }
+                else
+                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
+                break;
 			case R.id.btnStopService:
                 if(serviceStart == true) {
                     unbindService(conn);
@@ -257,6 +268,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 if(serviceStart == true) {
                     Toast.makeText(this, "已关闭标记", Toast.LENGTH_SHORT).show();
                     msgService.stateLabel = 0;
+                    //startActivity(SimpleActivityIntent);
                     break;
                 }
                 else

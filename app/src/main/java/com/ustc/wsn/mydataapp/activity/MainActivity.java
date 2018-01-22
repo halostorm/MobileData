@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.text.InputFilter;
@@ -21,10 +20,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-
-import com.ustc.wsn.mydataapp.utils.UploadManagers;
 
 /**
  * Created by chong on 2017/9/6.
@@ -99,6 +94,7 @@ public class MainActivity extends Activity {
                 Toast.makeText(MainActivity.this,"手机号码只能为11位",Toast.LENGTH_SHORT).show();
                 return;
             }
+            //Intent intent=new Intent(MainActivity.this,DetectorActivity.class);
             Intent intent=new Intent(MainActivity.this,DetectorActivity.class);
             intent.putExtra("userId",psw);
             startActivity(intent);

@@ -8,6 +8,11 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="启动服务" />
+    <Button
+        android:id="@+id/btnViewData"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="查看数据曲线" />
 
     <Button
         android:id="@+id/btnStopService"

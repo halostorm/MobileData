@@ -480,6 +480,18 @@ public class DetectorSensorListener implements SensorEventListener {
         return valuesEarth;
     }
 
+    public float[] readAccData(){
+        float values[] = new float[3];
+        if(accNow!=null) {
+            String valuesNow = accNow;
+            String[] accArray = new String[5];
+            accArray = valuesNow.split("\t");
+            values[0] = Float.parseFloat(accArray[0]);
+            values[1] = Float.parseFloat(accArray[1]);
+            values[2] = Float.parseFloat(accArray[2]);
+        }
+        return values;
+    }
     public void calculateOrientation() {
         float[] values = new float[3];
         //float[] R = new float[9];

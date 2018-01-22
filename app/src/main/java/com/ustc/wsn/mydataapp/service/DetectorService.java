@@ -29,7 +29,11 @@ public class DetectorService extends Service {
     protected static final String TAG = null;
     public volatile int stateLabel = 0;
     // private static final boolean false = false;
-    ArrayList<CellInfo> cellIds = null;
+    ArrayList<CellInfo> cellIds = null; private SensorManager sm;
+    private Sensor accelerator;
+    private Sensor gyroscrope;
+    private Sensor magnetic;
+    private DetectorSensorListener sensorListener;
     private static int windowSize = 256;// 256
     private static int sampleSize = 150;// 150
     private boolean threadDisable_sensor = false;
@@ -38,11 +42,7 @@ public class DetectorService extends Service {
     private volatile boolean rawFileReadFlag = false;
 
     private Context mContext = DetectorService.this;
-    private SensorManager sm;
-    private Sensor accelerator;
-    private Sensor gyroscrope;
-    private Sensor magnetic;
-    private DetectorSensorListener sensorListener;
+
     private StoreData sd;
     private String[] ACC = new String[windowSize];
     private String[] GYRO = new String[windowSize];
