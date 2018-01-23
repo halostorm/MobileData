@@ -77,11 +77,12 @@ public class GpsService extends Service {
     @Override
     public void onDestroy() {
         // TODO Auto-generated method stub
-        threadDisable_gps = true;
+        super.onDestroy();
         if (sgps != null) {
             sgps.closeLocation();
             sgps = null;
         }
+        threadDisable_gps = true;
     }
 
     @Override

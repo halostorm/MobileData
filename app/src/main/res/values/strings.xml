@@ -59,4 +59,5 @@
     <string name="title_activity_simple_linear_accelearation">SimpleLinearAccelearationActivity
     </string>
     <string name="title_activity_simulation">SimulationActivity</string>
+    <string name="title_activity_draw_data">DrawData</string>
 </resources>

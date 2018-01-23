@@ -41,6 +41,7 @@ public class DetectorSensorListener implements SensorEventListener {
     private String gyroNow;
     private String magNow;
     private String rotNow;
+    private String LinearaccNow;
     // 当前写入位置
     private int acc_cur;
     private int gyro_cur;
@@ -269,27 +270,29 @@ public class DetectorSensorListener implements SensorEventListener {
 
                     float[] worldData = new float[3];
                     float[] temp = new float[3];
+                    float[] tempL = new float[3];
                     if (AttitudeMode == Attitude_EKF) {
                         worldData = phoneToEarth(ekf.Rot_matrix, event.values);
-                        temp = new float[3];
                         temp[0] = worldData[1];
                         temp[1] = worldData[0];
                         temp[2] = -worldData[2];
                     }
                     if (AttitudeMode == Attitude_ANDROID) {
                         worldData = phoneToEarth(DCM, linear_acceleration);
+                        tempL = worldData.clone();
+                        worldData = phoneToEarth(DCM, event.values);
                         temp = worldData.clone();
                     }
                     if (AttitudeMode == Attitude_FCF) {
                         //worldData = phoneToEarth(DCM, event.values);
                         worldData = fcf.translate_to_BODY(fcf.q_est, event.values);
-                        temp = new float[3];
                         temp[0] = worldData[1];
                         temp[1] = worldData[0];
                         temp[2] = -worldData[2];
                     }
                     //Log.d(TAG,"accRaw:"+String.valueOf(event.values[2]));
-                    this.accNow = (new AcceleratorData(temp)).toString();
+                    this.LinearaccNow = (new AcceleratorData(tempL)).toString();
+                    this.accNow =(new AcceleratorData(temp)).toString();
                 }
                 break;
             case Sensor.TYPE_GYROSCOPE:
@@ -480,6 +483,19 @@ public class DetectorSensorListener implements SensorEventListener {
         return valuesEarth;
     }
 
+    public float[] readLinearAccData(){
+        float values[] = new float[3];
+        if(LinearaccNow!=null) {
+            String valuesNow = LinearaccNow;
+            String[] accArray = new String[5];
+            accArray = valuesNow.split("\t");
+            values[0] = Float.parseFloat(accArray[0]);
+            values[1] = Float.parseFloat(accArray[1]);
+            values[2] = Float.parseFloat(accArray[2]);
+        }
+        return values;
+    }
+
     public float[] readAccData(){
         float values[] = new float[3];
         if(accNow!=null) {
@@ -492,6 +508,34 @@ public class DetectorSensorListener implements SensorEventListener {
         }
         return values;
     }
+
+    public float[] readGyroData(){
+        float values[] = new float[3];
+        if(gyroNow!=null) {
+            String valuesNow = gyroNow;
+            String[] accArray = new String[5];
+            accArray = valuesNow.split("\t");
+            values[0] = Float.parseFloat(accArray[0]);
+            values[1] = Float.parseFloat(accArray[1]);
+            values[2] = Float.parseFloat(accArray[2]);
+        }
+        return values;
+    }
+
+    public float[] readMagData(){
+        float values[] = new float[3];
+        if(magNow!=null) {
+            String valuesNow = magNow;
+            String[] accArray = new String[5];
+            accArray = valuesNow.split("\t");
+            values[0] = Float.parseFloat(accArray[0]);
+            values[1] = Float.parseFloat(accArray[1]);
+            values[2] = Float.parseFloat(accArray[2]);
+        }
+        return values;
+    }
+
+
     public void calculateOrientation() {
         float[] values = new float[3];
         //float[] R = new float[9];

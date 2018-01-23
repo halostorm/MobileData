@@ -26,6 +26,7 @@ import org.achartengine.GraphicalView;
 import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
 import com.ustc.wsn.mydataapp.detectorservice.DetectorSensorListener;
 import com.ustc.wsn.mydataapp.service.ChartService;
+
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
@@ -36,10 +37,12 @@ import android.widget.LinearLayout;
 
 public class SimulationActivity extends Activity {
 
-    private LinearLayout mLeftCurveLayout;//存放左图表的布局容器
-    private LinearLayout mRightCurveLayout;//存放右图表的布局容器
-    private GraphicalView mView, mView2;//左右图表
-    private ChartService mService, mService2;
+    private LinearLayout accCurveLayout;//存放左图表的布局容器
+    private LinearLayout linearaccCurveLayout;//存放右图表的布局容器
+    private LinearLayout gyroCurveLayout;//存放右图表的布局容器
+    private LinearLayout magCurveLayout;//存放右图表的布局容器
+    private GraphicalView accView, gyroView, linearaccView, magView;//左右图表
+    private ChartService accService, linearService, gyroSeivice, magService;
     private Timer timer;
     private SensorManager sm;
     private Sensor accelerator;
@@ -47,28 +50,44 @@ public class SimulationActivity extends Activity {
     private Sensor magnetic;
     private DetectorSensorListener sensorListener;
     private float[] LinearAccData;
+    private float[] AccData;
+    private float[] GyroData;
+    private float[] MagData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_simulation2);
+        setContentView(R.layout.activity_simulation);
 
-        mLeftCurveLayout = (LinearLayout) findViewById(R.id.left_temperature_curve);
-        mRightCurveLayout = (LinearLayout) findViewById(R.id.right_temperature_curve);
+        linearaccCurveLayout = (LinearLayout) findViewById(R.id.linear_acc_curve);
+        accCurveLayout = (LinearLayout) findViewById(R.id.acc_curve);
+        gyroCurveLayout = (LinearLayout) findViewById(R.id.gyro_curve);
+        magCurveLayout = (LinearLayout) findViewById(R.id.mag_curve);
 
-        mService = new ChartService(this);
-        mService.setXYMultipleSeriesDataset("加速度曲线");
-        mService.setXYMultipleSeriesRenderer(100, 100, "加速度", "时间", "m2/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.BLACK);
-        mView = mService.getGraphicalView();
+        accService = new ChartService(this);
+        accService.setXYMultipleSeriesDataset("AccX","AccY","AccZ");
+        accService.setXYMultipleSeriesRenderer(8, 30, "加速度", "时间 /s", "m2/s", Color.BLACK, Color.BLACK, Color.BLUE,Color.GREEN,Color.RED, Color.BLACK);
+        accView = accService.getGraphicalView();
 
-        mService2 = new ChartService(this);
-        mService2.setXYMultipleSeriesDataset("线性加速度曲线");
-        mService2.setXYMultipleSeriesRenderer(100, 100, "线性加速度", "时间", "m2/", Color.BLACK, Color.BLACK, Color.BLUE, Color.BLACK);
-        mView2 = mService2.getGraphicalView();
+        linearService = new ChartService(this);
+        linearService.setXYMultipleSeriesDataset("LinearAccX","LinearAccY","LinearAccZ");
+        linearService.setXYMultipleSeriesRenderer(8, 20, "线性加速度", "时间 /s", "m2/", Color.BLACK, Color.BLACK, Color.BLUE,Color.GREEN,Color.RED, Color.BLACK);
+        linearaccView = linearService.getGraphicalView();
 
+        gyroSeivice = new ChartService(this);
+        gyroSeivice.setXYMultipleSeriesDataset("GyroX","GyroY","GyroZ");
+        gyroSeivice.setXYMultipleSeriesRenderer(8, 20, "陀螺仪", "时间 /s", "rad/s", Color.BLACK, Color.BLACK, Color.BLUE,Color.GREEN,Color.RED, Color.BLACK);
+        gyroView = gyroSeivice.getGraphicalView();
+
+        magService = new ChartService(this);
+        magService.setXYMultipleSeriesDataset("MagX","MagY","MagZ");
+        magService.setXYMultipleSeriesRenderer(8, 50, "磁力计", "时间 /s", "uT", Color.BLACK, Color.BLACK, Color.BLUE,Color.GREEN,Color.RED, Color.BLACK);
+        magView = magService.getGraphicalView();
         //将左右图表添加到布局容器中
-        mLeftCurveLayout.addView(mView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        mRightCurveLayout.addView(mView2, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        accCurveLayout.addView(accView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        linearaccCurveLayout.addView(linearaccView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        gyroCurveLayout.addView(gyroView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        magCurveLayout.addView(magView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         initSensor();
         LinearAccData = new float[3];
@@ -78,24 +97,28 @@ public class SimulationActivity extends Activity {
             public void run() {
                 handler.sendMessage(handler.obtainMessage());
             }
-        }, 1, 50);
+        }, 5, 40);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_detector, menu);
+        //getMenuInflater().inflate(R.menu.activity_detector, menu);
         return true;
     }
 
-    private int t = 0;
     private Handler handler = new Handler() {
         @Override
         //定时更新图表
         public void handleMessage(Message msg) {
-            LinearAccData = sensorListener.readAccData();
-            mService.updateChart(t, Math.random() * 100);
-            mService2.updateChart(t, LinearAccData[0] * 100);
-            t += 5;
+            LinearAccData = sensorListener.readLinearAccData();
+            AccData = sensorListener.readAccData();
+            GyroData = sensorListener.readGyroData();
+            MagData = sensorListener.readMagData();
+
+            accService.rightUpdateChart(AccData[0],AccData[1],AccData[2]);
+            gyroSeivice.rightUpdateChart(GyroData[0],GyroData[1],GyroData[2]);
+            magService.rightUpdateChart(MagData[0],MagData[1],MagData[2]);
+            linearService.rightUpdateChart(LinearAccData[0],LinearAccData[1],LinearAccData[2]);
         }
     };
 
@@ -119,6 +142,8 @@ public class SimulationActivity extends Activity {
         if (timer != null) {
             timer.cancel();
         }
+        sensorListener.closeSensorThread();
+        sm.unregisterListener(sensorListener);
     }
 
 }

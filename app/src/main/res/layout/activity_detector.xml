@@ -77,33 +77,5 @@
         android:text="关闭标记" />
 
 
-</LinearLayout><!-- <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" -->
-<!-- xmlns:tools="http://schemas.android.com/tools" -->
-<!-- android:layout_width="match_parent" -->
-<!-- android:layout_height="match_parent" -->
-<!-- tools:context=".Detector" > -->
-
-
-<!-- <TextView -->
-<!-- android:id="@+id/accX" -->
-<!-- android:layout_width="wrap_content" -->
-<!-- android:layout_height="wrap_content" -->
-<!-- android:layout_centerHorizontal="true" -->
-<!-- android:layout_centerVertical="true" -->
-<!-- android:text="@string/hello_world" /> -->
-<!-- <TextView -->
-<!-- android:id="@+id/accY" -->
-<!-- android:layout_width="wrap_content" -->
-<!-- android:layout_height="wrap_content" -->
-<!-- android:layout_centerHorizontal="true" -->
-<!-- android:layout_centerVertical="true" -->
-<!-- android:text="@string/hello_world" /> -->
-<!-- <TextView -->
-<!-- android:id="@+id/accZ" -->
-<!-- android:layout_width="wrap_content" -->
-<!-- android:layout_height="wrap_content" -->
-<!-- android:layout_centerHorizontal="true" -->
-<!-- android:layout_centerVertical="true" -->
-<!-- android:text="@string/hello_world" /> -->
-<!-- </RelativeLayout> -->
+</LinearLayout>
 

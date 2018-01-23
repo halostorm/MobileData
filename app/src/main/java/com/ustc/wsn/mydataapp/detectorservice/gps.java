@@ -113,6 +113,9 @@ public class gps {
 				lm.removeUpdates(locationListener);
 				locationListener = null;
 			}
+			if(listener !=null) {
+				lm.removeGpsStatusListener(listener);
+			}
 			lm = null;
 		}
 	}
