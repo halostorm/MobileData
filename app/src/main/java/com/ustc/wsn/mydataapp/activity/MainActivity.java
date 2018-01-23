@@ -81,7 +81,6 @@ public class MainActivity extends Activity {
     }
 
 
-
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {

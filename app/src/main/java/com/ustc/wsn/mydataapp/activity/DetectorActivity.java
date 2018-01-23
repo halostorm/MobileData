@@ -286,7 +286,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                     psw=intent.getStringExtra("userId");
                     //Toast.makeText(DetectorActivity.this,psw,Toast.LENGTH_SHORT).show();
                     UploadManagers.initAutoUploadSeriver(DetectorActivity.this,
-                            Environment.getExternalStorageDirectory().getPath() + "/MyDataApp",psw);
+                            Environment.getExternalStorageDirectory().getPath() + "/MobileData",psw);
                 } else if (netType == ConnectivityManager.TYPE_MOBILE) {
                     Toast.makeText(DetectorActivity.this,"为避免数据流量消耗，请切换至Wifi再上传",Toast.LENGTH_SHORT).show();
                 }

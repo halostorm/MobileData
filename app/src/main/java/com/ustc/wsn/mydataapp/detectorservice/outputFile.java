@@ -35,14 +35,14 @@ public class outputFile {
 		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 			sdCardDir = Environment.getExternalStorageDirectory();// 获取SDCard目录
 			current_time = System.currentTimeMillis();
-			String dirPath = sdCardDir.getPath() + "/MyDataApp/" + "Data" + TimeUtil.getTime_name(current_time);
+			String dirPath = sdCardDir.getPath() + "/MobileData/" + "Data" + TimeUtil.getTime_name(current_time);
 			dir = new File(dirPath);
 			if (!dir.exists())
 				dir.mkdirs();
 			// Log.i("创建存储目录", "--------------------");
 		} else {
 			File temp = Environment.getDataDirectory();
-			dir = new File(temp + "/MyDataApp/" + "Data" + TimeUtil.getTime_name(current_time));
+			dir = new File(temp + "/MobileData/" + "Data" + TimeUtil.getTime_name(current_time));
 		}
 
 	}
