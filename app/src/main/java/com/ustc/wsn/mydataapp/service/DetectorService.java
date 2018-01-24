@@ -17,19 +17,25 @@ import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
 import com.ustc.wsn.mydataapp.bean.CellInfo;
 import com.ustc.wsn.mydataapp.bean.StoreData;
 import com.ustc.wsn.mydataapp.detectorservice.DetectorSensorListener;
-import com.ustc.wsn.mydataapp.detectorservice.gps;
 import com.ustc.wsn.mydataapp.utils.z7Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class DetectorService extends Service {
+import com.ustc.wsn.mydataapp.bean.PhoneState;
 
-    protected static final String TAG = null;
+public class DetectorService extends Service {
+    private static int PHONE_STATE;
+
+    private final float ACC_STATIC_THRESHOLD = 0.1f;
+    private final float GYRO_STATIC_THRESHOLD = 0.1f;
+
+    protected final String TAG = DetectorService.this.toString();
     public volatile int stateLabel = 0;
     // private static final boolean false = false;
-    ArrayList<CellInfo> cellIds = null; private SensorManager sm;
+    ArrayList<CellInfo> cellIds = null;
+    private SensorManager sm;
     private Sensor accelerator;
     private Sensor gyroscrope;
     private Sensor magnetic;
@@ -49,6 +55,9 @@ public class DetectorService extends Service {
     private String[] MAG = new String[windowSize];
     private String[] ROT = new String[windowSize];
     private String[] BEAR = new String[windowSize];
+
+    private float[] accSample = new float[windowSize];
+    private float[] gyroSample = new float[windowSize];
 
     /**
      * 返回一个Binder对象
@@ -137,9 +146,13 @@ public class DetectorService extends Service {
                     String bearData;
                     String rotData;
 
+                    float[] accS = new float[3];
+                    float[] gyroS = new float[3];
+                    float[] magS = new float[3];
+
                     int cLabel = stateLabel;
                     while (i < windowSize) {
-                        accData = sensorListener.getAccData();
+                        accData = sensorListener.getLinearAccData();
                         gyroData = sensorListener.getGyroData();
                         magData = sensorListener.getMagData();
                         bearData = sensorListener.getBearData();
@@ -153,14 +166,32 @@ public class DetectorService extends Service {
                         if (bearData == null) Log.d(TAG, "bearNull");
                         if (rotData == null) Log.d(TAG, "rotNull");
 
-                        if (accData != null && gyroData != null && magData != null && bearData != null&&rotData!=null) {
+                        if (accData != null && gyroData != null && magData != null && bearData != null && rotData != null) {
                             ACC[i] = accData;
                             GYRO[i] = gyroData;
                             MAG[i] = magData;
                             BEAR[i] = bearData;
                             ROT[i] = rotData;
+
+
+                            //recognise static and move
+                            String valuesNow = accData;
+                            String[] Array = new String[5];
+                            Array = valuesNow.split("\t");
+                            accS[0] = Float.parseFloat(Array[1]);
+                            accS[1] = Float.parseFloat(Array[2]);
+                            accS[2] = Float.parseFloat(Array[3]);
+                            accSample[i] = (float) Math.sqrt(accS[0] * accS[0] + accS[1] * accS[1] + accS[2] * accS[2]);
+
+                            valuesNow = gyroData;
+                            Array = valuesNow.split("\t");
+                            gyroS[0] = Float.parseFloat(Array[0]);
+                            gyroS[1] = Float.parseFloat(Array[1]);
+                            gyroS[2] = Float.parseFloat(Array[2]);
+                            gyroSample[i] = (float) Math.sqrt(gyroS[0] * gyroS[0] + gyroS[1] * gyroS[1] + gyroS[2] * gyroS[2]);
                             i++;
                         }
+
                         // 如果出現緩衝池空，則停止讀取，等待5s
                         else {
                             try {
@@ -169,11 +200,28 @@ public class DetectorService extends Service {
                                 e.printStackTrace();
                             }
                         }
+
                     }
                     for (int i_2 = 0; i_2 < windowSize; i_2++) {
                         //outStoreRaw[i_2] = cLabel + "\t" +"q0"+ "\t" +"q1"+ "\t" +"q2"+"\t" +"q3"+ "\t"
-                         //       + ROT[i_2]+"\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2]+"\t" + BEAR[i_2];
-                        outStoreRaw[i_2] = cLabel + "\t" +ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2]+"\t" + BEAR[i_2];
+                        //       + ROT[i_2]+"\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2]+"\t" + BEAR[i_2];
+                        outStoreRaw[i_2] = cLabel + "\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2] + "\t" + BEAR[i_2];
+                    }
+                    float accSTD = getStdVar(accSample);
+                    float gyroSTD = getStdVar(gyroSample);
+                    float accMean = getMean(accSample);
+                    float gyroMean = getMean(gyroSample);
+                    /*
+                    Log.i(TAG, "accSTD:" + String.valueOf(accSTD));
+                    Log.i(TAG, "accMean:" + String.valueOf(accMean));
+                    Log.i(TAG, "gyroSTD:" + String.valueOf(gyroSTD));
+                    Log.i(TAG, "gyroMean:" + String.valueOf(gyroMean));
+                    */
+                    if (accSTD < ACC_STATIC_THRESHOLD && gyroSTD < GYRO_STATIC_THRESHOLD && accMean < ACC_STATIC_THRESHOLD && gyroMean < GYRO_STATIC_THRESHOLD) {
+                        sensorListener.setPhoneState(PhoneState.ABSOLUTE_STATIC_STATE);
+                    }
+                    else{
+                        sensorListener.setPhoneState(PhoneState.UNKONW_STATE);
                     }
                     /*
                     // 均值压缩
@@ -357,10 +405,10 @@ public class DetectorService extends Service {
                     // File inputFileCombine = sd.getCombineDataFile();
 
                     if (inputFileRaw.length() > 5 * 1024 * 1024) {
-                        Log.d(TAG, "begin");
+                        ///Log.d(TAG, "begin");
                         File outputFile = sd.getz7RawDataFile();//当前7z文件
                         sd.getNewz7RawDataFile();//创建新的7z文件备下次使用
-                        Log.d(TAG, "package");
+                        //Log.d(TAG, "package");
                         String inputPath = inputFileRaw.getPath();
                         String outputPath = outputFile.getPath();
                         rawFileReadFlag = true;

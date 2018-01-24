@@ -13,11 +13,13 @@ import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
 import com.ustc.wsn.mydataapp.bean.AcceleratorData;
 import com.ustc.wsn.mydataapp.bean.GyroData;
 import com.ustc.wsn.mydataapp.bean.MagnetData;
-import com.ustc.wsn.mydataapp.utils.TimeUtil;
+import com.ustc.wsn.mydataapp.bean.PhoneState;
 
 public class DetectorSensorListener implements SensorEventListener {
-
+    private static int PHONE_STATE=PhoneState.UNKONW_STATE;
     private final String TAG = DetectorSensorListener.this.toString();
+    private static float GRAVITY = 9.81f;
+    private float square_GRAVITY = 0;
     private static final int Attitude_ANDROID = 1;
     private static final int Attitude_EKF = 2;
     private static final int Attitude_FCF = 3;
@@ -31,7 +33,7 @@ public class DetectorSensorListener implements SensorEventListener {
     private  boolean initDataPass = false;
     private final int Data_Size = 10000;// sensor 缓冲池大小为1000
 
-    private String[] accData;
+    private String[] LinearaccData;
     private String[] gyroData;
     private String[] magData;
     private String[] bearData;
@@ -43,13 +45,13 @@ public class DetectorSensorListener implements SensorEventListener {
     private String rotNow;
     private String LinearaccNow;
     // 当前写入位置
-    private int acc_cur;
+    private int LinearAcc_cur;
     private int gyro_cur;
     private int mag_cur;
     private int bear_cur;
     private int rot_cur;
     // 当前读取位置
-    private int acc_old;
+    private int LinearAcc_old;
     private int gyro_old;
     private int mag_old;
     private int bear_old;
@@ -69,6 +71,10 @@ public class DetectorSensorListener implements SensorEventListener {
     private LPF_I gyroLPF;
     private LPF_I magLPF;
 
+    private MeanFilter accMF;
+    private MeanFilter gyroMF;
+    private MeanFilter magMF;
+
     private EKF ekf;
     private ekfParams ekfP;
     private ekfParamsHandle ekfPH;
@@ -84,12 +90,12 @@ public class DetectorSensorListener implements SensorEventListener {
     public DetectorSensorListener(AppResourceApplication resource) {
         // TODO Auto-generated constructor stub
         super();
-        acc_cur = 0;
+        LinearAcc_cur = 0;
         gyro_cur = 0;
         mag_cur = 0;
         rot_cur = 0;
 
-        accData = new String[Data_Size];
+        LinearaccData = new String[Data_Size];
         gyroData = new String[Data_Size];
         magData = new String[Data_Size];
         bearData = new String[Data_Size];
@@ -102,6 +108,10 @@ public class DetectorSensorListener implements SensorEventListener {
         accLPF= new LPF_I();
         gyroLPF = new LPF_I();
         magLPF = new LPF_I();
+
+        accMF= new MeanFilter();
+        gyroMF = new MeanFilter();
+        magMF =new MeanFilter();
 
         linear_acceleration = new float[3];
         gpsBear = new String();
@@ -218,12 +228,12 @@ public class DetectorSensorListener implements SensorEventListener {
                         initDataPass=true;
                     }
                     if(initDataPass) {
-                        setAccData();
+                        setLinearAccData();
                         setGyroData();
                         setMagData();
                         setRotData();
 
-                        gpsBear = gps.getCurrentBear();
+                        gpsBear = DetectorLocationListener.getCurrentBear();
                         if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
                             //Log.d(TAG, "GPS__bear：" + gpsBear);
                             setBearData(gpsBear);
@@ -239,6 +249,9 @@ public class DetectorSensorListener implements SensorEventListener {
 
     }
 
+    public void setPhoneState(int state){
+        this.PHONE_STATE = state;
+    }
     public void setAttitudeMode(final int Mode) {
         AttitudeMode = Mode;
     }
@@ -256,16 +269,23 @@ public class DetectorSensorListener implements SensorEventListener {
         switch (event.sensor.getType()) {
             case Sensor.TYPE_ACCELEROMETER:
                 if (event.values != null) {
+                    square_GRAVITY = (float)Math.sqrt(event.values[0]*event.values[0]
+                            +event.values[1]*event.values[1]+event.values[2]*event.values[2]);
+                    if(PHONE_STATE == PhoneState.ABSOLUTE_STATIC_STATE){
+                        GRAVITY = square_GRAVITY;
+                    }
                     //Log.d(TAG,"acc:"+accNow);
                     /*
                     gravityOri[0] = alpha * gravityOri[0] + (1 - alpha) * event.values[0];
                     gravityOri[1] = alpha * gravityOri[1] + (1 - alpha) * event.values[1];
                     gravityOri[2] = alpha * gravityOri[2] + (1 - alpha) * event.values[2];
                     */
+                    //gravityOri = accLPF.filter(event.values);
                     gravityOri = accLPF.filter(event.values);
                     linear_acceleration[0] = event.values[0] - gravityOri[0];
                     linear_acceleration[1] = event.values[1] - gravityOri[1];
                     linear_acceleration[2] = event.values[2] - gravityOri[2];
+
                     gravityOriOriNew = true;
 
                     float[] worldData = new float[3];
@@ -278,10 +298,11 @@ public class DetectorSensorListener implements SensorEventListener {
                         temp[2] = -worldData[2];
                     }
                     if (AttitudeMode == Attitude_ANDROID) {
-                        worldData = phoneToEarth(DCM, linear_acceleration);
-                        tempL = worldData.clone();
                         worldData = phoneToEarth(DCM, event.values);
                         temp = worldData.clone();
+                        //worldData = phoneToEarth(DCM, linear_acceleration);
+                        tempL = temp.clone();
+                        tempL[2] = tempL[2] - GRAVITY;
                     }
                     if (AttitudeMode == Attitude_FCF) {
                         //worldData = phoneToEarth(DCM, event.values);
@@ -297,11 +318,7 @@ public class DetectorSensorListener implements SensorEventListener {
                 break;
             case Sensor.TYPE_GYROSCOPE:
                 if (event.values != null) {
-                    /*
-                    gyroOri[0] = event.values[0];
-                    gyroOri[1] = event.values[1];
-                    gyroOri[2] = event.values[2];
-                    */
+                    //gyroOri = gyroLPF.filter(event.values);
                     gyroOri = gyroLPF.filter(event.values);
                     time = System.currentTimeMillis();
                     dt = (time - timeOld) / 1000.0f;
@@ -312,7 +329,6 @@ public class DetectorSensorListener implements SensorEventListener {
 
                     if (AttitudeMode == Attitude_EKF) {
                         worldData = phoneToEarth(ekf.Rot_matrix, event.values);
-                        temp = new float[3];
                         temp[0] = worldData[1];
                         temp[1] = worldData[0];
                         temp[2] = -worldData[2];
@@ -324,7 +340,6 @@ public class DetectorSensorListener implements SensorEventListener {
                     if (AttitudeMode == Attitude_FCF) {
                         //worldData = phoneToEarth(DCM, event.values);
                         worldData = fcf.translate_to_BODY(fcf.q_est, event.values);
-                        temp = new float[3];
                         temp[0] = worldData[1];
                         temp[1] = worldData[0];
                         temp[2] = -worldData[2];
@@ -335,18 +350,13 @@ public class DetectorSensorListener implements SensorEventListener {
                 break;
             case Sensor.TYPE_MAGNETIC_FIELD:
                 if (event.values != null) {
-                    /*
-                    magnetOri[0] = event.values[0];
-                    magnetOri[1] = event.values[1];
-                    magnetOri[2] = event.values[2];
-                    */
+                    //magnetOri = magLPF.filter(event.values);
                     magnetOri = magLPF.filter(event.values);
                     magOriNew = true;
                     float[] worldData = new float[3];
                     float[] temp = new float[3];
                     if (AttitudeMode == Attitude_EKF) {
                         worldData = phoneToEarth(ekf.Rot_matrix, event.values);
-                        temp = new float[3];
                         temp[0] = worldData[1];
                         temp[1] = worldData[0];
                         temp[2] = -worldData[2];
@@ -358,7 +368,6 @@ public class DetectorSensorListener implements SensorEventListener {
                     if (AttitudeMode == Attitude_FCF) {
                         //worldData = phoneToEarth(DCM, event.values);
                         worldData = fcf.translate_to_BODY(fcf.q_est, event.values);
-                        temp = new float[3];
                         temp[0] = worldData[1];
                         temp[1] = worldData[0];
                         temp[2] = -worldData[2];
@@ -375,14 +384,14 @@ public class DetectorSensorListener implements SensorEventListener {
         threadDisable_data_update = true;
     }
 
-    public void setAccData() {
-        if (((acc_cur + 1) % Data_Size != acc_old) && accNow != null) {// 不满
+    public void setLinearAccData() {
+        if (((LinearAcc_cur + 1) % Data_Size != LinearAcc_old) && accNow != null) {// 不满
             if (accNow != null) {
-                this.accData[acc_cur] = System.currentTimeMillis() + "\t" + accNow;
+                this.LinearaccData[LinearAcc_cur] = System.currentTimeMillis() + "\t" + LinearaccNow;
             } else {
-                this.accData[acc_cur] = null;
+                this.LinearaccData[LinearAcc_cur] = null;
             }
-            acc_cur = (acc_cur + 1) % Data_Size;
+            LinearAcc_cur = (LinearAcc_cur + 1) % Data_Size;
         }
     }
 
@@ -436,11 +445,11 @@ public class DetectorSensorListener implements SensorEventListener {
         } else return null;
     }
 
-    public String getAccData() {
-        if (acc_cur != acc_old) { // 不空
-            int i = acc_old;
-            acc_old = (acc_old + 1) % Data_Size;
-            return accData[i];
+    public String getLinearAccData() {
+        if (LinearAcc_cur != LinearAcc_old) { // 不空
+            int i = LinearAcc_old;
+            LinearAcc_old = (LinearAcc_old + 1) % Data_Size;
+            return LinearaccData[i];
         } else return null;
     }
 

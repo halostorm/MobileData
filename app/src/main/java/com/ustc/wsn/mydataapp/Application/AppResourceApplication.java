@@ -13,7 +13,7 @@ import com.ustc.wsn.mydataapp.bean.Data;
 import com.ustc.wsn.mydataapp.bean.GyroData;
 import com.ustc.wsn.mydataapp.bean.LocationData;
 import com.ustc.wsn.mydataapp.bean.MagnetData;
-import com.ustc.wsn.mydataapp.detectorservice.DetectorLocationListener;
+//import com.ustc.wsn.mydataapp.detectorservice.DetectorLocationListener;
 
 import org.xutils.x;
 
@@ -22,7 +22,7 @@ import java.util.Queue;
 
 @SuppressLint("NewApi")
 public class AppResourceApplication extends Application {
-
+/*
 	private static final int SensorDatasSize = 200;
 	private static final float zlimit = 9.0f;
 	private static final float xlimit = 9.0f;
@@ -58,7 +58,7 @@ public class AppResourceApplication extends Application {
 	private float magZSum = 0;
 
 	private LocationManager locationManager;
-	private DetectorLocationListener locationListener;
+	//private DetectorLocationListener locationListener;
 	private Criteria criteria;
 	private Location currentBestLocation;
 
@@ -74,13 +74,14 @@ public class AppResourceApplication extends Application {
 	private boolean sendflag = false;
 
 	private Data data;
-
+*/
 	@Override
 
 	public void onCreate() {
 		// TODO Auto-generated method stub
 		super.onCreate();
-
+	}
+/*
 
 
 		x.Ext.init(this);
@@ -88,7 +89,7 @@ public class AppResourceApplication extends Application {
 //		UploadManagers.initAutoUploadSeriver(this,Environment.getExternalStorageDirectory().getPath() + "/DetectorService/" + "Data","13439070000");
 
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		locationListener = new DetectorLocationListener((AppResourceApplication) getApplicationContext());
+		//locationListener = new DetectorLocationListener((AppResourceApplication) getApplicationContext());
 		criteria = new Criteria();
 		accDatas = new LinkedList<AcceleratorData>();
 		gyroDatas = new LinkedList<GyroData>();
@@ -180,13 +181,13 @@ public class AppResourceApplication extends Application {
 		this.locationManager = locationManager;
 	}
 
-	public DetectorLocationListener getLocationListener() {
-		return locationListener;
-	}
+	//public DetectorLocationListener getLocationListener() {
+	//	return locationListener;
+	//}
 
-	public void setLocationListener(DetectorLocationListener locationListener) {
-		this.locationListener = locationListener;
-	}
+	//public void setLocationListener(DetectorLocationListener locationListener) {
+	//	this.locationListener = locationListener;
+	//}
 
 	public void updateAccData(AcceleratorData accData) {
 		this.data.setAccData(accData);
@@ -272,13 +273,14 @@ public class AppResourceApplication extends Application {
 			// data.setGyroData(gyroData);
 		}
 	}
-
+*/
+/*
 	public void updateCellInfo(CellInfo cellInfo) {
 		this.data.setCellInfo(cellInfo);
 	}
-
-	public void updateLocationData(LocationData locData) {
-		this.data.setLocation(locData);
+*/
+//	public void updateLocationData(LocationData locData) {
+//		this.data.setLocation(locData);
 	}
 /*
 	public boolean roadIsOK(AcceleratorData accData, GyroData gyroData) {
@@ -314,7 +316,7 @@ public class AppResourceApplication extends Application {
 		}
 		return true;
 	}
-*/
+*//*
 	public boolean suddenStop(AcceleratorData accData, GyroData gyroData) {
 		// if(Math.abs(accYSum-accData.getY()*accDatas.size())>ylimit*accDatas.size()){
 		double newdata = Math.pow((accYSum / accDatas.size() - accData.getY()), 2);
@@ -333,15 +335,17 @@ public class AppResourceApplication extends Application {
 			 * ExceptionUtil.EXCEPTION_STOP);
 			 */
 			//accData.setTime(System.currentTimeMillis());
+	/*
 			data.setAccData(accData);
 			// AddMsgToQueue(ExceptionUtil.EXCEPTION_STOP+"\t$\t"+data.toStringExcptLoc(),ExceptionUtil.EXCEPTION_STOP);
 
-			locationManager.requestSingleUpdate(criteria, locationListener, getMainLooper());
+			//locationManager.requestSingleUpdate(criteria, locationListener, getMainLooper());
 			return false;
 		}
 		return true;
 	}
-
+*/
+	/*
 	public boolean suddenShift(AcceleratorData accData, GyroData gyroData) {
 		// if(Math.abs(accXSum-accData.getX()*accDatas.size())>xlimit*accDatas.size()){
 		double newdata = Math.pow((accXSum / accDatas.size() - accData.getX()), 2);
@@ -361,16 +365,18 @@ public class AppResourceApplication extends Application {
 			 * ExceptionUtil.EXCEPTION_SHIFT);
 			 */
 			//accData.setTime(System.currentTimeMillis());
+	/*
 			data.setAccData(accData);
 			// AddMsgToQueue(ExceptionUtil.EXCEPTION_SHIFT+"\t$\t"+data.toStringExcptLoc(),
 			// ExceptionUtil.EXCEPTION_SHIFT);
 
-			locationManager.requestSingleUpdate(criteria, locationListener, getMainLooper());
+			//locationManager.requestSingleUpdate(criteria, locationListener, getMainLooper());
 			return false;
 		}
 		return true;
 	}
-
+*/
+	/*
 	@SuppressLint("ShowToast")
 	public void AddMsgToQueue(String accmsg, int flag) {
 
@@ -400,6 +406,7 @@ public class AppResourceApplication extends Application {
 				// LocationData(currentBestLocation.getLongitude(),
 				// currentBestLocation.getLatitude(),
 				// System.currentTimeMillis(),currentBestLocation.getSpeed());
+	/*
 				exceptionUtil.reportException(1);
 				// return;
 			}
@@ -427,4 +434,4 @@ public class AppResourceApplication extends Application {
 	 * msgCounter + "sendflag" + exceptionUtil.isBusy,
 	 * Toast.LENGTH_SHORT).show(); }
 	 */
-}
+

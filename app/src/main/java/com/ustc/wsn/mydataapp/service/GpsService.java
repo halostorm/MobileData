@@ -7,7 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.ustc.wsn.mydataapp.bean.StoreData;
-import com.ustc.wsn.mydataapp.detectorservice.gps;
+import com.ustc.wsn.mydataapp.detectorservice.DetectorLocationListener;
 
 import java.io.IOException;
 
@@ -15,7 +15,7 @@ public class GpsService extends Service {
     protected static final String TAG = null;
     private GpsService mContext = GpsService.this;
     private StoreData sd;
-    private gps sgps;
+    private DetectorLocationListener sgps;
     private String location;
     private boolean threadDisable_gps = false;
 
@@ -25,7 +25,7 @@ public class GpsService extends Service {
         super.onCreate();
         sd = new StoreData();//create data store class
         location = new String();
-        sgps = new gps(mContext);// start gps
+        sgps = new DetectorLocationListener(mContext);// start gps
         // GPS thread
         Log.d(TAG, "GpsService Begin!");
         new Thread(new Runnable() {

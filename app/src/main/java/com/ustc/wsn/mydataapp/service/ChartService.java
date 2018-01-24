@@ -175,13 +175,13 @@ public class ChartService extends Service {
         }
         // 将旧的点集中x和y的数值取出来放入backup中，并且将x的值加1，造成曲线向右平移的效果
         for (int i = 0; i < length; i++) {
-            Xxv[i] = (float) ((xSeries.getX(i) + 1.f/25.f));
+            Xxv[i] = (float) ((xSeries.getX(i) + 1.f/20.f));
             Xyv[i] = (float) (xSeries.getY(i));
 
-            Yxv[i] = (float) ((ySeries.getX(i) + 1.f/25.f));
+            Yxv[i] = (float) ((ySeries.getX(i) + 1.f/20.f));
             Yyv[i] = (float) (ySeries.getY(i));
 
-            Zxv[i] = (float) ((zSeries.getX(i) + 1.f/25.f));
+            Zxv[i] = (float) ((zSeries.getX(i) + 1.f/20.f));
             Zyv[i] = (float) (zSeries.getY(i));
         }
         // 点集先清空，为了做成新的点集而准备
