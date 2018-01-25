@@ -3,6 +3,7 @@ package com.ustc.wsn.mydataapp.utils;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import com.ustc.wsn.mydataapp.service.AutoUploadSeriver;
 
@@ -14,19 +15,26 @@ import java.util.List;
 
 public class UploadManagers {
 
+    private static  Intent intent;
     private UploadManagers() {
 
     }
-
     public static void initAutoUploadSeriver(Context context, String foldersPath, String userId) {
         if (!isServiceRunning(AutoUploadSeriver.class.getName(),context)) {
-            Intent intent = new Intent(context, AutoUploadSeriver.class);
+            intent = new Intent(context, AutoUploadSeriver.class);
             intent.putExtra("foldersPath",foldersPath);
             intent.putExtra("userId",userId);
+            Toast.makeText(context, "上传开始", Toast.LENGTH_SHORT).show();
             context.startService(intent);
         }
     }
 
+    public static void stopUpload(Context context) {
+        if (isServiceRunning(AutoUploadSeriver.class.getName(),context)) {
+            context.stopService(intent);
+            Toast.makeText(context, "上传停止", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public static boolean isServiceRunning(String serviceClassName , Context context){
 

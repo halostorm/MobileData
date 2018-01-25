@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/background">
+    tools:context="com.ustc.wsn.mydataapp.activity.UploadActivity">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <Button
+            android:id="@+id/btnStartUpload"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:text="开始上传" />
+        <Button
+            android:id="@+id/btnStopUpload"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:text="停止上传" />
+
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

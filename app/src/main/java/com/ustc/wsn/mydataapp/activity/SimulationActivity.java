@@ -6,19 +6,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.app.Activity;
-
-import detector.wsn.ustc.com.mydataapp.R;
-/*
-public class SimulationActivity extends Activity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_simulation2);
-    }
-
-}
-*/
 import java.text.DecimalFormat;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,6 +24,7 @@ import android.view.Menu;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import detector.wsn.ustc.com.mydataapp.R;
 
 public class SimulationActivity extends Activity {
 
@@ -88,22 +76,22 @@ public class SimulationActivity extends Activity {
 
         accService = new ChartService(this);
         accService.setXYMultipleSeriesDataset("AccX", "AccY", "AccZ");
-        accService.setXYMultipleSeriesRenderer(10, 20, "加速度", "时间 /s", "m2/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.GREEN, Color.RED, Color.BLACK);
+        accService.setXYMultipleSeriesRenderer(0,10, -20,30, "加速度", "时间 /s", "m2/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
         accView = accService.getGraphicalView();
 
         linearService = new ChartService(this);
         linearService.setXYMultipleSeriesDataset("LinearAccX", "LinearAccY", "LinearAccZ");
-        linearService.setXYMultipleSeriesRenderer(10, 20, "线性加速度", "时间 /s", "m2/", Color.BLACK, Color.BLACK, Color.BLUE, Color.GREEN, Color.RED, Color.BLACK);
+        linearService.setXYMultipleSeriesRenderer(0,10, -10,10, "线性加速度", "时间 /s", "m2/", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
         linearaccView = linearService.getGraphicalView();
 
         gyroSeivice = new ChartService(this);
         gyroSeivice.setXYMultipleSeriesDataset("GyroX", "GyroY", "GyroZ");
-        gyroSeivice.setXYMultipleSeriesRenderer(10, 10, "陀螺仪", "时间 /s", "rad/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.GREEN, Color.RED, Color.BLACK);
+        gyroSeivice.setXYMultipleSeriesRenderer(0,10, -10,10, "陀螺仪", "时间 /s", "rad/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
         gyroView = gyroSeivice.getGraphicalView();
 
         magService = new ChartService(this);
         magService.setXYMultipleSeriesDataset("MagX", "MagY", "MagZ");
-        magService.setXYMultipleSeriesRenderer(10, 50, "磁力计", "时间 /s", "uT", Color.BLACK, Color.BLACK, Color.BLUE, Color.GREEN, Color.RED, Color.BLACK);
+        magService.setXYMultipleSeriesRenderer(0,10, -70,70, "磁力计", "时间 /s", "uT", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
         magView = magService.getGraphicalView();
         //将左右图表添加到布局容器中
         accCurveLayout.addView(accView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -201,9 +189,9 @@ public class SimulationActivity extends Activity {
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         sensorListener = new DetectorSensorListener((AppResourceApplication) getApplicationContext());
-        sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME);
-        sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME);
-        sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
+        sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_FASTEST);
+        sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
+        sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_FASTEST);
         //sm.registerListener(sensorListener,rotation,SensorManager.SENSOR_DELAY_GAME);
     }
 

@@ -35,9 +35,11 @@ public class DetectorActivity extends Activity implements OnClickListener {
     protected Intent DetectorserviceIntent;
     protected Intent GpsserviceIntent;
     protected Intent SimpleActivityIntent;
+    protected Intent LabelActivityIntent;
+    protected Intent UploadActivityIntent;
 	private LocationManager loc_int;
 	//private volatile int stateLabel;
-	private DetectorService msgService;
+	//private DetectorService msgService;
     private boolean serviceStart = false;
     protected static final String TAG = null;
 	@Override
@@ -55,43 +57,31 @@ public class DetectorActivity extends Activity implements OnClickListener {
 			startActivityForResult(intent, 0);
 			// return;
 		}
-		Button btnStartService = (Button) findViewById(R.id.btnStartService);
-		Button btnStopService = (Button) findViewById(R.id.btnStopService);
-		btnStartService.setOnClickListener(this);
-		btnStopService.setOnClickListener(this);
 
-		Button Static =(Button) findViewById(R.id.btnStatic);
-		Button Walk =(Button) findViewById(R.id.btnWalk);
-		Button Run =(Button) findViewById(R.id.btnRun);
-		Button Elevator =(Button) findViewById(R.id.btnElevator);
-		Button Bike =(Button) findViewById(R.id.btnBike);
-		Button Car =(Button) findViewById(R.id.btnCar);
-		Button Upstairs =(Button) findViewById(R.id.btnUpstairs);
-		Button Downstairs =(Button) findViewById(R.id.btnDownstairs);
-        Button StopLabel =(Button) findViewById(R.id.btnStopLabel);
-        Button StartUpload =(Button) findViewById(R.id.btnStartUpload);
+        Button btnStartService = (Button) findViewById(R.id.btnStartService);
+        Button btnStopService = (Button) findViewById(R.id.btnStopService);
+        btnStartService.setOnClickListener(this);
+        btnStopService.setOnClickListener(this);
+
         Button ViewData = (Button) findViewById(R.id.btnViewData);
-		Static.setOnClickListener(this);
-		Walk.setOnClickListener(this);
-		Run.setOnClickListener(this);
-		Elevator.setOnClickListener(this);
-		Bike.setOnClickListener(this);
-		Car.setOnClickListener(this);
-		Upstairs.setOnClickListener(this);
-		Downstairs.setOnClickListener(this);
-        StopLabel.setOnClickListener(this);
-        StartUpload.setOnClickListener(this);
         ViewData.setOnClickListener(this);
 
-		//stateLabel();
+        Button btnstartLabel = (Button) findViewById(R.id.btnStartLabel);
+        btnstartLabel.setOnClickListener(this);
+
+        Button btnBeginUploadActivity = (Button) findViewById(R.id.btnBeginUploadActivity);
+        btnBeginUploadActivity.setOnClickListener(this);
+
         new outputFile();//create data path
         DetectorserviceIntent = new Intent(this, DetectorService.class);
         GpsserviceIntent = new Intent(this, GpsService.class);
         SimpleActivityIntent = new Intent(this,SimulationActivity.class);
+        LabelActivityIntent = new Intent(this,LabelActivity.class);
+        UploadActivityIntent = new Intent(this,UploadActivity.class);
 		//bindService(serviceIntent, conn, Context.BIND_AUTO_CREATE);
 
 	}
-
+/*
 	ServiceConnection conn = new ServiceConnection() {
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
@@ -102,7 +92,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
 			msgService = ((DetectorService.MsgBinder)service).getService();
 		}
 	};
-
+*/
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -132,13 +122,6 @@ public class DetectorActivity extends Activity implements OnClickListener {
             System.exit(0);
         }
     }
-
-//    @Override
-//    public void onBackPressed() {
-//        Intent home = new Intent(Intent.ACTION_MAIN);
-//        home.addCategory(Intent.CATEGORY_HOME);
-//        startActivity(home);
-//    }
 
 
 	@Override
@@ -170,7 +153,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
 				startService(DetectorserviceIntent);
 				startService(GpsserviceIntent);
                 serviceStart = true;
-                bindService(DetectorserviceIntent, conn, Context.BIND_AUTO_CREATE);
+               // bindService(DetectorserviceIntent, conn, Context.BIND_AUTO_CREATE);
                 Toast.makeText(this, "服务已启动", Toast.LENGTH_SHORT).show();
 				break;
             case R.id.btnViewData:
@@ -182,7 +165,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 break;
 			case R.id.btnStopService:
                 if(serviceStart == true) {
-                    unbindService(conn);
+                   // unbindService(conn);
                     stopService(DetectorserviceIntent);
                     stopService(GpsserviceIntent);
                     Toast.makeText(this, "服务已关闭！", Toast.LENGTH_SHORT).show();
@@ -192,107 +175,20 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 else
                     Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
                 break;
-			case R.id.btnStatic:
+			case R.id.btnStartLabel:
                 if(serviceStart == true) {
-                    msgService.stateLabel = 1;
-                    Toast.makeText(this, "<1>当前状态：静止！", Toast.LENGTH_SHORT).show();
+                    startActivity(LabelActivityIntent);
                     break;
                 }
                 else
                     Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
 				break;
-			case R.id.btnWalk:
-                if(serviceStart == true) {
-                    Toast.makeText(this, "<2> 当前状态：步行", Toast.LENGTH_SHORT).show();
-                    msgService.stateLabel = 2;
-                    break;
-                }
-                else
-                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
-                break;
-			case R.id.btnRun:
-                if(serviceStart == true) {
-                    Toast.makeText(this, "<3> 当前状态：跑步", Toast.LENGTH_SHORT).show();
-                    msgService.stateLabel = 3;
-                    break;
-                }
-                else
-                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
-                break;
-			case R.id.btnElevator:
-                if(serviceStart == true) {
-                    Toast.makeText(this, "<4> 当前状态：乘坐电梯", Toast.LENGTH_SHORT).show();
-                    msgService.stateLabel = 4;
-                    break;
-                }
-                else
-                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
-                break;
-			case R.id.btnBike:
-                if(serviceStart == true) {
-                    Toast.makeText(this, "<5> 当前状态：骑自行车", Toast.LENGTH_SHORT).show();
-                    msgService.stateLabel = 5;
-                    break;
-                }
-                else
-                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
-                break;
-			case R.id.btnCar:
-                if(serviceStart == true) {
-                    Toast.makeText(this, "<6> 当前状态：坐车", Toast.LENGTH_SHORT).show();
-                    msgService.stateLabel = 6;
-                    break;
-                }
-                else
-                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
-                break;
-			case R.id.btnUpstairs:
-                if(serviceStart == true) {
-                    Toast.makeText(this, "<7>当前状态：上楼梯", Toast.LENGTH_SHORT).show();
-                    msgService.stateLabel = 7;
-                    break;
-                }
-                else
-                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
-                break;
-			case R.id.btnDownstairs:
-                if(serviceStart == true) {
-                    Toast.makeText(this, "<8> 当前状态：下楼梯", Toast.LENGTH_SHORT).show();
-                    msgService.stateLabel = 8;
-                    break;
-                }
-                else
-                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.btnStopLabel:
-                if(serviceStart == true) {
-                    Toast.makeText(this, "已关闭标记", Toast.LENGTH_SHORT).show();
-                    msgService.stateLabel = 0;
-                    //startActivity(SimpleActivityIntent);
-                    break;
-                }
-                else
-                    Toast.makeText(this, "请先启动服务", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.btnStartUpload:
-                int netType = getNetworkType();
-                if (netType == -1) {
-                    Toast.makeText(DetectorActivity.this,"请开启网络连接",Toast.LENGTH_SHORT).show();
-                }
-                if (netType == ConnectivityManager.TYPE_WIFI) {
-                    Toast.makeText(DetectorActivity.this,"当前是Wifi连接，请放心使用",Toast.LENGTH_SHORT).show();
-                    String psw = "OK";
-                    Intent intent = this.getIntent();
-                    psw=intent.getStringExtra("userId");
-                    //Toast.makeText(DetectorActivity.this,psw,Toast.LENGTH_SHORT).show();
-                    UploadManagers.initAutoUploadSeriver(DetectorActivity.this,
-                            Environment.getExternalStorageDirectory().getPath() + "/MobileData",psw);
-                } else if (netType == ConnectivityManager.TYPE_MOBILE) {
-                    Toast.makeText(DetectorActivity.this,"为避免数据流量消耗，请切换至Wifi再上传",Toast.LENGTH_SHORT).show();
-                }
+            case R.id.btnBeginUploadActivity:
+                startActivity(UploadActivityIntent);
                 break;
 		}
 	}
+
     private int getNetworkType() {
         ConnectivityManager connectMgr = (ConnectivityManager) this
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -304,75 +200,4 @@ public class DetectorActivity extends Activity implements OnClickListener {
             return -1;
         }
     }
-
-/*
-	public void stateLabel()
-	{
-		Button Static =(Button) findViewById(R.id.btnStatic);
-		Button Walk =(Button) findViewById(R.id.btnWalk);
-		Button Run =(Button) findViewById(R.id.btnRun);
-		Button Elevator =(Button) findViewById(R.id.btnElevator);
-		Button Bike =(Button) findViewById(R.id.btnBike);
-		Button Car =(Button) findViewById(R.id.btnCar);
-		Button Upstairs =(Button) findViewById(R.id.btnUpstairs);
-		Button Downstairs =(Button) findViewById(R.id.btnDownstairs);
-
-		Static.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				msgService.stateLabel = 1;
-			}
-		});
-		Walk.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				msgService.stateLabel = 1;
-			}
-		});
-		Run.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				msgService.stateLabel = 1;
-			}
-		});
-		Elevator.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				msgService.stateLabel = 1;
-			}
-		});
-		Bike.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				msgService.stateLabel = 1;
-			}
-		});
-		Car.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				msgService.stateLabel = 1;
-			}
-		});
-		Upstairs.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				msgService.stateLabel = 1;
-			}
-		});
-		Downstairs.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				msgService.stateLabel = 1;
-			}
-		});
-	}
-	*/
 }

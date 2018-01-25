@@ -9,7 +9,11 @@
 
     <string name="stopService">Stop Service</string>
 
+    <string name="BeginUploadActivity">BeginUploadActivity</string>
+
     <string name="StartUpload">StartUpload</string>
+
+    <string name="StopUpload">StopUpload</string>
 
     <string name="Static">Static</string>
 
@@ -28,6 +32,8 @@
     <string name="DownStairs">DownStairs</string>
 
     <string name="StopLabel">StopLabel</string>
+
+    <string name="StartLabel">StartLabel</string>
 
 
     <string name="action_settings">Settings</string>
@@ -60,4 +66,6 @@
     </string>
     <string name="title_activity_simulation">SimulationActivity</string>
     <string name="title_activity_draw_data">DrawData</string>
+    <string name="title_activity_label">LabelActivity</string>
+    <string name="title_activity_upload">UploadActivity</string>
 </resources>

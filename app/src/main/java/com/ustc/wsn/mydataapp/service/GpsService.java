@@ -27,7 +27,7 @@ public class GpsService extends Service {
         location = new String();
         sgps = new DetectorLocationListener(mContext);// start gps
         // GPS thread
-        Log.d(TAG, "GpsService Begin!");
+        //Log.d(TAG, "GpsService Begin!");
         new Thread(new Runnable() {
             @Override
             public void run() {

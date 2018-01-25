@@ -1,6 +1,7 @@
 package com.ustc.wsn.mydataapp.service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
@@ -14,7 +15,6 @@ import com.ustc.wsn.mydataapp.dao.SQLOperate;
 import com.ustc.wsn.mydataapp.db.MessageDBHelper;
 import com.ustc.wsn.mydataapp.utils.GsonUtils;
 import com.ustc.wsn.mydataapp.utils.MD5Util;
-import com.ustc.wsn.mydataapp.utils.TimeUtil;
 import com.ustc.wsn.mydataapp.utils.z7Test;
 
 import org.xutils.common.Callback;
@@ -34,7 +34,8 @@ import java.util.StringTokenizer;
 
 
 public class AutoUploadSeriver extends Service {
-    protected static final String TAG = null;
+    protected final String TAG = AutoUploadSeriver.this.toString();
+    private static boolean UploadThreadDisabled = false;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -51,6 +52,9 @@ public class AutoUploadSeriver extends Service {
                 case MESSAGE_3:
                     checkExists(mFoldersPath);
                     break;
+                case MESSAGE_0:
+                    //finish();
+                    break;
             }
         }
     };
@@ -58,6 +62,7 @@ public class AutoUploadSeriver extends Service {
 
     private final String PORT_URL = "http://sdkapi.geotmt.com/upload";
 
+    private final int MESSAGE_0 = 0;
     private final int MESSAGE_1 = 1;
 
     private final int MESSAGE_2 = 2;
@@ -68,6 +73,7 @@ public class AutoUploadSeriver extends Service {
 
     private final int FIRST_RUN_DLY_TIME = 5000;
     private final int SCANNING_FILE_CYCLE = 10000;
+    private final int STOP_TIME = 100;
     private List<UploadBean> mUploadBeen = new ArrayList<>();
     private SQLOperate mSqlOperate;
     private List<FileBean> mFileBeans;
@@ -79,6 +85,44 @@ public class AutoUploadSeriver extends Service {
 
     private int mErrorCount;
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        UploadThreadDisabled = false;
+        mFoldersPath = checkNull(intent.getStringExtra("foldersPath"));
+        mUserId = checkNull(intent.getStringExtra("userId"));
+
+        MessageDBHelper dbHelper = new MessageDBHelper(this);
+        mSqlOperate = new SQLOperate(dbHelper);
+        if (mHandler != null) {
+            mHandler.sendEmptyMessageDelayed(MESSAGE_3, FIRST_RUN_DLY_TIME);
+        }
+
+        return START_NOT_STICKY;
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+
+    @Override
+    public void onDestroy() {
+        // TODO Auto-generated method stub
+        super.onDestroy();
+        UploadThreadDisabled = true;
+        if (mHandler != null) {
+            mHandler = null;
+            //Context context = null;
+            //Toast.makeText(context, "已停止", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private void checkFolders(String path) {
         File tempFile = new File(path);
@@ -105,30 +149,28 @@ public class AutoUploadSeriver extends Service {
 
         boolean isAdd = false;
         //check if the file has been upload
-        if (mFileBeans != null && mFileBeans.size() != 0)
-            for (FileBean fileBean : mFileBeans) {
-                if (fileBean.getFileName().equals(file.getName())) {
-                    isAdd = true;
-                    break;
-                }
+        if (mFileBeans != null && mFileBeans.size() != 0) for (FileBean fileBean : mFileBeans) {
+            if (fileBean.getFileName().equals(file.getName())) {
+                isAdd = true;
+                break;
             }
+        }
         if (isAdd) return;
-
+        //Log.d(TAG,"doing");
         if (file.getName().contains("raw") && file.getName().contains(".txt")) {
             //判断文件是否是当前正在写入的文件
             long lastModifiedTime = file.lastModified();
             long currentTime = System.currentTimeMillis();
-            if(currentTime - lastModifiedTime>5*60*60*1000)
-            {
-                Log.d(TAG,file.getPath());
+            if (currentTime - lastModifiedTime > 5 * 60 * 60 * 1000) {
+                //Log.d(TAG,file.getPath());
                 String inputPath = file.getPath();
                 StringTokenizer st = new StringTokenizer(file.getPath(), ".");
                 String z7Name = st.nextToken();
-                File z7Raw = new File(z7Name+"_.7z");
+                File z7Raw = new File(z7Name + "_.7z");
                 String outputPath = z7Raw.getPath();
                 try {
                     z7Test.z7(inputPath, outputPath);
-                    Log.d(TAG,"packdone");
+                    //Log.d(TAG,"packdone");
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -143,10 +185,14 @@ public class AutoUploadSeriver extends Service {
 
     private void checkExists(String path) {
         if (!new File(path).exists()) {
-            mHandler.sendEmptyMessageDelayed(MESSAGE_3, FIRST_RUN_DLY_TIME);
+            if (mHandler != null) {
+                mHandler.sendEmptyMessageDelayed(MESSAGE_3, FIRST_RUN_DLY_TIME);
+            }
             return;
         }
-        mHandler.sendEmptyMessage(MESSAGE_1);
+        if (mHandler != null) {
+            mHandler.sendEmptyMessage(MESSAGE_1);
+        }
     }
 
 
@@ -165,7 +211,9 @@ public class AutoUploadSeriver extends Service {
             public void onSuccess(String json) {
                 UploadJson uploadJson = GsonUtils.fromData(json, UploadJson.class);
                 if (uploadJson.getCode() != 200) {
-                    mHandler.sendEmptyMessageDelayed(MESSAGE_2, FIRST_RUN_DLY_TIME);
+                    if (mHandler != null) {
+                        mHandler.sendEmptyMessageDelayed(MESSAGE_2, FIRST_RUN_DLY_TIME);
+                    }
                     return;
                 }
                 Toast.makeText(AutoUploadSeriver.this, uploadJson.getDescription(), Toast.LENGTH_LONG).show();
@@ -177,7 +225,9 @@ public class AutoUploadSeriver extends Service {
                 if (mUploadBeen.size() > 0) {
                     uploadFile(mUploadBeen.get(0));
                 } else {
-                    mHandler.sendEmptyMessageDelayed(MESSAGE_1, SCANNING_FILE_CYCLE);
+                    if (mHandler != null) {
+                        mHandler.sendEmptyMessageDelayed(MESSAGE_1, SCANNING_FILE_CYCLE);
+                    }
                 }
             }
 
@@ -191,7 +241,9 @@ public class AutoUploadSeriver extends Service {
                     mErrorCount = 0;
                 }
                 mThrowable = throwable;
-                mHandler.sendEmptyMessageDelayed(MESSAGE_2, FIRST_RUN_DLY_TIME);
+                if (mHandler != null) {
+                    mHandler.sendEmptyMessageDelayed(MESSAGE_2, FIRST_RUN_DLY_TIME);
+                }
             }
 
             @Override
@@ -211,55 +263,33 @@ public class AutoUploadSeriver extends Service {
             @Override
             public void run() {
                 try {
-                    uploadFile(mUploadBeen.get(0));
+                    if (UploadThreadDisabled == false) {
+                        uploadFile(mUploadBeen.get(0));
+                    }
                 } catch (Exception e) {
-                    mHandler.sendEmptyMessageDelayed(MESSAGE_2, FIRST_RUN_DLY_TIME);
+                    if (mHandler != null) {
+                        mHandler.sendEmptyMessageDelayed(MESSAGE_2, FIRST_RUN_DLY_TIME);
+                    }
                     e.printStackTrace();
                 }
+                Log.d(TAG, "Uploading");
             }
         });
     }
-
 
     private void checkData() {
         if (mUploadBeen.size() > 0) {
             if (mThread == null || !mThread.isAlive()) (mThread = newThread()).start();
         } else {
-            mHandler.sendEmptyMessageDelayed(MESSAGE_1, SCANNING_FILE_CYCLE);
+            if (mHandler != null) {
+                mHandler.sendEmptyMessageDelayed(MESSAGE_1, SCANNING_FILE_CYCLE);
+            }
         }
     }
-
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-
-        mFoldersPath = checkNull(intent.getStringExtra("foldersPath"));
-        mUserId = checkNull(intent.getStringExtra("userId"));
-
-        MessageDBHelper dbHelper = new MessageDBHelper(this);
-        mSqlOperate = new SQLOperate(dbHelper);
-
-        mHandler.sendEmptyMessageDelayed(MESSAGE_3, FIRST_RUN_DLY_TIME);
-
-        return START_STICKY;
-    }
-
 
     private String checkNull(String text) {
         return text == null ? "" : text;
     }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
 
     public class UploadJson {
 

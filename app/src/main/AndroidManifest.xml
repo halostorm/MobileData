@@ -54,7 +54,14 @@
         <service
             android:name="com.ustc.wsn.mydataapp.service.ChartService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity
+            android:name="com.ustc.wsn.mydataapp.activity.LabelActivity"
+            android:label="@string/title_activity_label" />
+        <activity
+            android:name="com.ustc.wsn.mydataapp.activity.UploadActivity"
+            android:label="@string/title_activity_upload"></activity>
     </application>
 
 </manifest>

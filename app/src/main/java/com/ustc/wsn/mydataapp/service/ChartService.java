@@ -81,14 +81,14 @@ public class ChartService extends Service {
      * @param zcurveColor z曲线颜色
      * @param gridColor  网格颜色
      */
-    public void setXYMultipleSeriesRenderer(double maxX, double maxY, String chartTitle, String xTitle, String yTitle, int axeColor, int labelColor, int xcurveColor,int ycurveColor,int zcurveColor, int gridColor) {
+    public void setXYMultipleSeriesRenderer(double minX, double maxX, double minY, double maxY, String chartTitle, String xTitle, String yTitle, int axeColor, int labelColor, int xcurveColor,int ycurveColor,int zcurveColor, int gridColor) {
         xmultipleSeriesRenderer = new XYMultipleSeriesRenderer();
         if (chartTitle != null) {
             xmultipleSeriesRenderer.setChartTitle(chartTitle);
         }
         xmultipleSeriesRenderer.setXTitle(xTitle);
         xmultipleSeriesRenderer.setYTitle(yTitle);
-        xmultipleSeriesRenderer.setRange(new double[]{0, maxX, -maxY, maxY});//xy轴的范围
+        xmultipleSeriesRenderer.setRange(new double[]{minX, maxX, minY, maxY});//xy轴的范围
         xmultipleSeriesRenderer.setLabelsColor(labelColor);
         xmultipleSeriesRenderer.setXLabels(10);
         xmultipleSeriesRenderer.setYLabels(10);

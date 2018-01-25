@@ -8,9 +8,10 @@
     <!-- Application theme. -->
     -
 
-    <style name="AppTheme" parent="AppBaseTheme">
-        <item name="android:textColorPrimary">@color/black_overlay</item>
+    <style name="AppTheme1" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <item name="android:colorPrimary">@color/mid_red</item>
+        <item name="android:textColorPrimary">@color/black_overlay</item>
     </style>
 
     <style name="FullscreenTheme" parent="AppTheme">

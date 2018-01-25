@@ -28,9 +28,6 @@ import com.ustc.wsn.mydataapp.bean.PhoneState;
 public class DetectorService extends Service {
     private static int PHONE_STATE;
 
-    private final float ACC_STATIC_THRESHOLD = 0.1f;
-    private final float GYRO_STATIC_THRESHOLD = 0.1f;
-
     protected final String TAG = DetectorService.this.toString();
     public volatile int stateLabel = 0;
     // private static final boolean false = false;
@@ -56,15 +53,13 @@ public class DetectorService extends Service {
     private String[] ROT = new String[windowSize];
     private String[] BEAR = new String[windowSize];
 
-    private float[] accSample = new float[windowSize];
-    private float[] gyroSample = new float[windowSize];
-
     /**
      * 返回一个Binder对象
      */
     @Override
     public IBinder onBind(Intent intent) {
-        return new MsgBinder();
+        //return new MsgBinder();
+        return new MyBinder();
     }
 
     public class MsgBinder extends Binder {
@@ -76,6 +71,18 @@ public class DetectorService extends Service {
         public DetectorService getService() {
             return DetectorService.this;
         }
+    }
+
+    public class MyBinder extends Binder {
+        private DetectorService service;
+
+        public MyBinder() {
+            service = DetectorService.this;
+        }
+        public void setLabel(int label){
+            stateLabel = label;
+        }
+
     }
 
     @Override
@@ -146,10 +153,6 @@ public class DetectorService extends Service {
                     String bearData;
                     String rotData;
 
-                    float[] accS = new float[3];
-                    float[] gyroS = new float[3];
-                    float[] magS = new float[3];
-
                     int cLabel = stateLabel;
                     while (i < windowSize) {
                         accData = sensorListener.getLinearAccData();
@@ -172,23 +175,7 @@ public class DetectorService extends Service {
                             MAG[i] = magData;
                             BEAR[i] = bearData;
                             ROT[i] = rotData;
-
-
                             //recognise static and move
-                            String valuesNow = accData;
-                            String[] Array = new String[5];
-                            Array = valuesNow.split("\t");
-                            accS[0] = Float.parseFloat(Array[1]);
-                            accS[1] = Float.parseFloat(Array[2]);
-                            accS[2] = Float.parseFloat(Array[3]);
-                            accSample[i] = (float) Math.sqrt(accS[0] * accS[0] + accS[1] * accS[1] + accS[2] * accS[2]);
-
-                            valuesNow = gyroData;
-                            Array = valuesNow.split("\t");
-                            gyroS[0] = Float.parseFloat(Array[0]);
-                            gyroS[1] = Float.parseFloat(Array[1]);
-                            gyroS[2] = Float.parseFloat(Array[2]);
-                            gyroSample[i] = (float) Math.sqrt(gyroS[0] * gyroS[0] + gyroS[1] * gyroS[1] + gyroS[2] * gyroS[2]);
                             i++;
                         }
 
@@ -207,22 +194,10 @@ public class DetectorService extends Service {
                         //       + ROT[i_2]+"\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2]+"\t" + BEAR[i_2];
                         outStoreRaw[i_2] = cLabel + "\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2] + "\t" + BEAR[i_2];
                     }
-                    float accSTD = getStdVar(accSample);
-                    float gyroSTD = getStdVar(gyroSample);
-                    float accMean = getMean(accSample);
-                    float gyroMean = getMean(gyroSample);
-                    /*
-                    Log.i(TAG, "accSTD:" + String.valueOf(accSTD));
-                    Log.i(TAG, "accMean:" + String.valueOf(accMean));
-                    Log.i(TAG, "gyroSTD:" + String.valueOf(gyroSTD));
-                    Log.i(TAG, "gyroMean:" + String.valueOf(gyroMean));
-                    */
-                    if (accSTD < ACC_STATIC_THRESHOLD && gyroSTD < GYRO_STATIC_THRESHOLD && accMean < ACC_STATIC_THRESHOLD && gyroMean < GYRO_STATIC_THRESHOLD) {
-                        sensorListener.setPhoneState(PhoneState.ABSOLUTE_STATIC_STATE);
-                    }
-                    else{
-                        sensorListener.setPhoneState(PhoneState.UNKONW_STATE);
-                    }
+
+                       // sensorListener.ifABSOLUTE_STATE();
+
+
                     /*
                     // 均值压缩
                     float accMeanX = getMean(accX);
@@ -438,8 +413,8 @@ public class DetectorService extends Service {
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         sensorListener = new DetectorSensorListener((AppResourceApplication) getApplicationContext());
-        sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME);
-        sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME);
+        sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_FASTEST);
+        sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
         sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
         //sm.registerListener(sensorListener,rotation,SensorManager.SENSOR_DELAY_GAME);
     }

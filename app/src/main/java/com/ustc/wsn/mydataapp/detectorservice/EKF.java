@@ -50,7 +50,8 @@ public class EKF {
     public int[] update_vect;
     public float[] DCM ;
     public float[] q;
-    public long dt;
+    public float dt;
+    public long time;
 
 /* Function Declarations */
 //static void AttitudeEKF_init(void);
@@ -67,7 +68,8 @@ public class EKF {
         P_apo = new float[144];
         Q = new float[144];
         Q_not_empty = false;
-        dt = 0l;
+        time = System.currentTimeMillis();
+        dt = 0.f;
 
     /* state vector x has the following entries [ax,ay,az||mx,my,mz||wox,woy,woz||wx,wy,wz]' */
         z_k = new float[]{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 9.81f, 0.2f, -0.2f, 0.2f};

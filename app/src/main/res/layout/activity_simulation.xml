@@ -30,7 +30,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="1dp"
-                        android:text="3D加速度" />
+                        android:text="3D加速度(m2/s)" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -137,7 +137,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="1dp"
-                        android:text="3D线性加速度" />
+                        android:text="3D线性加速度(m2/s)" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -244,7 +244,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="1dp"
-                        android:text="3D角速度" />
+                        android:text="3D角速度(rad/s)" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -351,7 +351,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="1dp"
-                        android:text="3D磁感应强度" />
+                        android:text="3D磁感应强度(uT)" />
                 </RelativeLayout>
 
                 <RelativeLayout
