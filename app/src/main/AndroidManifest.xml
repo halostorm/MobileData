@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="detector.wsn.ustc.com.mydataapp">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -18,7 +19,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:persistent="true"
-        android:theme="@style/AppTheme">
+        android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.MinWidth">
         <activity
             android:name="com.ustc.wsn.mydataapp.activity.MainActivity"
             android:label="@string/app_name">
@@ -61,6 +62,7 @@
             android:label="@string/title_activity_label" />
         <activity
             android:name="com.ustc.wsn.mydataapp.activity.UploadActivity"
+
             android:label="@string/title_activity_upload"></activity>
     </application>
 

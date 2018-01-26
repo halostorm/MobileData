@@ -2,5 +2,46 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <ImageView
+        android:id="@+id/imageview"
+        android:layout_width="192dp"
+        android:layout_height="192dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:contentDescription="login image"
+        android:gravity="center_vertical|center_horizontal|center"
+        android:src="@drawable/ic_launcher1"
+        android:visibility="visible" />
+
+    <EditText
+        android:id="@+id/IdNumber"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="30dp"
+        android:background="@layout/label_round"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:textColorHint="@color/grey"
+        android:textSize="12dp"
+        android:inputType="phone"
+        android:hint="请输入手机号码" />
+    <TextView
+        android:id="@+id/btnlogin"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@layout/label_round"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:textColorHint="@color/grey"
+        android:hint="登录"
+        android:layout_marginBottom="30dp" />
 </LinearLayout>

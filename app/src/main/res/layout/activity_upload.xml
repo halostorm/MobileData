@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/background">
     tools:context="com.ustc.wsn.mydataapp.activity.UploadActivity">
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
@@ -15,12 +14,18 @@
             android:id="@+id/btnStartUpload"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
             android:text="开始上传" />
         <Button
             android:id="@+id/btnStopUpload"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:text="停止上传" />
-
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

@@ -12,6 +12,8 @@ import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.Toast;
 
 import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
 import com.ustc.wsn.mydataapp.bean.CellInfo;
@@ -22,6 +24,7 @@ import com.ustc.wsn.mydataapp.utils.z7Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.ustc.wsn.mydataapp.bean.PhoneState;
 
@@ -30,9 +33,14 @@ public class DetectorService extends Service {
 
     protected final String TAG = DetectorService.this.toString();
     public volatile int stateLabel = 0;
+    private Toast t;
     // private static final boolean false = false;
     ArrayList<CellInfo> cellIds = null;
     private SensorManager sm;
+    private boolean ACCELERATOR_EXIT = false;
+    private boolean GYROSCROPE_EXIT = false;
+    private boolean MAGNETIC_EXIT = false;
+
     private Sensor accelerator;
     private Sensor gyroscrope;
     private Sensor magnetic;
@@ -79,7 +87,8 @@ public class DetectorService extends Service {
         public MyBinder() {
             service = DetectorService.this;
         }
-        public void setLabel(int label){
+
+        public void setLabel(int label) {
             stateLabel = label;
         }
 
@@ -163,11 +172,29 @@ public class DetectorService extends Service {
 
                         // rotationData = sensorListener.getRotationData();
                         // 转化数据
-                        if (accData == null) Log.d(TAG, "accNull");
-                        if (gyroData == null) Log.d(TAG, "gyroNull");
-                        if (magData == null) Log.d(TAG, "magNull");
-                        if (bearData == null) Log.d(TAG, "bearNull");
-                        if (rotData == null) Log.d(TAG, "rotNull");
+                        if (accData == null && ACCELERATOR_EXIT) {
+                            Log.d(TAG, "accNull");
+                        } else if (!ACCELERATOR_EXIT) {
+                            accData = System.currentTimeMillis() + "\t" + "*" + "\t" + "*" + "\t" + "*";
+                        }
+                        if (gyroData == null && GYROSCROPE_EXIT) {
+                            Log.d(TAG, "gyroNull");
+                        } else if (!GYROSCROPE_EXIT) {
+                            gyroData = "*" + "\t" + "*" + "\t" + "*";
+                        }
+                        if (magData == null && MAGNETIC_EXIT) {
+                            Log.d(TAG, "magNull");
+                        } else if (!MAGNETIC_EXIT) {
+                            magData = "*" + "\t" + "*" + "\t" + "*";
+                        }
+                        if (bearData == null && ACCELERATOR_EXIT && GYROSCROPE_EXIT && ACCELERATOR_EXIT) {
+                            Log.d(TAG, "bearNull");
+                        } else if (!ACCELERATOR_EXIT || !GYROSCROPE_EXIT || !ACCELERATOR_EXIT) {
+                            bearData = "*";
+                        }
+                        if (rotData == null && ACCELERATOR_EXIT && GYROSCROPE_EXIT && ACCELERATOR_EXIT) {
+                            Log.d(TAG, "rotNull");
+                        }
 
                         if (accData != null && gyroData != null && magData != null && bearData != null && rotData != null) {
                             ACC[i] = accData;
@@ -195,7 +222,7 @@ public class DetectorService extends Service {
                         outStoreRaw[i_2] = cLabel + "\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2] + "\t" + BEAR[i_2];
                     }
 
-                       // sensorListener.ifABSOLUTE_STATE();
+                    // sensorListener.ifABSOLUTE_STATE();
 
 
                     /*
@@ -409,13 +436,40 @@ public class DetectorService extends Service {
         Log.d("Sensor", "InitSensor Over");
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerator = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if (accelerator != null) {
+            ACCELERATOR_EXIT = true;
+        } else {
+            t = Toast.makeText(this, "您的手机不支持加速度计", Toast.LENGTH_SHORT);
+            t.setGravity(Gravity.CENTER, 0, 0);
+            t.show();
+        }
         gyroscrope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        if (gyroscrope != null) {
+            GYROSCROPE_EXIT = true;
+        } else {
+            t = Toast.makeText(this, "您的手机不支持陀螺仪", Toast.LENGTH_SHORT);
+            t.setGravity(Gravity.CENTER, 0, 0);
+            t.show();
+        }
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        if (magnetic != null) {
+            MAGNETIC_EXIT = true;
+        } else {
+            t = Toast.makeText(this, "您的手机不支持电子罗盘", Toast.LENGTH_SHORT);
+            t.setGravity(Gravity.CENTER, 0, 0);
+            t.show();
+        }
         //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         sensorListener = new DetectorSensorListener((AppResourceApplication) getApplicationContext());
-        sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_FASTEST);
-        sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
-        sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
+        if (ACCELERATOR_EXIT) {
+            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_FASTEST);
+        }
+        if (GYROSCROPE_EXIT) {
+            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
+        }
+        if (MAGNETIC_EXIT) {
+            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
+        }
         //sm.registerListener(sensorListener,rotation,SensorManager.SENSOR_DELAY_GAME);
     }
 

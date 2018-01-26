@@ -1,8 +1,12 @@
 package com.ustc.wsn.mydataapp.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
@@ -15,11 +19,18 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
+import detector.wsn.ustc.com.mydataapp.R;
 
 /**
  * Created by chong on 2017/9/6.
@@ -27,59 +38,32 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
+    @SuppressLint("ResourceAsColor")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
 
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(outMetrics);
         int heightPixels = outMetrics.heightPixels;
-
-        LinearLayout linearLayout = new LinearLayout(this);
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams editViewParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,dpiToPx(50));
-        editViewParams.leftMargin = dpiToPx(30);
-        editViewParams.rightMargin = dpiToPx(30);
-        editViewParams.topMargin = (int) (heightPixels * 0.3f);
-
-        LinearLayout.LayoutParams textViewParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,dpiToPx(50));
-        textViewParams.topMargin = dpiToPx(15);
-        textViewParams.leftMargin = dpiToPx(30);
-        textViewParams.rightMargin = dpiToPx(30);
-
-        GradientDrawable gradientDrawable = new GradientDrawable();
-        gradientDrawable.setColor(Color.WHITE);
-        gradientDrawable.setCornerRadius(dpiToPx(8));
-
-        EditText editText = new EditText(this);
-        editText.setMaxLines(1);
-        editText.setInputType(InputType.TYPE_CLASS_PHONE);
-        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(11)});
-        editText.setWidth(dpiToPx(50));
-        editText.setHintTextColor(0xff888888);
-        editText.setTextSize(14);
-        editText.setBackground(gradientDrawable);
-        editText.setHint("请输入手机号码");
-        editText.setPadding(dpiToPx(20),0,0,0);
-        editText.setGravity(Gravity.CENTER_VERTICAL);
-
-        TextView textView = new TextView(this);
-        textView.setText("登录");
-        textView.setGravity(Gravity.CENTER);
-        textView.setTextSize(15);
-        textView.setBackground(gradientDrawable);
+        EditText editText = (EditText) findViewById(R.id.IdNumber);
+        TextView textView = (TextView) findViewById(R.id.btnlogin);
         textView.setTag(editText);
         textView.setOnClickListener(mOnClickListener);
-
-        linearLayout.addView(editText,editViewParams);
-        linearLayout.addView(textView,textViewParams);
-
-        setContentView(linearLayout);
-
     }
 
+    public static Bitmap getLoacalBitmap(String url) {
+        try {
+            FileInputStream fis = new FileInputStream(url);
+            return BitmapFactory.decodeStream(fis);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override

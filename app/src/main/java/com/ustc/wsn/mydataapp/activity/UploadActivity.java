@@ -8,6 +8,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.Environment;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import detector.wsn.ustc.com.mydataapp.R;
 
 public class UploadActivity extends Activity implements OnClickListener {
 
+    private Toast t;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,9 +41,14 @@ public class UploadActivity extends Activity implements OnClickListener {
             case R.id.btnStartUpload:
                 int netType = getNetworkType();
                 if (netType == -1) {
-                    Toast.makeText(UploadActivity.this,"请开启网络连接",Toast.LENGTH_SHORT).show();
+                    t = Toast.makeText(this, "请开启网络连接", Toast.LENGTH_SHORT);
+                    t.setGravity(Gravity.CENTER, 0, 0);
+                    t.show();
                 }
                 if (netType == ConnectivityManager.TYPE_WIFI) {
+                    t = Toast.makeText(this, "当前是Wifi连接，已开始上传", Toast.LENGTH_SHORT);
+                    t.setGravity(Gravity.CENTER, 0, 0);
+                    t.show();
                     Toast.makeText(UploadActivity.this,"当前是Wifi连接，请放心使用",Toast.LENGTH_SHORT).show();
                     String psw = "OK";
                     Intent intent = this.getIntent();
@@ -50,7 +57,9 @@ public class UploadActivity extends Activity implements OnClickListener {
                     UploadManagers.initAutoUploadSeriver(UploadActivity.this,
                             Environment.getExternalStorageDirectory().getPath() + "/MobileData",psw);
                 } else if (netType == ConnectivityManager.TYPE_MOBILE) {
-                    Toast.makeText(UploadActivity.this,"为避免数据流量消耗，请切换至Wifi再上传",Toast.LENGTH_SHORT).show();
+                    t = Toast.makeText(this, "为避免数据流量消耗，请切换至Wifi再上传", Toast.LENGTH_SHORT);
+                    t.setGravity(Gravity.CENTER, 0, 0);
+                    t.show();
                 }
                 break;
             case R.id.btnStopUpload:

@@ -43,9 +43,7 @@
     <string name="fusion_label">Fusion</string>
     <string name="acceleration_name">Acceleration</string>
     <string name="simple_name">Simple</string>
-    <string name="sensor_name">Sensor</string>
     <string name="developer_url">KircherElectronics.com</string>
-    <string name="log_data_label">Log Data</string>
     <string name="default_value">0.00</string>
     <string name="rms_accel_label">RMS Accel:</string>
     <string name="rms_wiki_label">RMS Wiki:</string>
@@ -68,4 +66,9 @@
     <string name="title_activity_draw_data">DrawData</string>
     <string name="title_activity_label">LabelActivity</string>
     <string name="title_activity_upload">UploadActivity</string>
+    <string name="imageview">MainActivity</string>
+
+    <string name="sensor_name">Sensor</string>
+    <string name="log_data_label">Log Data</string>
+    <string name="action_help">Help</string>
 </resources>

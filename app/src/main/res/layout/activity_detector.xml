@@ -1,36 +1,51 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:background="@mipmap/background">
+    android:orientation="vertical">
 
     <Button
         android:id="@+id/btnStartService"
         android:layout_width="fill_parent"
         android:layout_height="50dp"
-        android:text="启动服务" />
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="10dp"
+        android:text="采集数据" />
 
     <Button
         android:id="@+id/btnStopService"
         android:layout_width="fill_parent"
         android:layout_height="50dp"
-        android:text="停止服务" />
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="10dp"
+        android:text="停止采集" />
 
     <Button
         android:id="@+id/btnViewData"
         android:layout_width="fill_parent"
         android:layout_height="50dp"
-        android:text="查看数据曲线" />
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="10dp"
+        android:text="查看数据视图" />
 
     <Button
         android:id="@+id/btnStartLabel"
         android:layout_width="fill_parent"
         android:layout_height="50dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="10dp"
         android:text="标记数据" />
     <Button
         android:id="@+id/btnBeginUploadActivity"
         android:layout_width="fill_parent"
         android:layout_height="50dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:text="上传数据" />
 
 </LinearLayout>

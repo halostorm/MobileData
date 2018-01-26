@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/background">
     tools:context="com.ustc.wsn.mydataapp.activity.LabelActivity">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -16,6 +15,9 @@
             android:id="@+id/btnStatic"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
             android:text="标记静止" />
 
 
@@ -23,24 +25,36 @@
             android:id="@+id/btnWalk"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
             android:text="标记步行" />
 
         <Button
             android:id="@+id/btnRun"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
             android:text="标记跑步" />
 
         <Button
             android:id="@+id/btnElevator"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
             android:text="标记乘电梯" />
 
         <Button
             android:id="@+id/btnBike"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
             android:text="标记骑自行车" />
 
 
@@ -48,24 +62,37 @@
             android:id="@+id/btnCar"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
             android:text="标记坐车" />
 
         <Button
             android:id="@+id/btnUpstairs"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
             android:text="标记上楼梯" />
 
         <Button
             android:id="@+id/btnDownstairs"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
             android:text="标记下楼梯" />
 
         <Button
             android:id="@+id/btnStopLabel"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:text="停止标记" />
     </LinearLayout>
 

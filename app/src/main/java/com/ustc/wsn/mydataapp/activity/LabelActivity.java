@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
+import android.view.Gravity;
 import android.widget.Button;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
@@ -25,6 +26,7 @@ public class LabelActivity extends Activity implements OnClickListener {
     private DetectorService.MyBinder service;
     private MyConnection conn;
     private Intent DetectorserviceIntent;
+    private Toast t;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,7 @@ public class LabelActivity extends Activity implements OnClickListener {
         public void onServiceConnected(ComponentName name, IBinder binder) {
             service = (DetectorService.MyBinder) binder;
         }
+
         @Override
         public void onServiceDisconnected(ComponentName name) {
 
@@ -74,42 +77,61 @@ public class LabelActivity extends Activity implements OnClickListener {
     @SuppressLint("ShowToast")
     public void onClick(View view) {
         // TODO Auto-generated method stub
-        //Toast.makeText(this, "Start", Toast.LENGTH_LONG);
+        //t = Toast.makeText(this, "Start", Toast.LENGTH_LONG);
         switch (view.getId()) {
             case R.id.btnStatic:
                 service.setLabel(1);
-                Toast.makeText(this, "<1>当前状态：静止！", Toast.LENGTH_SHORT).show();
+                t = Toast.makeText(this, "<1>当前状态：静止！", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
                 break;
             case R.id.btnWalk:
-                Toast.makeText(this, "<2> 当前状态：步行", Toast.LENGTH_SHORT).show();
+                t = Toast.makeText(this, "<2> 当前状态：步行", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
+                ;
                 service.setLabel(2);
                 break;
             case R.id.btnRun:
-                Toast.makeText(this, "<3> 当前状态：跑步", Toast.LENGTH_SHORT).show();
+                t = Toast.makeText(this, "<3> 当前状态：跑步", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
                 service.setLabel(3);
                 break;
             case R.id.btnElevator:
-                Toast.makeText(this, "<4> 当前状态：乘坐电梯", Toast.LENGTH_SHORT).show();
+                t = Toast.makeText(this, "<4> 当前状态：乘坐电梯", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
                 service.setLabel(4);
                 break;
             case R.id.btnBike:
-                Toast.makeText(this, "<5> 当前状态：骑自行车", Toast.LENGTH_SHORT).show();
+                t = Toast.makeText(this, "<5> 当前状态：骑自行车", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
                 service.setLabel(5);
                 break;
             case R.id.btnCar:
-                Toast.makeText(this, "<6> 当前状态：坐车", Toast.LENGTH_SHORT).show();
+                t = Toast.makeText(this, "<6> 当前状态：坐车", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
                 service.setLabel(6);
                 break;
             case R.id.btnUpstairs:
-                Toast.makeText(this, "<7>当前状态：上楼梯", Toast.LENGTH_SHORT).show();
+                t = Toast.makeText(this, "<7>当前状态：上楼梯", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
                 service.setLabel(7);
                 break;
             case R.id.btnDownstairs:
-                Toast.makeText(this, "<8> 当前状态：下楼梯", Toast.LENGTH_SHORT).show();
+                t = Toast.makeText(this, "<8> 当前状态：下楼梯", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
                 service.setLabel(8);
                 break;
             case R.id.btnStopLabel:
-                Toast.makeText(this, "已停止标记", Toast.LENGTH_SHORT).show();
+                t = Toast.makeText(this, "已停止标记", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
                 service.setLabel(0);
                 break;
         }
