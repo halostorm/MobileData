@@ -14,6 +14,9 @@ import android.os.IBinder;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.ustc.wsn.mydataapp.service.DetectorService;
@@ -31,8 +34,8 @@ public class LabelActivity extends Activity implements OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_label);
-
+        setContentView(R.layout.sign_label);
+        /*
         Button Static = (Button) findViewById(R.id.btnStatic);
         Button Walk = (Button) findViewById(R.id.btnWalk);
         Button Run = (Button) findViewById(R.id.btnRun);
@@ -52,10 +55,53 @@ public class LabelActivity extends Activity implements OnClickListener {
         Upstairs.setOnClickListener(this);
         Downstairs.setOnClickListener(this);
         StopLabel.setOnClickListener(this);
-
+        */
         conn = new MyConnection();
         DetectorserviceIntent = new Intent(this, DetectorService.class);
         bindService(DetectorserviceIntent, conn, Context.BIND_AUTO_CREATE);
+
+        Button cofirmLabel = (Button) findViewById(R.id.btncofirmLabel);
+        cofirmLabel.setOnClickListener(this);
+
+        RadioGroup signlabel = (RadioGroup) findViewById(R.id.signLabel);
+        signlabel.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup signlabel, int checkedId) {
+                RadioButton label = (RadioButton) findViewById(checkedId);
+                switch (checkedId){
+                    case R.id.btnStatic:
+                        service.setLabel(1);
+                        break;
+                    case R.id.btnWalk:
+                        service.setLabel(2);
+                        break;
+                    case R.id.btnRun:
+                        service.setLabel(3);
+                        break;
+                    case R.id.btnElevator:
+                        service.setLabel(4);
+                        break;
+                    case R.id.btnBike:
+                        service.setLabel(5);
+                        break;
+                    case R.id.btnCar:
+                        service.setLabel(6);
+                        break;
+                    case R.id.btnUpstairs:
+                        service.setLabel(7);
+                        break;
+                    case R.id.btnDownstairs:
+                        service.setLabel(8);
+                        break;
+                    case R.id.btnStopLabel:
+                        service.setLabel(0);
+                        break;
+                }
+                t = Toast.makeText(getApplicationContext(), "当前标签是:" + label.getText(), Toast.LENGTH_LONG);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
+            }
+        });
     }
 
     public void binderClick(View v) {
@@ -74,6 +120,14 @@ public class LabelActivity extends Activity implements OnClickListener {
         }
     }
 
+    @SuppressLint("ShowToast")
+    public void onClick(View view) {
+        // TODO Auto-generated method stub
+        if(view.getId() == R.id.btncofirmLabel){
+            finish();
+        }
+    }
+/*
     @SuppressLint("ShowToast")
     public void onClick(View view) {
         // TODO Auto-generated method stub
@@ -136,12 +190,14 @@ public class LabelActivity extends Activity implements OnClickListener {
                 break;
         }
     }
+    */
 
     @Override
     protected void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
-        unbindService(conn);
+        if(conn!=null)
+            unbindService(conn);
     }
 
     @Override

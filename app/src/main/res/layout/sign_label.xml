@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:layout_marginLeft="30dp"
+    android:layout_marginRight="30dp"
+    android:layout_marginTop="10dp"
+    android:orientation="vertical">
+
+    <RadioGroup
+        android:id="@+id/signLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/btnStopLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="无标签" />
+
+        <RadioButton
+            android:id="@+id/btnStatic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="静止" />
+
+        <RadioButton
+            android:id="@+id/btnWalk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="步行" />
+
+        <RadioButton
+            android:id="@+id/btnRun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="跑步" />
+
+        <RadioButton
+            android:id="@+id/btnElevator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="乘电梯" />
+
+        <RadioButton
+            android:id="@+id/btnBike"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="骑自行车" />
+
+        <RadioButton
+            android:id="@+id/btnCar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="乘车" />
+
+        <RadioButton
+            android:id="@+id/btnUpstairs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="上楼梯" />
+
+        <RadioButton
+            android:id="@+id/btnDownstairs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下楼梯" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btncofirmLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="确定"></Button>
+</LinearLayout>

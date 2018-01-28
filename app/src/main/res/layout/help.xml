@@ -1,29 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:layout_marginTop="10dp"
     android:gravity="center"
     android:orientation="vertical" >
 
     <ScrollView
         android:id="@+id/ScrollView01"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
         android:fillViewport="true" >
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
             <RelativeLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp" >
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:layout_centerHorizontal="true" >
 
                     <TextView
@@ -33,7 +42,7 @@
                         android:fontFamily="sans-serif-condensed"
                         android:text="@string/app_name"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:textColor="@color/dark_orange" />
+                        android:textColor="@color/dark_orange" />/>
 
                     <TextView
                         android:id="@+id/label_app_description"
@@ -104,7 +113,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_margin="5dp"
-                android:text="\n\n\t\t\t\t\t\t\t\t\t\t如有使用疑问，请联系WenwenDu\n \t\t\t\t\t\t\t\t\tEmail: dwwo@mail.ustc.edu.cn\n \t\t\t\t\t\t\t\t\tTel:18355180339"
+                android:text="\n\n如有使用疑问，请联系WenwenDu\nEmail: dwwo@mail.ustc.edu.cn\n Tel:18355180339"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
         </LinearLayout>
     </ScrollView>
