@@ -37,9 +37,9 @@ public class DetectorService extends Service {
     // private static final boolean false = false;
     ArrayList<CellInfo> cellIds = null;
     private SensorManager sm;
-    private boolean ACCELERATOR_EXIT = false;
-    private boolean GYROSCROPE_EXIT = false;
-    private boolean MAGNETIC_EXIT = false;
+    private boolean ACCELERATOR_EXIST = false;
+    private boolean GYROSCROPE_EXIST = false;
+    private boolean MAGNETIC_EXIST = false;
 
     private Sensor accelerator;
     private Sensor gyroscrope;
@@ -152,9 +152,7 @@ public class DetectorService extends Service {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-
                     int i = 0;
-
                     String[] outStoreRaw = new String[windowSize];
                     String accData;
                     String gyroData;
@@ -168,53 +166,46 @@ public class DetectorService extends Service {
                         gyroData = sensorListener.getGyroData();
                         magData = sensorListener.getMagData();
                         bearData = sensorListener.getBearData();
-                        rotData = sensorListener.getRotData();
+                        //rotData = sensorListener.getRotData();
 
                         // rotationData = sensorListener.getRotationData();
                         // 转化数据
-                        if (accData == null && ACCELERATOR_EXIT) {
-                            Log.d(TAG, "accNull");
-                        } else if (!ACCELERATOR_EXIT) {
-                            accData = System.currentTimeMillis() + "\t" + "*" + "\t" + "*" + "\t" + "*";
-                        }
-                        if (gyroData == null && GYROSCROPE_EXIT) {
-                            Log.d(TAG, "gyroNull");
-                        } else if (!GYROSCROPE_EXIT) {
-                            gyroData = "*" + "\t" + "*" + "\t" + "*";
-                        }
-                        if (magData == null && MAGNETIC_EXIT) {
-                            Log.d(TAG, "magNull");
-                        } else if (!MAGNETIC_EXIT) {
-                            magData = "*" + "\t" + "*" + "\t" + "*";
-                        }
-                        if (bearData == null && ACCELERATOR_EXIT && GYROSCROPE_EXIT && ACCELERATOR_EXIT) {
-                            Log.d(TAG, "bearNull");
-                        } else if (!ACCELERATOR_EXIT || !GYROSCROPE_EXIT || !ACCELERATOR_EXIT) {
-                            bearData = "*";
-                        }
-                        if (rotData == null && ACCELERATOR_EXIT && GYROSCROPE_EXIT && ACCELERATOR_EXIT) {
-                            Log.d(TAG, "rotNull");
-                        }
-
-                        if (accData != null && gyroData != null && magData != null && bearData != null && rotData != null) {
-                            ACC[i] = accData;
-                            GYRO[i] = gyroData;
-                            MAG[i] = magData;
-                            BEAR[i] = bearData;
-                            ROT[i] = rotData;
-                            //recognise static and move
-                            i++;
-                        }
-
-                        // 如果出現緩衝池空，則停止讀取，等待5s
-                        else {
-                            try {
-                                Thread.sleep(5000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                        if (GYROSCROPE_EXIST) {
+                            if (accData != null && gyroData != null && magData != null && bearData != null) {
+                                ACC[i] = accData;
+                                GYRO[i] = gyroData;
+                                MAG[i] = magData;
+                                BEAR[i] = bearData;
+                                //recognise static and move
+                                i++;
+                            }
+                            // 如果出現緩衝池空，則停止讀取，等待5s
+                            else {
+                                try {
+                                    Thread.sleep(5000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } else {
+                            if (accData != null && magData != null && bearData != null) {
+                                gyroData = "-" + "\t" + "-" + "\t" + "-";
+                                ACC[i] = accData;
+                                GYRO[i] = gyroData;
+                                MAG[i] = magData;
+                                BEAR[i] = bearData;
+                                //recognise static and move
+                                i++;
+                            }
+                            // 如果出現緩衝池空，則停止讀取，等待5s
+                            else {
+                                try {
+                                    Thread.sleep(5000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
-
                     }
                     for (int i_2 = 0; i_2 < windowSize; i_2++) {
                         //outStoreRaw[i_2] = cLabel + "\t" +"q0"+ "\t" +"q1"+ "\t" +"q2"+"\t" +"q3"+ "\t"
@@ -389,7 +380,6 @@ public class DetectorService extends Service {
                 }
             }
         }).start();
-
     }
 
     public void sensorDataPackage() throws InterruptedException {
@@ -437,7 +427,7 @@ public class DetectorService extends Service {
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerator = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         if (accelerator != null) {
-            ACCELERATOR_EXIT = true;
+            ACCELERATOR_EXIST = true;
         } else {
             t = Toast.makeText(this, "您的手机不支持加速度计", Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
@@ -445,7 +435,7 @@ public class DetectorService extends Service {
         }
         gyroscrope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         if (gyroscrope != null) {
-            GYROSCROPE_EXIT = true;
+            GYROSCROPE_EXIST = false;
         } else {
             t = Toast.makeText(this, "您的手机不支持陀螺仪", Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
@@ -453,7 +443,7 @@ public class DetectorService extends Service {
         }
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         if (magnetic != null) {
-            MAGNETIC_EXIT = true;
+            MAGNETIC_EXIST = true;
         } else {
             t = Toast.makeText(this, "您的手机不支持电子罗盘", Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
@@ -461,13 +451,13 @@ public class DetectorService extends Service {
         }
         //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         sensorListener = new DetectorSensorListener((AppResourceApplication) getApplicationContext());
-        if (ACCELERATOR_EXIT) {
+        if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_FASTEST);
         }
-        if (GYROSCROPE_EXIT) {
+        if (GYROSCROPE_EXIST) {
             sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
         }
-        if (MAGNETIC_EXIT) {
+        if (MAGNETIC_EXIST) {
             sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
         }
         //sm.registerListener(sensorListener,rotation,SensorManager.SENSOR_DELAY_GAME);

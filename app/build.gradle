@@ -30,4 +30,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.google.code.gson:gson:2.2.4'
     compile files('libs/achartengine-0.7.0.jar')
+    compile files('libs/jmathplot.jar')
+    //compile 'com.github.yannrichet:JMathPlot:1.0.1'
 }

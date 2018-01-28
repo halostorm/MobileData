@@ -30,6 +30,7 @@ import com.ustc.wsn.mydataapp.service.DetectorService;
 import com.ustc.wsn.mydataapp.service.GpsService;
 import com.ustc.wsn.mydataapp.utils.UploadManagers;
 
+import java.lang.reflect.Method;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -67,7 +68,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
             startActivityForResult(intent, 0);
             // return;
         }
-
+          //  就是这一句使图标能显示
         Button btnStartService = (Button) findViewById(R.id.btnStartService);
         Button btnStopService = (Button) findViewById(R.id.btnStopService);
         btnStartService.setOnClickListener(this);
@@ -88,7 +89,6 @@ public class DetectorActivity extends Activity implements OnClickListener {
         SimpleActivityIntent = new Intent(this, SimulationActivity.class);
         LabelActivityIntent = new Intent(this, LabelActivity.class);
         UploadActivityIntent = new Intent(this, UploadActivity.class);
-        showHelpDialog();
     }
 
     private void showHelpDialog() {
@@ -108,8 +108,27 @@ public class DetectorActivity extends Activity implements OnClickListener {
     {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.setting, menu);
+        setIconEnable(menu,true);
         return true;
     }
+
+    private void setIconEnable(Menu menu, boolean enable)
+    {
+        try
+        {
+            Class<?> clazz = Class.forName("com.ustc.wsn.mydataapp.activity.DetectorActivity");
+            Method m = clazz.getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+            m.setAccessible(true);
+
+            //MenuBuilder实现Menu接口，创建菜单时，传进来的menu其实就是MenuBuilder对象(java的多态特征)
+            m.invoke(menu, enable);
+
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
