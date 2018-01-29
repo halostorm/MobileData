@@ -72,5 +72,7 @@
     <string name="log_data_label">Log Data</string>
     <string name="action_help">Help</string>
     <string name="signLabel">signLabel</string>
+    <string name="title_activity_open_gl">OpenGlActivity</string>
+    <string name="Track">Track</string>
 
 </resources>

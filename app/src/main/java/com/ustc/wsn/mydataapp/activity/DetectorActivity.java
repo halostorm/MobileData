@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import com.nulana.nchart3d.example.DifferentCharts.ChartingDemoActivity;
 import com.ustc.wsn.mydataapp.detectorservice.outputFile;
 import com.ustc.wsn.mydataapp.service.DetectorService;
 import com.ustc.wsn.mydataapp.service.GpsService;
@@ -44,6 +45,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
     protected Intent SimpleActivityIntent;
     protected Intent LabelActivityIntent;
     protected Intent UploadActivityIntent;
+    protected  Intent trackActivityIntent;
     private Toast t;
     private LocationManager loc_int;
     //private volatile int stateLabel;
@@ -83,12 +85,16 @@ public class DetectorActivity extends Activity implements OnClickListener {
         Button btnBeginUploadActivity = (Button) findViewById(R.id.btnBeginUploadActivity);
         btnBeginUploadActivity.setOnClickListener(this);
 
+        Button btnTrack = (Button) findViewById(R.id.btnTrack);
+        btnTrack.setOnClickListener(this);
+
         new outputFile();//create data path
         DetectorserviceIntent = new Intent(this, DetectorService.class);
         GpsserviceIntent = new Intent(this, GpsService.class);
         SimpleActivityIntent = new Intent(this, SimulationActivity.class);
         LabelActivityIntent = new Intent(this, LabelActivity.class);
         UploadActivityIntent = new Intent(this, UploadActivity.class);
+        trackActivityIntent = new Intent(this, ChartingDemoActivity.class);
     }
 
     private void showHelpDialog() {
@@ -243,6 +249,8 @@ public class DetectorActivity extends Activity implements OnClickListener {
             case R.id.btnBeginUploadActivity:
                 startActivity(UploadActivityIntent);
                 break;
+            case R.id.btnTrack:
+                startActivity(trackActivityIntent);
         }
     }
 }

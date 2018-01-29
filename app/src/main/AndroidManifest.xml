@@ -12,14 +12,17 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    -
+
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
     <application
         android:name="com.ustc.wsn.mydataapp.Application.AppResourceApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:persistent="true"
-
         android:theme="@android:style/Theme.DeviceDefault.Light">
         <activity
             android:name="com.ustc.wsn.mydataapp.activity.MainActivity"
@@ -30,8 +33,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.ustc.wsn.mydataapp.activity.DetectorActivity"
-            android:label="@string/app_name"/>
+        <activity
+            android:name="com.ustc.wsn.mydataapp.activity.DetectorActivity"
+            android:label="@string/app_name" />
 
         <service
             android:name="com.ustc.wsn.mydataapp.service.DetectorService"
@@ -52,7 +56,7 @@
 
         <activity
             android:name="com.ustc.wsn.mydataapp.activity.SimulationActivity"
-            android:label="传感器视图"/>
+            android:label="传感器视图" />
 
         <service
             android:name="com.ustc.wsn.mydataapp.service.ChartService"
@@ -67,9 +71,15 @@
             android:label="上传数据" />
 
         <service
-            android:name="com.ustc.wsn.mydataapp.activity.TrackService"
+            android:name="com.ustc.wsn.mydataapp.service.TrackService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name="com.nulana.nchart3d.example.DifferentCharts.ChartingDemoActivity"
+            android:label="轨迹"
+            android:launchMode="singleTask"
+            android:configChanges="orientation">
+        </activity>
     </application>
 
 </manifest>

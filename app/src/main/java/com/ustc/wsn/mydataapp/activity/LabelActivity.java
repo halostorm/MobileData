@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
+import android.os.Handler;
 import android.view.Gravity;
 import android.widget.Button;
 import android.annotation.SuppressLint;
@@ -21,6 +22,9 @@ import android.widget.Toast;
 
 import com.ustc.wsn.mydataapp.service.DetectorService;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import detector.wsn.ustc.com.mydataapp.R;
 
 public class LabelActivity extends Activity implements OnClickListener {
@@ -30,32 +34,22 @@ public class LabelActivity extends Activity implements OnClickListener {
     private MyConnection conn;
     private Intent DetectorserviceIntent;
     private Toast t;
+    private Timer timer;
+
+    private RadioButton Static;
+    private RadioButton Walk;
+    private RadioButton Run;
+    private RadioButton Elevator;
+    private RadioButton Bike;
+    private RadioButton Car;
+    private RadioButton Upstairs;
+    private RadioButton Downstairs;
+    private RadioButton StopLabel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_label);
-        /*
-        Button Static = (Button) findViewById(R.id.btnStatic);
-        Button Walk = (Button) findViewById(R.id.btnWalk);
-        Button Run = (Button) findViewById(R.id.btnRun);
-        Button Elevator = (Button) findViewById(R.id.btnElevator);
-        Button Bike = (Button) findViewById(R.id.btnBike);
-        Button Car = (Button) findViewById(R.id.btnCar);
-        Button Upstairs = (Button) findViewById(R.id.btnUpstairs);
-        Button Downstairs = (Button) findViewById(R.id.btnDownstairs);
-        Button StopLabel = (Button) findViewById(R.id.btnStopLabel);
-
-        Static.setOnClickListener(this);
-        Walk.setOnClickListener(this);
-        Run.setOnClickListener(this);
-        Elevator.setOnClickListener(this);
-        Bike.setOnClickListener(this);
-        Car.setOnClickListener(this);
-        Upstairs.setOnClickListener(this);
-        Downstairs.setOnClickListener(this);
-        StopLabel.setOnClickListener(this);
-        */
         conn = new MyConnection();
         DetectorserviceIntent = new Intent(this, DetectorService.class);
         bindService(DetectorserviceIntent, conn, Context.BIND_AUTO_CREATE);
@@ -64,11 +58,54 @@ public class LabelActivity extends Activity implements OnClickListener {
         cofirmLabel.setOnClickListener(this);
 
         RadioGroup signlabel = (RadioGroup) findViewById(R.id.signLabel);
+
+        Static = (RadioButton) findViewById(R.id.btnStatic);
+        Walk = (RadioButton) findViewById(R.id.btnWalk);
+        Run = (RadioButton) findViewById(R.id.btnRun);
+        Elevator = (RadioButton) findViewById(R.id.btnElevator);
+        Bike = (RadioButton) findViewById(R.id.btnBike);
+        Car = (RadioButton) findViewById(R.id.btnCar);
+        Upstairs = (RadioButton) findViewById(R.id.btnUpstairs);
+        Downstairs = (RadioButton) findViewById(R.id.btnDownstairs);
+        StopLabel = (RadioButton) findViewById(R.id.btnStopLabel);
+
+        StopLabel.setChecked(true);
+/*
+        switch (service.getLabel()){
+            case 1:
+                Static.setChecked(true);
+                break;
+            case 2:
+                Walk.setChecked(true);
+                break;
+            case 3:
+                Run.setChecked(true);
+                break;
+            case 4:
+                Elevator.setChecked(true);
+                break;
+            case 5:
+                Bike.setChecked(true);
+                break;
+            case 6:
+                Car.setChecked(true);
+                break;
+            case 7:
+                Upstairs.setChecked(true);
+                break;
+            case 8:
+                Downstairs.setChecked(true);
+                break;
+            case 0:
+                StopLabel.setChecked(true);
+                break;
+        }
+*/
         signlabel.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup signlabel, int checkedId) {
                 RadioButton label = (RadioButton) findViewById(checkedId);
-                switch (checkedId){
+                switch (checkedId) {
                     case R.id.btnStatic:
                         service.setLabel(1);
                         break;
@@ -102,6 +139,7 @@ public class LabelActivity extends Activity implements OnClickListener {
                 t.show();
             }
         });
+
     }
 
     public void binderClick(View v) {
@@ -123,7 +161,7 @@ public class LabelActivity extends Activity implements OnClickListener {
     @SuppressLint("ShowToast")
     public void onClick(View view) {
         // TODO Auto-generated method stub
-        if(view.getId() == R.id.btncofirmLabel){
+        if (view.getId() == R.id.btncofirmLabel) {
             finish();
         }
     }
@@ -196,8 +234,7 @@ public class LabelActivity extends Activity implements OnClickListener {
     protected void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
-        if(conn!=null)
-            unbindService(conn);
+        if (conn != null) unbindService(conn);
     }
 
     @Override
@@ -211,5 +248,4 @@ public class LabelActivity extends Activity implements OnClickListener {
         // TODO Auto-generated method stub
         super.onResume();
     }
-
 }

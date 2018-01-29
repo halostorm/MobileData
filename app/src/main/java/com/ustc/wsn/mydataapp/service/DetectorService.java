@@ -91,6 +91,9 @@ public class DetectorService extends Service {
         public void setLabel(int label) {
             stateLabel = label;
         }
+        public int getLabel() {
+            return stateLabel;
+        }
 
     }
 
@@ -435,7 +438,7 @@ public class DetectorService extends Service {
         }
         gyroscrope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         if (gyroscrope != null) {
-            GYROSCROPE_EXIST = false;
+            GYROSCROPE_EXIST = true;
         } else {
             t = Toast.makeText(this, "您的手机不支持陀螺仪", Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
