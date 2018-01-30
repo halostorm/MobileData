@@ -75,11 +75,11 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name="com.nulana.nchart3d.example.DifferentCharts.ChartingDemoActivity"
-            android:label="轨迹"
-            android:launchMode="singleTask"
-            android:configChanges="orientation">
-        </activity>
+        <activity
+            android:name="com.nulana.nchart3d.example.DifferentCharts.ChartingDemoActivity"
+            android:enabled="true"
+            android:exported="true"
+            android:label="轨迹"></activity>
     </application>
 
 </manifest>

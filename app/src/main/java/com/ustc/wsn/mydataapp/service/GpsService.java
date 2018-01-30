@@ -1,5 +1,7 @@
 package com.ustc.wsn.mydataapp.service;
-
+/**
+ * Created by halo on 2018/1/28.
+ */
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;

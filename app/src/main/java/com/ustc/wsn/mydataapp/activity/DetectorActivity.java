@@ -1,5 +1,9 @@
 package com.ustc.wsn.mydataapp.activity;
 
+/**
+ * Created by halo on 2018/1/17.
+ */
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
@@ -114,7 +118,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
     {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.setting, menu);
-        setIconEnable(menu,true);
+        //setIconEnable(menu,true);
         return true;
     }
 
@@ -141,7 +145,6 @@ public class DetectorActivity extends Activity implements OnClickListener {
             case R.id.menu_settings_help:
                 showHelpDialog();
                 return true;
-
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -250,7 +253,11 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 startActivity(UploadActivityIntent);
                 break;
             case R.id.btnTrack:
+                t = Toast.makeText(this, "3D启动中！", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.CENTER, 0, 0);
+                t.show();
                 startActivity(trackActivityIntent);
+                break;
         }
     }
 }

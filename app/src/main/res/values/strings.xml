@@ -74,5 +74,6 @@
     <string name="signLabel">signLabel</string>
     <string name="title_activity_open_gl">OpenGlActivity</string>
     <string name="Track">Track</string>
+    <string name="title_activity_scatter">scatterActivity</string>
 
 </resources>

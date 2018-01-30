@@ -1,11 +1,15 @@
 package com.ustc.wsn.mydataapp.activity;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.Handler;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
 import android.widget.Button;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
@@ -22,6 +26,7 @@ import android.widget.Toast;
 
 import com.ustc.wsn.mydataapp.service.DetectorService;
 
+import java.lang.reflect.Method;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -142,8 +147,35 @@ public class LabelActivity extends Activity implements OnClickListener {
 
     }
 
-    public void binderClick(View v) {
-        bindService(DetectorserviceIntent, conn, Context.BIND_AUTO_CREATE);
+    private void showHelpDialog() {
+        Dialog helpDialog = new Dialog(this);
+        helpDialog.setCancelable(true);
+        helpDialog.setCanceledOnTouchOutside(true);
+
+        helpDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        helpDialog.setContentView(getLayoutInflater().inflate(R.layout.help, null));
+
+        helpDialog.show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.setting, menu);
+        //setIconEnable(menu,true);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_settings_help:
+                showHelpDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private class MyConnection implements ServiceConnection {

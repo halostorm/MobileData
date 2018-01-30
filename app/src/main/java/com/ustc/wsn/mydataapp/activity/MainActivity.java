@@ -17,6 +17,8 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -50,20 +52,41 @@ public class MainActivity extends Activity {
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(outMetrics);
-        int heightPixels = outMetrics.heightPixels;
         EditText editText = (EditText) findViewById(R.id.IdNumber);
         TextView textView = (TextView) findViewById(R.id.btnlogin);
         textView.setTag(editText);
         textView.setOnClickListener(mOnClickListener);
     }
 
-    public static Bitmap getLoacalBitmap(String url) {
-        try {
-            FileInputStream fis = new FileInputStream(url);
-            return BitmapFactory.decodeStream(fis);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return null;
+    private void showHelpDialog() {
+        Dialog helpDialog = new Dialog(this);
+        helpDialog.setCancelable(true);
+        helpDialog.setCanceledOnTouchOutside(true);
+
+        helpDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        helpDialog.setContentView(getLayoutInflater().inflate(R.layout.help, null));
+
+        helpDialog.show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.setting, menu);
+        //setIconEnable(menu,true);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_settings_help:
+                showHelpDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -86,10 +109,4 @@ public class MainActivity extends Activity {
             finish();
         }
     };
-
-
-    public int dpiToPx(float dpValue) {
-        final float scale = getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale + 0.5f);
-    }
 }

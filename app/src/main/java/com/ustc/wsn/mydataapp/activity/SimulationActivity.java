@@ -1,6 +1,11 @@
 package com.ustc.wsn.mydataapp.activity;
 
+/**
+ * Created by halo on 2018/1/17.
+ */
+
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -21,7 +26,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import detector.wsn.ustc.com.mydataapp.R;
@@ -136,10 +143,35 @@ public class SimulationActivity extends Activity {
         }, 5, 100);
     }
 
+    private void showHelpDialog() {
+        Dialog helpDialog = new Dialog(this);
+        helpDialog.setCancelable(true);
+        helpDialog.setCanceledOnTouchOutside(true);
+
+        helpDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        helpDialog.setContentView(getLayoutInflater().inflate(R.layout.help, null));
+
+        helpDialog.show();
+    }
+
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //getMenuInflater().inflate(R.menu.activity_detector, menu);
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.setting, menu);
+        //setIconEnable(menu,true);
         return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_settings_help:
+                showHelpDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private Handler handler1 = new Handler() {
