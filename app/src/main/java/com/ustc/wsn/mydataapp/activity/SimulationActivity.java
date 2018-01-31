@@ -5,8 +5,10 @@ package com.ustc.wsn.mydataapp.activity;
  */
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -43,6 +45,10 @@ import detector.wsn.ustc.com.mydataapp.R;
 public class SimulationActivity extends Activity {
 
     public int FRAME_TYPE = 0;//0 - phone frame/ 1 - inertial frame
+    private boolean ACCELERATOR_EXIST = false;
+    private boolean GYROSCROPE_EXIST = false;
+    private boolean MAGNETIC_EXIST = false;
+
     private LinearLayout accCurveLayout;//存放左图表的布局容器
     private LinearLayout linearaccCurveLayout;//存放右图表的布局容器
     private LinearLayout gyroCurveLayout;//存放右图表的布局容器
@@ -56,8 +62,8 @@ public class SimulationActivity extends Activity {
     private Sensor accelerator;
     private Sensor gyroscrope;
     private Sensor magnetic;
-    private DetectorSensorListener sensorListener;
-    private TrackSensorListener sensorListener1;
+    //private DetectorSensorListener sensorListener;
+    private TrackSensorListener sensorListener;
     private float[] LinearAccData;
     private float[] AccData;
     private float[] GyroData;
@@ -154,6 +160,33 @@ public class SimulationActivity extends Activity {
 
     }
 
+    private String[] items={"手机坐标系","惯性坐标系"};
+
+    class DialogsingleClickListener implements DialogInterface.OnClickListener{
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which){
+                case 0:
+                    FRAME_TYPE = 0;
+                    break;
+                case 1:
+                    FRAME_TYPE = 1;
+                    break;
+            }
+            dialog.dismiss();
+        }
+
+    }
+    private void ShowSingleDialog(){
+        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+        builder.setTitle("请选择传感器坐标系");
+        builder.setIcon(R.drawable.ic_launcher);
+        builder.setSingleChoiceItems(items,0,new DialogsingleClickListener());
+        AlertDialog dialog=builder.create();
+        dialog.show();
+    }
+
     private void showHelpDialog() {
         Dialog helpDialog = new Dialog(this);
         helpDialog.setCancelable(true);
@@ -164,43 +197,6 @@ public class SimulationActivity extends Activity {
         helpDialog.setContentView(getLayoutInflater().inflate(R.layout.help, null));
 
         helpDialog.show();
-    }
-
-    private void chooseFrameType() {
-        Dialog FrameChooseDialog = new Dialog(this);
-        FrameChooseDialog.setCancelable(true);
-        FrameChooseDialog.setCanceledOnTouchOutside(true);
-
-        FrameChooseDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        FrameChooseDialog.setContentView(getLayoutInflater().inflate(R.layout.frame_choose, null));
-
-        FrameChooseDialog.show();
-        /*
-        setContentView(R.layout.frame_choose);
-        RadioGroup chooseFrame = (RadioGroup) findViewById(R.id.chooseFrame);
-
-        chooseFrame.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup chooseFrame, int checkedId) {
-                RadioButton label = (RadioButton) findViewById(checkedId);
-                switch (checkedId) {
-                    case R.id.btnPhoneFrame:
-                        FRAME_TYPE = 0;
-                        t = Toast.makeText(getApplicationContext(), "已切换至:" + label.getText()+"视图", Toast.LENGTH_LONG);
-                        t.setGravity(Gravity.CENTER, 0, 0);
-                        t.show();
-                        break;
-                    case R.id.btnInertialFrame:
-                        FRAME_TYPE = 1;
-                        t = Toast.makeText(getApplicationContext(), "已切换至:" + label.getText()+"视图", Toast.LENGTH_LONG);
-                        t.setGravity(Gravity.CENTER, 0, 0);
-                        t.show();
-                        break;
-                }
-            }
-        });
-        */
     }
 
     @Override
@@ -218,7 +214,8 @@ public class SimulationActivity extends Activity {
                 showHelpDialog();
                 return true;
             case R.id.frameType:
-                chooseFrameType();
+                //chooseFrameType();
+                ShowSingleDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -229,10 +226,10 @@ public class SimulationActivity extends Activity {
         @Override
         //定时更新图表
         public void handleMessage(Message msg) {
-            LinearAccData = sensorListener1.readLinearAccData(FRAME_TYPE);
-            AccData = sensorListener1.readAccData(FRAME_TYPE);
-            GyroData = sensorListener1.readGyroData(FRAME_TYPE);
-            MagData = sensorListener1.readMagData(FRAME_TYPE);
+            LinearAccData = sensorListener.readLinearAccData(FRAME_TYPE);
+            AccData = sensorListener.readAccData(FRAME_TYPE);
+            GyroData = sensorListener.readGyroData(FRAME_TYPE);
+            MagData = sensorListener.readMagData(FRAME_TYPE);
 
             accService.rightUpdateChart(AccData[0], AccData[1], AccData[2]);
             gyroSeivice.rightUpdateChart(GyroData[0], GyroData[1], GyroData[2]);
@@ -268,15 +265,40 @@ public class SimulationActivity extends Activity {
         Log.d("Sensor", "InitSensor Over");
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerator = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if (accelerator != null) {
+            ACCELERATOR_EXIST = true;
+        } else {
+            t = Toast.makeText(this, "您的手机不支持加速度计", Toast.LENGTH_SHORT);
+            t.setGravity(Gravity.CENTER, 0, 0);
+            t.show();
+        }
         gyroscrope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        if (gyroscrope != null) {
+            GYROSCROPE_EXIST = true;
+        } else {
+            t = Toast.makeText(this, "您的手机不支持陀螺仪", Toast.LENGTH_SHORT);
+            t.setGravity(Gravity.CENTER, 0, 0);
+            t.show();
+        }
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        if (magnetic != null) {
+            MAGNETIC_EXIST = true;
+        } else {
+            t = Toast.makeText(this, "您的手机不支持电子罗盘", Toast.LENGTH_SHORT);
+            t.setGravity(Gravity.CENTER, 0, 0);
+            t.show();
+        }
         //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        sensorListener = new DetectorSensorListener((AppResourceApplication) getApplicationContext());
-        sensorListener1 = new TrackSensorListener((AppResourceApplication) getApplicationContext());
-        sm.registerListener(sensorListener1, accelerator, SensorManager.SENSOR_DELAY_FASTEST);
-        sm.registerListener(sensorListener1, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
-        sm.registerListener(sensorListener1, magnetic, SensorManager.SENSOR_DELAY_FASTEST);
-        //sm.registerListener(sensorListener,rotation,SensorManager.SENSOR_DELAY_GAME);
+        sensorListener = new TrackSensorListener((AppResourceApplication) getApplicationContext());
+        if (ACCELERATOR_EXIST) {
+            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_FASTEST);
+        }
+        if (GYROSCROPE_EXIST) {
+            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
+        }
+        if (MAGNETIC_EXIST) {
+            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
+        }
     }
 
     @Override
@@ -287,6 +309,18 @@ public class SimulationActivity extends Activity {
         }
         if (timer2 != null) {
             timer2.cancel();
+        }
+        if(linearService!=null){
+            linearService =null;
+        }
+        if(accService!=null){
+            accService =null;
+        }
+        if(gyroSeivice!=null){
+            gyroSeivice =null;
+        }
+        if(magService!=null){
+            magService =null;
         }
         sensorListener.closeSensorThread();
         sm.unregisterListener(sensorListener);

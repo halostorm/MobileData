@@ -274,6 +274,10 @@ public class DetectorSensorListener implements SensorEventListener {
 
     }
 
+    public void closeSensorThread() {
+        threadDisable_data_update = true;
+    }
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         // TODO Auto-generated method stub
@@ -387,7 +391,6 @@ public class DetectorSensorListener implements SensorEventListener {
                         temp[1] = worldData[0];
                         temp[2] = -worldData[2];
                     }
-
                     this.magNow = (new MagnetData(temp)).toString();
                 }
                 break;
@@ -395,9 +398,7 @@ public class DetectorSensorListener implements SensorEventListener {
 
     }
 
-    public void closeSensorThread() {
-        threadDisable_data_update = true;
-    }
+
 
     public void setLinearAccData() {
         if (((LinearAcc_cur + 1) % Data_Size != LinearAcc_old) && accNow != null) {// 不满
