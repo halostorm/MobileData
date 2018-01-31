@@ -11,6 +11,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.app.Activity;
+
 import java.text.DecimalFormat;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -19,28 +20,36 @@ import org.achartengine.GraphicalView;
 
 import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
 import com.ustc.wsn.mydataapp.detectorservice.DetectorSensorListener;
+import com.ustc.wsn.mydataapp.detectorservice.TrackSensorListener;
 import com.ustc.wsn.mydataapp.service.ChartService;
 
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import detector.wsn.ustc.com.mydataapp.R;
 
 public class SimulationActivity extends Activity {
 
+    public int FRAME_TYPE = 0;//0 - phone frame/ 1 - inertial frame
     private LinearLayout accCurveLayout;//存放左图表的布局容器
     private LinearLayout linearaccCurveLayout;//存放右图表的布局容器
     private LinearLayout gyroCurveLayout;//存放右图表的布局容器
     private LinearLayout magCurveLayout;//存放右图表的布局容器
     private GraphicalView accView, gyroView, linearaccView, magView;//左右图表
     private ChartService accService, linearService, gyroSeivice, magService;
+    private Toast t;
     private Timer timer1;
     private Timer timer2;
     private SensorManager sm;
@@ -48,6 +57,7 @@ public class SimulationActivity extends Activity {
     private Sensor gyroscrope;
     private Sensor magnetic;
     private DetectorSensorListener sensorListener;
+    private TrackSensorListener sensorListener1;
     private float[] LinearAccData;
     private float[] AccData;
     private float[] GyroData;
@@ -83,22 +93,22 @@ public class SimulationActivity extends Activity {
 
         accService = new ChartService(this);
         accService.setXYMultipleSeriesDataset("AccX", "AccY", "AccZ");
-        accService.setXYMultipleSeriesRenderer(0,10, -20,30, "加速度", "时间 /s", "m2/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
+        accService.setXYMultipleSeriesRenderer(0, 10, -20, 30, "加速度", "时间 /s", "m2/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
         accView = accService.getGraphicalView();
 
         linearService = new ChartService(this);
         linearService.setXYMultipleSeriesDataset("LinearAccX", "LinearAccY", "LinearAccZ");
-        linearService.setXYMultipleSeriesRenderer(0,10, -10,10, "线性加速度", "时间 /s", "m2/", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
+        linearService.setXYMultipleSeriesRenderer(0, 10, -10, 10, "线性加速度", "时间 /s", "m2/", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
         linearaccView = linearService.getGraphicalView();
 
         gyroSeivice = new ChartService(this);
         gyroSeivice.setXYMultipleSeriesDataset("GyroX", "GyroY", "GyroZ");
-        gyroSeivice.setXYMultipleSeriesRenderer(0,10, -10,10, "陀螺仪", "时间 /s", "rad/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
+        gyroSeivice.setXYMultipleSeriesRenderer(0, 10, -10, 10, "陀螺仪", "时间 /s", "rad/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
         gyroView = gyroSeivice.getGraphicalView();
 
         magService = new ChartService(this);
         magService.setXYMultipleSeriesDataset("MagX", "MagY", "MagZ");
-        magService.setXYMultipleSeriesRenderer(0,10, -70,70, "磁力计", "时间 /s", "uT", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
+        magService.setXYMultipleSeriesRenderer(0, 10, -70, 70, "磁力计", "时间 /s", "uT", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
         magView = magService.getGraphicalView();
         //将左右图表添加到布局容器中
         accCurveLayout.addView(accView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -141,6 +151,7 @@ public class SimulationActivity extends Activity {
                 handler2.sendMessage(handler2.obtainMessage());
             }
         }, 5, 100);
+
     }
 
     private void showHelpDialog() {
@@ -155,19 +166,59 @@ public class SimulationActivity extends Activity {
         helpDialog.show();
     }
 
+    private void chooseFrameType() {
+        Dialog FrameChooseDialog = new Dialog(this);
+        FrameChooseDialog.setCancelable(true);
+        FrameChooseDialog.setCanceledOnTouchOutside(true);
+
+        FrameChooseDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        FrameChooseDialog.setContentView(getLayoutInflater().inflate(R.layout.frame_choose, null));
+
+        FrameChooseDialog.show();
+        /*
+        setContentView(R.layout.frame_choose);
+        RadioGroup chooseFrame = (RadioGroup) findViewById(R.id.chooseFrame);
+
+        chooseFrame.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup chooseFrame, int checkedId) {
+                RadioButton label = (RadioButton) findViewById(checkedId);
+                switch (checkedId) {
+                    case R.id.btnPhoneFrame:
+                        FRAME_TYPE = 0;
+                        t = Toast.makeText(getApplicationContext(), "已切换至:" + label.getText()+"视图", Toast.LENGTH_LONG);
+                        t.setGravity(Gravity.CENTER, 0, 0);
+                        t.show();
+                        break;
+                    case R.id.btnInertialFrame:
+                        FRAME_TYPE = 1;
+                        t = Toast.makeText(getApplicationContext(), "已切换至:" + label.getText()+"视图", Toast.LENGTH_LONG);
+                        t.setGravity(Gravity.CENTER, 0, 0);
+                        t.show();
+                        break;
+                }
+            }
+        });
+        */
+    }
+
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.setting, menu);
+        getMenuInflater().inflate(R.menu.simulation_setting, menu);
         //setIconEnable(menu,true);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_settings_help:
                 showHelpDialog();
+                return true;
+            case R.id.frameType:
+                chooseFrameType();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -178,10 +229,10 @@ public class SimulationActivity extends Activity {
         @Override
         //定时更新图表
         public void handleMessage(Message msg) {
-            LinearAccData = sensorListener.readLinearAccData();
-            AccData = sensorListener.readAccData();
-            GyroData = sensorListener.readGyroData();
-            MagData = sensorListener.readMagData();
+            LinearAccData = sensorListener1.readLinearAccData(FRAME_TYPE);
+            AccData = sensorListener1.readAccData(FRAME_TYPE);
+            GyroData = sensorListener1.readGyroData(FRAME_TYPE);
+            MagData = sensorListener1.readMagData(FRAME_TYPE);
 
             accService.rightUpdateChart(AccData[0], AccData[1], AccData[2]);
             gyroSeivice.rightUpdateChart(GyroData[0], GyroData[1], GyroData[2]);
@@ -221,9 +272,10 @@ public class SimulationActivity extends Activity {
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         sensorListener = new DetectorSensorListener((AppResourceApplication) getApplicationContext());
-        sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_FASTEST);
-        sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
-        sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_FASTEST);
+        sensorListener1 = new TrackSensorListener((AppResourceApplication) getApplicationContext());
+        sm.registerListener(sensorListener1, accelerator, SensorManager.SENSOR_DELAY_FASTEST);
+        sm.registerListener(sensorListener1, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
+        sm.registerListener(sensorListener1, magnetic, SensorManager.SENSOR_DELAY_FASTEST);
         //sm.registerListener(sensorListener,rotation,SensorManager.SENSOR_DELAY_GAME);
     }
 

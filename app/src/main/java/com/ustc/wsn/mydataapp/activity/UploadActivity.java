@@ -57,7 +57,6 @@ public class UploadActivity extends Activity implements OnClickListener {
                     t = Toast.makeText(this, "当前是Wifi连接，已开始上传", Toast.LENGTH_SHORT);
                     t.setGravity(Gravity.CENTER, 0, 0);
                     t.show();
-                    Toast.makeText(UploadActivity.this,"当前是Wifi连接，请放心使用",Toast.LENGTH_SHORT).show();
                     String psw = "OK";
                     Intent intent = this.getIntent();
                     psw=intent.getStringExtra("userId");

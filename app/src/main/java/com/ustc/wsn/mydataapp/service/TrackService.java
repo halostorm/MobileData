@@ -50,6 +50,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
+
 import com.nulana.NChart.NChart;
 import com.nulana.NChart.NChartAnimationType;
 import com.nulana.NChart.NChartBrush;
@@ -68,6 +69,7 @@ import com.nulana.NChart.NChartSeries;
 import com.nulana.NChart.NChartSeriesDataSource;
 import com.nulana.NChart.NChartShadingModel;
 import com.nulana.NChart.NChartSolidColorBrush;
+import com.nulana.NChart.NChartValueAxesType;
 import com.nulana.NChart.NChartView;
 
 import java.util.Random;
@@ -79,12 +81,14 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
     private boolean drawIn3D;
     private NChartBrush brushes;
     private NChartMarker marker;
+    private NChartBrush brushesP;
+    private NChartMarker markerP;
     private Random random = new Random();
     private Activity c;
     private float[][] position;
     private boolean POSITION_ENABLED = false;
 
-    public TrackService(boolean is3D, NChartView view, Activity c,int window_size) {
+    public TrackService(boolean is3D, NChartView view, Activity c, int window_size) {
         mNChartView = view;
         drawIn3D = is3D;
         this.c = c;
@@ -97,12 +101,20 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
         marker.setShape(NChartMarkerShape.Circle);
         marker.setSize(5);
 
-        position = new float[window_size][3];
+        brushesP = new NChartSolidColorBrush(Color.argb(255, 205, 0, 0));
+        brushesP.setShadingModel(NChartShadingModel.Phong);
+        markerP = new NChartMarker();
+        markerP.setBrush(brushesP);
+        markerP.setShape(NChartMarkerShape.Circle);
+        markerP.setSize(1);
+
+        position = new float[this.window_size][3];
 
         //Switch on antialiasing.
         mNChartView.getChart().setShouldAntialias(true);
         if (drawIn3D) {
             // Switch 3D on.
+            //NChartValueAxesType type = new NChartValueAxesType(NChartValueAxesType.Absolute);
             mNChartView.getChart().setDrawIn3D(true);
             mNChartView.getChart().getCartesianSystem().setMargin(new NChartMargin(30.0f, 30.0f, 10.0f, 20.0f));
             mNChartView.getChart().getPolarSystem().setMargin(new NChartMargin(30.0f, 30.0f, 10.0f, 20.0f));
@@ -127,6 +139,7 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
         createSeries(i);
         //}
         // Update data in the chart.
+
         mNChartView.getChart().updateData();
         mNChartView.getChart().removeAllSeries();
         //}
@@ -134,30 +147,41 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
     }
 
     public void createSeries(int i) {
-        NChartBubbleSeries series= new NChartBubbleSeries();
+        NChartBubbleSeries series = new NChartBubbleSeries();
         series.setDataSource(this);
-        series.tag =i;
+        series.tag = i;
         mNChartView.getChart().addSeries(series);
     }
 
     @Override
     public NChartPoint[] points(NChartSeries series) {
         // Create points with some data for the series.
-        NChartPoint[] result = new NChartPoint[window_size];
-        for (int i = 0; i < window_size; i++) {
+        NChartPoint[] result = new NChartPoint[window_size+1];
+        for (int i = 0; i <= window_size; i++) {
             NChartPointState[] states = new NChartPointState[1];
-            for (int j = 0; j < 1; ++j) {
-                if(POSITION_ENABLED){
+            if (i != window_size) {
+                if (POSITION_ENABLED) {
                     //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 0, 0, 205));
-                    states[j] = NChartPointState.PointStateWithXYZ(position[i][0]*100, position[i][1]*100, 50);//position[j][2]
+                    states[0] = NChartPointState.PointStateWithXYZ(position[i][0] * 100,20,position[i][1] * 100);//position[j][2]
                     //Log.d(TAG,"pathpoint:"+position[i][0]+"\t"+position[i][1]);
-                }else{
+                } else {
                     //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 205, 0, 0));
-                    states[j] = NChartPointState.PointStateWithXYZ(random.nextInt(10), random.nextInt(10), random.nextInt(10));
+                    states[0] = NChartPointState.PointStateWithXYZ(random.nextInt(10), random.nextInt(10), random.nextInt(10));
                 }
                 mNChartView.getChart().setPointSelectionEnabled(true);
-                states[j].setMarker(marker);
+                states[0].setMarker(marker);
+            }else {
+                if (POSITION_ENABLED) {
+                    //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 0, 0, 205));
+                    states[0] = NChartPointState.PointStateWithXYZ(20, 20, 20);//position[j][2]
+                } else {
+                    //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 205, 0, 0));
+                    states[0] = NChartPointState.PointStateWithXYZ(random.nextInt(10), random.nextInt(10), random.nextInt(10));
+                }
+                mNChartView.getChart().setPointSelectionEnabled(true);
+                states[0].setMarker(markerP);
             }
+
             result[i] = new NChartPoint(states, series);
         }
         return result;
@@ -198,11 +222,13 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
     public void didChangeZoomPhase(NChart nChart, NChartEventPhase nChartEventPhase) {
 
     }
+
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
+
     @Override
     public void onDestroy() {
         // TODO Auto-generated method stub

@@ -24,6 +24,7 @@ public class TrackSensorListener implements SensorEventListener {
     private final String TAG = TrackSensorListener.this.toString();
     private TrackSensorListener mContext = TrackSensorListener.this;
     public final int windowSize = 40;//
+    public int FRAME_TYPE;//0 - phone frame/ 1 - inertial frame
 
     //路径参数
     private float[][] laccSample = new float[windowSize][3];//线性加速度窗
@@ -39,11 +40,19 @@ public class TrackSensorListener implements SensorEventListener {
     private long timeOld;
 
     //传感器参数
-    private float[] lacc = new float[3];
+    private float[] lacc = new float[3]; //phone frame
     private float[] gravity = new float[3];
     private float[] acc = new float[3];
     private float[] gyro = new float[3];
     private float[] mag = new float[3];
+
+
+    private float[] nlacc = new float[3];//inertial frame
+    private float[] ngravity = new float[3];
+    private float[] nacc = new float[3];
+    private float[] ngyro = new float[3];
+    private float[] nmag = new float[3];
+
 
     //姿态参数
     private volatile float[] DCM_android = new float[]{1.f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f};
@@ -86,22 +95,42 @@ public class TrackSensorListener implements SensorEventListener {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                float[] dcm = DCM_static.clone();
+                float[] dcmOld = dcm.clone();
+                int i = 0;
                 while (!threadDisable_data_update) {
                     try {
                         Thread.sleep(25);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    time = System.nanoTime();
-                    float dt = (time - timeOld) / 1000000000f;
-                    timeOld = time;
-                    //Log.d(TAG,"deltT:"+String.valueOf(dt));
-                    addData(deltT, dt);
-                    addData(laccSample, lacc);
-                    addData(accSample, acc);
-                    addData(gyroSample, gyro);
-                    addData(magSample, mag);
-                    addData(gravitySample, gravity);
+                    if (i++ < windowSize) {
+                        time = System.nanoTime();
+                        float dt = (time - timeOld) / 1000000000f;
+                        timeOld = time;
+                        //Log.d(TAG,"deltT:"+String.valueOf(dt));
+
+                        float[] W = gyro.clone();
+                        float[] Matrix_W = new float[]{1f, -W[2] * dt, W[1] * dt,//
+                                W[2] * dt, 1f, -W[0] * dt, //
+                                -W[1] * dt, W[0] * dt, 1f};
+                        dcm = DcmMultiply(dcmOld, Matrix_W);//获取DCM
+                        dcmOld = dcm.clone();
+                        nacc = phoneToEarth(dcm, acc);//得到一次理想加速度
+                        nlacc = phoneToEarth(dcm, lacc);
+                        ngyro = phoneToEarth(dcm, gyro);
+                        nmag = phoneToEarth(dcm, mag);
+
+                        addData(deltT, dt);
+                        addData(laccSample, lacc);
+                        addData(accSample, acc);
+                        addData(gyroSample, gyro);
+                        addData(magSample, mag);
+                        addData(gravitySample, gravity);
+                    } else {
+                        dcmOld = DCM_static.clone();
+                        i = 0;
+                    }
                 }
             }
         }).start();
@@ -111,7 +140,7 @@ public class TrackSensorListener implements SensorEventListener {
             public void run() {
                 while (!threadDisable_data_update) {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(windowSize * 25);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -148,6 +177,7 @@ public class TrackSensorListener implements SensorEventListener {
                     if (LAST_STATE == PhoneState.ABSOLUTE_STATIC_STATE && NOW_STATE == PhoneState.UNKONW_STATE) {
                         // 静止DCM
                         SensorManager.getRotationMatrix(DCM_static, null, gravityMeanOld, magMeanOld);
+                        DcmSample[0] = DCM_static.clone();
                         //动态DCM及轨迹
                         for (int i = 1; i < windowSize; i++) { //when i = 0, velocitySample[i] =0; positionSample[i] =0;
                             float[] W = gyroSample[i].clone();
@@ -155,22 +185,22 @@ public class TrackSensorListener implements SensorEventListener {
                                     W[2] * deltT[i], 1f, -W[0] * deltT[i], //
                                     -W[1] * deltT[i], W[0] * deltT[i], 1f};
 
-                            DcmSample[i] = DcmMultiply(DCM_static,Matrix_W);//获取DCM
+                            DcmSample[i] = DcmMultiply(DcmSample[i - 1], Matrix_W);//获取DCM
 
                             float[] accNow = phoneToEarth(DcmSample[i], accSample[i]);//得到一次理想加速度
-                            Log.d(TAG,"accNow:"+String.valueOf(i)+":\t"+accNow[0]);
-                            Log.d(TAG,"accNow:"+String.valueOf(i)+":\t"+accNow[1]);
-                            Log.d(TAG,"accNow:"+String.valueOf(i)+":\t"+accNow[2]);
+                            //Log.d(TAG,"accNow[0]:"+String.valueOf(i)+":\t"+accNow[0]);
+                            //Log.d(TAG,"accNow[1]:"+String.valueOf(i)+":\t"+accNow[1]);
+                            //Log.d(TAG,"accNow[2]:"+String.valueOf(i)+":\t"+accNow[2]);
                             velocitySample[i][0] = velocitySample[i - 1][0] + accNow[0] * deltT[i];
                             velocitySample[i][1] = velocitySample[i - 1][1] + accNow[1] * deltT[i];
                             velocitySample[i][2] = velocitySample[i - 1][2] + accNow[2] * deltT[i];
-                            Log.d(TAG,"velocityNow:"+String.valueOf(i)+":\t"+velocitySample[i][0]);
+                            //Log.d(TAG,"velocityNow:"+String.valueOf(i)+":\t"+velocitySample[i][0]);
 
                             positionSample[i][0] = positionSample[i - 1][0] + 0.5f * (velocitySample[i][0] + velocitySample[i - 1][0]) * deltT[i];
                             positionSample[i][1] = positionSample[i - 1][1] + 0.5f * (velocitySample[i][1] + velocitySample[i - 1][1]) * deltT[i];
                             positionSample[i][2] = positionSample[i - 1][2] + 0.5f * (velocitySample[i][2] + velocitySample[i - 1][2]) * deltT[i];
 
-                            Log.d(TAG,"position"+String.valueOf(i)+":\t"+positionSample[i][0]);
+                            //Log.d(TAG,"position"+String.valueOf(i)+":\t"+positionSample[i][0]);
                         }
                     }
                     gravityMeanOld = gravityMean.clone();//记录姿态参数old
@@ -187,7 +217,38 @@ public class TrackSensorListener implements SensorEventListener {
 
     }
 
-    public float[][] getPosition(){
+    public float[] readLinearAccData(int TYPE) {
+        if(TYPE==0) {
+            return this.lacc;
+        }else
+            return this.nlacc;
+    }
+
+    public float[] readAccData(int TYPE) {
+        if(TYPE==0) {
+            return this.acc;
+        }else
+            return this.nacc;
+    }
+
+    public float[] readGyroData(int TYPE) {
+
+        if(TYPE==0) {
+            return this.gyro;
+        }else
+            return this.ngyro;
+    }
+
+    public float[] readMagData(int TYPE) {
+
+        if(TYPE==0) {
+            return this.mag;
+        }else
+            return this.nmag;
+    }
+
+    public float[][] getPosition() {
+
         return positionSample;
     }
 

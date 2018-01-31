@@ -215,13 +215,8 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 t.show();
                 break;
             case R.id.btnViewData:
-                if (serviceStart == true) {
                     startActivity(SimpleActivityIntent);
-                } else {
-                    t = Toast.makeText(this, "请先开始采集数据", Toast.LENGTH_SHORT);
-                    t.setGravity(Gravity.CENTER, 0, 0);
-                    t.show();
-                }
+
                 break;
             case R.id.btnStopService:
                 if (serviceStart == true) {
@@ -234,7 +229,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                     serviceStart = false;
                     break;
                 } else {
-                    t = Toast.makeText(this, "请先开始采集数据", Toast.LENGTH_SHORT);
+                    t = Toast.makeText(this, "未开始采集", Toast.LENGTH_SHORT);
                     t.setGravity(Gravity.CENTER, 0, 0);
                     t.show();
                 }

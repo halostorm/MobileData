@@ -24,7 +24,6 @@ public class UploadManagers {
             intent = new Intent(context, AutoUploadSeriver.class);
             intent.putExtra("foldersPath",foldersPath);
             intent.putExtra("userId",userId);
-            Toast.makeText(context, "上传开始", Toast.LENGTH_SHORT).show();
             context.startService(intent);
         }
     }
