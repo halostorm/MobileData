@@ -2,13 +2,6 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/menu_settings_logger_plotdata"
-        android:title="@string/log_data_label"
-        app:showAsAction="always" />
-    <item
-        android:id="@+id/action_settings_sensor"
-        android:title="@string/sensor_name" />
-    <item
         android:id="@+id/menu_settings_help"
         android:title="@string/action_help" />
 

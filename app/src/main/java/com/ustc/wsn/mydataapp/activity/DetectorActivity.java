@@ -28,8 +28,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
 import android.widget.Toolbar;
-
-import com.nulana.nchart3d.example.DifferentCharts.ChartingDemoActivity;
 import com.ustc.wsn.mydataapp.detectorservice.outputFile;
 import com.ustc.wsn.mydataapp.service.DetectorService;
 import com.ustc.wsn.mydataapp.service.GpsService;
@@ -49,7 +47,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
     protected Intent SimpleActivityIntent;
     protected Intent LabelActivityIntent;
     protected Intent UploadActivityIntent;
-    protected  Intent trackActivityIntent;
+    protected Intent trackActivityIntent;
     private Toast t;
     private LocationManager loc_int;
     //private volatile int stateLabel;

@@ -210,7 +210,7 @@ public class DetectorSensorListener implements SensorEventListener {
                             fcf.mag[1] = magnetOri[0];
                             fcf.mag[2] = -magnetOri[2];
                             fcf.dt = dt;
-                            fcf.Filter();
+                            fcf.Filter(dt);
                         }
                     }
                 }

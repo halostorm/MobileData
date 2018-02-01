@@ -85,6 +85,12 @@ public class SimulationActivity extends Activity {
     private TextView magyAxis;
     private TextView magzAxis;
 
+    private TextView aframevalue;
+    private TextView lframevalue;
+    private TextView gframevalue;
+    private TextView mframevalue;
+
+
     private DecimalFormat df;
 
     @Override
@@ -138,6 +144,11 @@ public class SimulationActivity extends Activity {
         magyAxis = (TextView) findViewById(R.id.value_magy_axis);
         magzAxis = (TextView) findViewById(R.id.value_magz_axis);
 
+        aframevalue = (TextView) findViewById(R.id.AframeType);
+        lframevalue = (TextView) findViewById(R.id.LframeType);
+        gframevalue = (TextView) findViewById(R.id.GframeType);
+        mframevalue = (TextView) findViewById(R.id.MframeType);
+
         df = new DecimalFormat("0.00");
 
         initSensor();
@@ -169,16 +180,24 @@ public class SimulationActivity extends Activity {
             switch (which){
                 case 0:
                     FRAME_TYPE = 0;
+                    aframevalue.setText("手机坐标系");
+                    lframevalue.setText("手机坐标系");
+                    gframevalue.setText("手机坐标系");
+                    mframevalue.setText("手机坐标系");
                     break;
                 case 1:
                     FRAME_TYPE = 1;
+                    aframevalue.setText("惯性坐标系");
+                    lframevalue.setText("惯性坐标系");
+                    mframevalue.setText("惯性坐标系");
+                    gframevalue.setText("惯性坐标系");
                     break;
             }
             dialog.dismiss();
         }
 
     }
-    private void ShowSingleDialog(){
+    private void ShowFrameDialog(){
         AlertDialog.Builder builder=new AlertDialog.Builder(this);
         builder.setTitle("请选择传感器坐标系");
         builder.setIcon(R.drawable.ic_launcher);
@@ -215,7 +234,7 @@ public class SimulationActivity extends Activity {
                 return true;
             case R.id.frameType:
                 //chooseFrameType();
-                ShowSingleDialog();
+                ShowFrameDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -311,16 +330,16 @@ public class SimulationActivity extends Activity {
             timer2.cancel();
         }
         if(linearService!=null){
-            linearService =null;
+            linearService.stopSelf();
         }
         if(accService!=null){
-            accService =null;
+            accService.stopSelf();
         }
         if(gyroSeivice!=null){
-            gyroSeivice =null;
+            gyroSeivice.stopSelf();
         }
         if(magService!=null){
-            magService =null;
+            magService.stopSelf();
         }
         sensorListener.closeSensorThread();
         sm.unregisterListener(sensorListener);

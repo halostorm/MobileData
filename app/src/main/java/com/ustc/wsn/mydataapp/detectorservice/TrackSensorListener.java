@@ -28,7 +28,8 @@ public class TrackSensorListener implements SensorEventListener {
     private final float GYRO_STATIC_THRESHOLD = 0.1f;
     private final String TAG = TrackSensorListener.this.toString();
     private TrackSensorListener mContext = TrackSensorListener.this;
-    public final int windowSize = 40;//
+    public final int windowSize = 20;//
+    public final int DurationWindow = 10;
     public int FRAME_TYPE;//0 - phone frame/ 1 - inertial frame
 
     //路径参数
@@ -40,9 +41,11 @@ public class TrackSensorListener implements SensorEventListener {
     private float[][] magSample = new float[windowSize][3];//磁场窗
     private float[][] velocitySample = new float[windowSize][3];//速度窗
     private float[][] positionSample = new float[windowSize][3];//位置窗
+    private float[][] positionQueue = new float[DurationWindow * windowSize][3];//位置队列
     private float[] deltT = new float[windowSize];//积分时间
     private long time;
     private long timeOld;
+    public boolean Postion_Write_Disable = false;
 
     //传感器参数
     private float[] lacc = new float[3]; //phone frame
@@ -67,6 +70,8 @@ public class TrackSensorListener implements SensorEventListener {
     private float[] magMeanOld = new float[3];
 
     //滤波器参数
+    private FCF fcf;
+
     private LPF_I accLPF;
     private LPF_I gyroLPF;
     private LPF_I magLPF;
@@ -97,6 +102,7 @@ public class TrackSensorListener implements SensorEventListener {
         time = System.nanoTime();
         timeOld = System.nanoTime();
 
+        fcf = new FCF();
         //
         new Thread(new Runnable() {
             @Override
@@ -122,21 +128,72 @@ public class TrackSensorListener implements SensorEventListener {
                                 -W[1] * dt, W[0] * dt, 1f};
                         dcm = DcmMultiply(dcmOld, Matrix_W);//获取DCM
                         dcmOld = dcm.clone();
+                        /*
                         nacc = phoneToEarth(dcm, acc);//得到一次理想加速度
                         nlacc = phoneToEarth(dcm, lacc);
                         ngyro = phoneToEarth(dcm, gyro);
                         nmag = phoneToEarth(dcm, mag);
+                        */
 
+                        float[] na = fcf.translate_to_NED(fcf.q_est, fcf.acc);//得到一次理想加速度
+                        //nlacc = fcf.translate_to_NED(fcf.q_est, lacc);
+                        float[] ng = fcf.translate_to_NED(fcf.q_est, fcf.gyro);
+                        float[] nm = fcf.translate_to_NED(fcf.q_est, fcf.mag);
+
+                        nacc[0] = na[1];
+                        nacc[1] = na[0];
+                        nacc[2] = -na[2];
+
+                        ngyro[0] = ng[1];
+                        ngyro[1] = ng[0];
+                        ngyro[2] = -ng[2];
+
+                        nmag[0] = nm[1];
+                        nmag[1] = nm[0];
+                        nmag[2] = -nm[2];
+
+                        //////////////////////////////////
                         addData(deltT, dt);
                         addData(laccSample, lacc);
                         addData(accSample, acc);
                         addData(gyroSample, gyro);
                         addData(magSample, mag);
                         addData(gravitySample, gravity);
+
                     } else {
                         dcmOld = DCM_static.clone();
                         i = 0;
                     }
+                }
+            }
+        }).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                float[] dcm = DCM_static.clone();
+                float[] dcmOld = dcm.clone();
+                int i = 0;
+                while (!threadDisable_data_update) {
+                    try {
+                        Thread.sleep(25);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    time = System.nanoTime();
+                    float dt = (time - timeOld) / 1000000000f;
+                    timeOld = time;
+                    fcf.acc[0] = acc[1];
+                    fcf.acc[1] = acc[0];
+                    fcf.acc[2] = -acc[2];
+
+                    fcf.gyro[0] = gyro[1];
+                    fcf.gyro[1] = gyro[0];
+                    fcf.gyro[2] = -gyro[2];
+
+                    fcf.mag[0] = mag[1];
+                    fcf.mag[1] = mag[0];
+                    fcf.mag[2] = -mag[2];
                 }
             }
         }).start();
@@ -155,7 +212,7 @@ public class TrackSensorListener implements SensorEventListener {
                     float[] gyroVar = getVar(gyroSample);
                     float[] laccMean = getMean(laccSample);
                     float[] laccVar = getVar(laccSample);
-
+                    /*
                     Log.d(TAG, "gyroMean[0]:" + gyroMean[0]);
                     Log.d(TAG, "gyroMean[1]:" + gyroMean[1]);
                     Log.d(TAG, "gyroMean[2]:" + gyroMean[2]);
@@ -169,7 +226,7 @@ public class TrackSensorListener implements SensorEventListener {
                     Log.d(TAG, "laccVar[0]:" + laccVar[0]);
                     Log.d(TAG, "laccVar[1]:" + laccVar[1]);
                     Log.d(TAG, "laccVar[2]:" + laccVar[2]);
-
+                    */
 
                     if (laccMean[0] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroMean[0] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccVar[0] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroVar[0] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccMean[1] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroMean[1] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccVar[1] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroVar[1] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccMean[2] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroMean[2] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccVar[2] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroVar[2] < GYRO_ABSOLUTE_STATIC_THRESHOLD) {
                         NOW_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
@@ -189,36 +246,55 @@ public class TrackSensorListener implements SensorEventListener {
                     if (LAST_STATE == PhoneState.ABSOLUTE_STATIC_STATE || LAST_STATE == PhoneState.USER_STATIC_STATE) {
                         SensorManager.getRotationMatrix(DCM_static, null, accMeanOld, magMeanOld);
                     }
-                    //if (LAST_STATE == PhoneState.USER_STATIC_STATE && NOW_STATE == PhoneState.UNKONW_STATE) {
-                    // 静止DCM
-                    DcmSample[0] = DCM_static.clone();
-                    //动态DCM及轨迹
-                    for (int i = 1; i < windowSize; i++) { //when i = 0, velocitySample[i] =0; positionSample[i] =0;
-                        float[] W = gyroSample[i].clone();
-                        float[] Matrix_W = new float[]{1f, -W[2] * deltT[i], W[1] * deltT[i],//
-                                W[2] * deltT[i], 1f, -W[0] * deltT[i], //
-                                -W[1] * deltT[i], W[0] * deltT[i], 1f};
+                    //若进入Path过程
+                    if ((LAST_STATE == PhoneState.USER_STATIC_STATE || LAST_STATE == PhoneState.ABSOLUTE_STATIC_STATE) && NOW_STATE == PhoneState.UNKONW_STATE) {
+                        // 获取静止初始静止DCM
+                        Postion_Write_Disable = true;
+                        DcmSample[0] = DCM_static.clone();
+                        for (int window_count = 0; window_count < DurationWindow; window_count++) {
+                            //获取DurationWindow个轨迹段
+                            for (int i = 1; i < windowSize; i++) { //when i = 0, velocitySample[i] =0; positionSample[i] =0;
+                                float[] W = gyroSample[i].clone();
+                                float[] Matrix_W = new float[]{1f, -W[2] * deltT[i], W[1] * deltT[i],//
+                                        W[2] * deltT[i], 1f, -W[0] * deltT[i], //
+                                        -W[1] * deltT[i], W[0] * deltT[i], 1f};
 
-                        DcmSample[i] = DcmMultiply(DcmSample[i - 1], Matrix_W);//获取DCM
+                                DcmSample[i] = DcmMultiply(DcmSample[i - 1], Matrix_W);//获取DCM
 
-                        float[] accNow = phoneToEarth(DcmSample[i], accSample[i]);//得到一次理想加速度
-                        //Log.d(TAG,"accNow[0]:"+String.valueOf(i)+":\t"+accNow[0]);
-                        //Log.d(TAG,"accNow[1]:"+String.valueOf(i)+":\t"+accNow[1]);
-                        //Log.d(TAG,"accNow[2]:"+String.valueOf(i)+":\t"+accNow[2]);
-                        velocitySample[i][0] = velocitySample[i - 1][0] + accNow[0] * deltT[i];
-                        velocitySample[i][1] = velocitySample[i - 1][1] + accNow[1] * deltT[i];
-                        velocitySample[i][2] = velocitySample[i - 1][2] + accNow[2] * deltT[i];
-                        //Log.d(TAG,"velocityNow:"+String.valueOf(i)+":\t"+velocitySample[i][0]);
+                                float[] accNow = phoneToEarth(DcmSample[i], accSample[i]);//得到一次理想加速度
+                                //Log.d(TAG,"accNow[0]:"+String.valueOf(i)+":\t"+accNow[0]);
+                                //Log.d(TAG,"accNow[1]:"+String.valueOf(i)+":\t"+accNow[1]);
+                                //Log.d(TAG,"accNow[2]:"+String.valueOf(i)+":\t"+accNow[2]);
+                                velocitySample[i][0] = velocitySample[i - 1][0] + accNow[0] * deltT[i];
+                                velocitySample[i][1] = velocitySample[i - 1][1] + accNow[1] * deltT[i];
+                                velocitySample[i][2] = velocitySample[i - 1][2] + accNow[2] * deltT[i];
+                                //Log.d(TAG,"velocityNow:"+String.valueOf(i)+":\t"+velocitySample[i][0]);
 
-                        positionSample[i][0] = positionSample[i - 1][0] + 0.5f * (velocitySample[i][0] + velocitySample[i - 1][0]) * deltT[i];
-                        positionSample[i][1] = positionSample[i - 1][1] + 0.5f * (velocitySample[i][1] + velocitySample[i - 1][1]) * deltT[i];
-                        positionSample[i][2] = positionSample[i - 1][2] + 0.5f * (velocitySample[i][2] + velocitySample[i - 1][2]) * deltT[i];
+                                positionSample[i][0] = positionSample[i - 1][0] + 0.5f * (velocitySample[i][0] + velocitySample[i - 1][0]) * deltT[i];
+                                positionSample[i][1] = positionSample[i - 1][1] + 0.5f * (velocitySample[i][1] + velocitySample[i - 1][1]) * deltT[i];
+                                positionSample[i][2] = positionSample[i - 1][2] + 0.5f * (velocitySample[i][2] + velocitySample[i - 1][2]) * deltT[i];
 
-                        Log.d(TAG,"position[0]"+String.valueOf(i)+":\t"+positionSample[i][0]);
-                        Log.d(TAG,"position[1]"+String.valueOf(i)+":\t"+positionSample[i][1]);
-                        Log.d(TAG,"position[2]"+String.valueOf(i)+":\t"+positionSample[i][2]);
+                                Log.d(TAG, "position[0]" + String.valueOf(window_count * windowSize + i) + ":\t" + positionSample[i][0]);
+                                Log.d(TAG, "position[1]" + String.valueOf(window_count * windowSize + i) + ":\t" + positionSample[i][1]);
+                                Log.d(TAG, "position[2]" + String.valueOf(window_count * windowSize + i) + ":\t" + positionSample[i][2]);
+
+                                positionQueue[window_count * windowSize + i] = positionSample[i].clone();
+                            }
+                            //
+                            DcmSample[0] = DcmSample[windowSize - 1].clone();
+                            positionSample[0] = positionSample[windowSize - 1].clone();
+
+                            positionQueue[window_count * windowSize] = positionSample[0].clone();
+
+                            try {
+                                Thread.sleep(windowSize * 25);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        Postion_Write_Disable = false;
                     }
-                    //}
+
                     gravityMeanOld = gravityMean.clone();//记录姿态参数old
                     accMeanOld = accMean.clone();
                     magMeanOld = magMean.clone();
@@ -229,6 +305,7 @@ public class TrackSensorListener implements SensorEventListener {
                     laccVarOld = laccVar.clone();
                     LAST_STATE = NOW_STATE;
                 }
+
             }
         }).start();
 
@@ -262,7 +339,7 @@ public class TrackSensorListener implements SensorEventListener {
 
     public float[][] getPosition() {
 
-        return positionSample;
+        return positionQueue;
     }
 
     public void addData(float[][] sample, float[] values) {

@@ -75,7 +75,13 @@
     <string name="title_activity_open_gl">OpenGlActivity</string>
     <string name="Track">Track</string>
     <string name="title_activity_scatter">scatterActivity</string>
-    <string name="frameType">frameType</string>
+
+    <string name="AframeType">frameType</string>
+    <string name="LframeType">frameType</string>
+    <string name="GframeType">frameType</string>
+    <string name="MframeType">frameType</string>
+    <string name="frameShow">frameShow</string>
+
     <string name="chooseFrame">chooseFrame</string>
     <string name="PhoneFrame">PhoneFrame</string>
     <string name="InertialFrame">InertialFrame</string>

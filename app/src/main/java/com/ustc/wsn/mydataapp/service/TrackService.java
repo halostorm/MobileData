@@ -71,6 +71,7 @@ import com.nulana.NChart.NChartShadingModel;
 import com.nulana.NChart.NChartSolidColorBrush;
 import com.nulana.NChart.NChartValueAxesType;
 import com.nulana.NChart.NChartView;
+import com.ustc.wsn.mydataapp.detectorservice.FCF;
 
 import java.util.Random;
 
@@ -128,22 +129,13 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
         position = p.clone();
     }
 
-    public void initView() {
+    public void initView(int i ) {
         POSITION_ENABLED = true;
+        createSeries(i);
     }
 
-    public void updateData() {
-        // Create series that will be displayed on the chart.
-        int i = 0;
-        //while (i++ < window_size) {
-        createSeries(i);
-        //}
-        // Update data in the chart.
-
+    public void updateData(int i) {
         mNChartView.getChart().updateData();
-        mNChartView.getChart().removeAllSeries();
-        //}
-        //removeSeries();
     }
 
     public void createSeries(int i) {
@@ -156,13 +148,13 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
     @Override
     public NChartPoint[] points(NChartSeries series) {
         // Create points with some data for the series.
-        NChartPoint[] result = new NChartPoint[window_size+1];
+        NChartPoint[] result = new NChartPoint[window_size + 1];
         for (int i = 0; i <= window_size; i++) {
             NChartPointState[] states = new NChartPointState[1];
             if (i != window_size) {
                 if (POSITION_ENABLED) {
                     //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 0, 0, 205));
-                    states[0] = NChartPointState.PointStateWithXYZ(position[i][0] * 100,20,position[i][1] * 100);//position[j][2]
+                    states[0] = NChartPointState.PointStateWithXYZ(position[i][0] * 100, 20, position[i][1] * 100);//position[j][2]
                     //Log.d(TAG,"pathpoint:"+position[i][0]+"\t"+position[i][1]);
                 } else {
                     //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 205, 0, 0));
@@ -170,7 +162,7 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
                 }
                 mNChartView.getChart().setPointSelectionEnabled(true);
                 states[0].setMarker(marker);
-            }else {
+            } else {
                 if (POSITION_ENABLED) {
                     //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 0, 0, 205));
                     states[0] = NChartPointState.PointStateWithXYZ(20, 20, 20);//position[j][2]

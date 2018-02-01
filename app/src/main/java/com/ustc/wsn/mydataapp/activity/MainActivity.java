@@ -28,9 +28,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.nulana.nchart3d.example.DifferentCharts.ChartingDemoActivity;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 

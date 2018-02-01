@@ -35,8 +35,6 @@ public class FCF {
         last_q = new float[4];
         q_est = new float[4];
         time = 0.f;
-        //time_k_1=time_k = System.currentTimeMillis();
-        //dt = 0.025f;
 
         q_est[0] = 1.0f;
         q_est[1] = 0.0f;
@@ -49,16 +47,16 @@ public class FCF {
         last_q[3] = 0.0f;
     }
 
-    /*
-    public float inSqrt(float x) {
-        float xhalf = 0.5f * x;
-        int i =*(int*)&x;
-        i = 0x5f375a86 - (i >> 1);
-        x =*(float*)&i;
-        x = x * (1.5f - xhalf * x * x);
-        return x;
+    public float[] Filter(float dt) {
+
+        FCF_gyro_acc_mag(gyro, acc, mag, last_q, gain_a, gain_m, std_norm_m, threshold_m, dt, q_est);
+        last_q[0] = q_est[0];
+        last_q[1] = q_est[1];
+        last_q[2] = q_est[2];
+        last_q[3] = q_est[3];
+
+        return q_est;
     }
-    */
     public float InSqrt(float x) {
         double y = 1 / Math.sqrt(x);
         return (float) y;
@@ -269,17 +267,6 @@ public class FCF {
 
         return;
 
-    }
-
-    public float[] Filter() {
-
-        FCF_gyro_acc_mag(gyro, acc, mag, last_q, gain_a, gain_m, std_norm_m, threshold_m, dt, q_est);
-        last_q[0] = q_est[0];
-        last_q[1] = q_est[1];
-        last_q[2] = q_est[2];
-        last_q[3] = q_est[3];
-
-        return q_est;
     }
 
     public float[] NED_WORLD_Trans(float[] p){
