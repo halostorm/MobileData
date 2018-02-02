@@ -105,7 +105,7 @@ public class SimulationActivity extends Activity {
 
         accService = new ChartService(this);
         accService.setXYMultipleSeriesDataset("AccX", "AccY", "AccZ");
-        accService.setXYMultipleSeriesRenderer(0, 10, -20, 30, "加速度", "时间 /s", "m2/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
+        accService.setXYMultipleSeriesRenderer(0, 10, -20, 20, "加速度", "时间 /s", "m2/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
         accView = accService.getGraphicalView();
 
         linearService = new ChartService(this);
@@ -180,17 +180,17 @@ public class SimulationActivity extends Activity {
             switch (which){
                 case 0:
                     FRAME_TYPE = 0;
-                    aframevalue.setText("手机坐标系");
-                    lframevalue.setText("手机坐标系");
-                    gframevalue.setText("手机坐标系");
-                    mframevalue.setText("手机坐标系");
+                    aframevalue.setText(items[0]);
+                    lframevalue.setText(items[0]);
+                    gframevalue.setText(items[0]);
+                    mframevalue.setText(items[0]);
                     break;
                 case 1:
                     FRAME_TYPE = 1;
-                    aframevalue.setText("惯性坐标系");
-                    lframevalue.setText("惯性坐标系");
-                    mframevalue.setText("惯性坐标系");
-                    gframevalue.setText("惯性坐标系");
+                    aframevalue.setText(items[1]);
+                    lframevalue.setText(items[1]);
+                    mframevalue.setText(items[1]);
+                    gframevalue.setText(items[1]);
                     break;
             }
             dialog.dismiss();
@@ -201,7 +201,11 @@ public class SimulationActivity extends Activity {
         AlertDialog.Builder builder=new AlertDialog.Builder(this);
         builder.setTitle("请选择传感器坐标系");
         builder.setIcon(R.drawable.ic_launcher);
-        builder.setSingleChoiceItems(items,0,new DialogsingleClickListener());
+        if(FRAME_TYPE == 0) {
+            builder.setSingleChoiceItems(items, 0, new DialogsingleClickListener());
+        }else if(FRAME_TYPE == 1) {
+            builder.setSingleChoiceItems(items, 1, new DialogsingleClickListener());
+        }
         AlertDialog dialog=builder.create();
         dialog.show();
     }
@@ -316,7 +320,7 @@ public class SimulationActivity extends Activity {
             sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
         }
         if (MAGNETIC_EXIST) {
-            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
+            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_FASTEST);
         }
     }
 

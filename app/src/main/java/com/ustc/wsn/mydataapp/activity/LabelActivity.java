@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +41,7 @@ public class LabelActivity extends Activity implements OnClickListener {
     private Intent DetectorserviceIntent;
     private Toast t;
     private Timer timer;
+    private int Label = 0;
 
     private RadioButton Static;
     private RadioButton Walk;
@@ -74,47 +76,44 @@ public class LabelActivity extends Activity implements OnClickListener {
         Downstairs = (RadioButton) findViewById(R.id.btnDownstairs);
         StopLabel = (RadioButton) findViewById(R.id.btnStopLabel);
 
-        StopLabel.setChecked(true);
-
         signlabel.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup signlabel, int checkedId) {
                 RadioButton label = (RadioButton) findViewById(checkedId);
                 switch (checkedId) {
                     case R.id.btnStatic:
-                        service.setLabel(1);
+                        Label = 1;
                         break;
                     case R.id.btnWalk:
-                        service.setLabel(2);
+                        Label = 2;
                         break;
                     case R.id.btnRun:
-                        service.setLabel(3);
+                        Label = 3;
                         break;
                     case R.id.btnElevator:
-                        service.setLabel(4);
+                        Label = 4;
                         break;
                     case R.id.btnBike:
-                        service.setLabel(5);
+                        Label = 5;
                         break;
                     case R.id.btnCar:
-                        service.setLabel(6);
+                        Label = 6;
                         break;
                     case R.id.btnUpstairs:
-                        service.setLabel(7);
+                        Label = 7;
                         break;
                     case R.id.btnDownstairs:
-                        service.setLabel(8);
+                        Label = 8;
                         break;
                     case R.id.btnStopLabel:
-                        service.setLabel(0);
+                        Label = 0;
                         break;
                 }
-                t = Toast.makeText(getApplicationContext(), "当前标签是:" + label.getText(), Toast.LENGTH_LONG);
+                t = Toast.makeText(getApplicationContext(), "当前标签是:" + label.getText(), Toast.LENGTH_SHORT);
                 t.setGravity(Gravity.CENTER, 0, 0);
                 t.show();
             }
         });
-
     }
 
     private void showHelpDialog() {
@@ -130,13 +129,13 @@ public class LabelActivity extends Activity implements OnClickListener {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.setting, menu);
         //setIconEnable(menu,true);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -152,6 +151,36 @@ public class LabelActivity extends Activity implements OnClickListener {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             service = (DetectorService.MyBinder) binder;
+            Label = service.getLabel();
+            switch (service.getLabel()) {
+                case 0:
+                    StopLabel.setChecked(true);
+                    break;
+                case 1:
+                    Static.setChecked(true);
+                    break;
+                case 2:
+                    Walk.setChecked(true);
+                    break;
+                case 3:
+                    Run.setChecked(true);
+                    break;
+                case 4:
+                    Elevator.setChecked(true);
+                    break;
+                case 5:
+                    Bike.setChecked(true);
+                    break;
+                case 6:
+                    Car.setChecked(true);
+                    break;
+                case 7:
+                    Upstairs.setChecked(true);
+                    break;
+                case 8:
+                    Downstairs.setChecked(true);
+                    break;
+            }
         }
 
         @Override
@@ -163,6 +192,7 @@ public class LabelActivity extends Activity implements OnClickListener {
     @SuppressLint("ShowToast")
     public void onClick(View view) {
         // TODO Auto-generated method stub
+        service.setLabel(Label);
         if (view.getId() == R.id.btncofirmLabel) {
             finish();
         }

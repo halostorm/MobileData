@@ -165,7 +165,7 @@ public class DetectorService extends Service {
 
                     int cLabel = stateLabel;
                     while (i < windowSize) {
-                        accData = sensorListener.getLinearAccData();
+                        accData = sensorListener.getAccData();
                         gyroData = sensorListener.getGyroData();
                         magData = sensorListener.getMagData();
                         bearData = sensorListener.getBearData();
@@ -461,7 +461,7 @@ public class DetectorService extends Service {
             sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
         }
         if (MAGNETIC_EXIST) {
-            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
+            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_FASTEST);
         }
         //sm.registerListener(sensorListener,rotation,SensorManager.SENSOR_DELAY_GAME);
     }

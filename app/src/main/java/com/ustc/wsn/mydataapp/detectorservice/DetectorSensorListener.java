@@ -41,6 +41,7 @@ public class DetectorSensorListener implements SensorEventListener {
     private final int Data_Size = 10000;// sensor 缓冲池大小为1000
 
     private String[] LinearaccData;
+    private String[] accData;
     private String[] gyroData;
     private String[] magData;
     private String[] bearData;
@@ -53,12 +54,14 @@ public class DetectorSensorListener implements SensorEventListener {
     private String LinearaccNow;
     // 当前写入位置
     private int LinearAcc_cur;
+    private int acc_cur;
     private int gyro_cur;
     private int mag_cur;
     private int bear_cur;
     private int rot_cur;
     // 当前读取位置
     private int LinearAcc_old;
+    private int acc_old;
     private int gyro_old;
     private int mag_old;
     private int bear_old;
@@ -98,11 +101,13 @@ public class DetectorSensorListener implements SensorEventListener {
         // TODO Auto-generated constructor stub
         super();
         LinearAcc_cur = 0;
+        acc_cur=0;
         gyro_cur = 0;
         mag_cur = 0;
         rot_cur = 0;
 
         LinearaccData = new String[Data_Size];
+        accData = new String[Data_Size];
         gyroData = new String[Data_Size];
         magData = new String[Data_Size];
         bearData = new String[Data_Size];
@@ -116,9 +121,9 @@ public class DetectorSensorListener implements SensorEventListener {
         gyroLPF = new LPF_I();
         magLPF = new LPF_I();
 
-        accMF = new MeanFilter();
-        gyroMF = new MeanFilter();
-        magMF = new MeanFilter();
+        accMF = new MeanFilter(5);
+        gyroMF = new MeanFilter(5);
+        magMF = new MeanFilter(5);
 
         linear_acceleration = new float[3];
         gpsBear = new String();
@@ -236,6 +241,7 @@ public class DetectorSensorListener implements SensorEventListener {
                     }
                     if (initDataPass) {
                         setLinearAccData();
+                        setAccData();
                         setGyroData();
                         setMagData();
                         setRotData();
@@ -328,9 +334,11 @@ public class DetectorSensorListener implements SensorEventListener {
                         temp[1] = worldData[0];
                         temp[2] = -worldData[2];
                     }
-                    //Log.d(TAG,"accRaw:"+String.valueOf(event.values[2]));
-                    this.LinearaccNow = (new AcceleratorData(tempL)).toString();
-                    this.accNow = (new AcceleratorData(temp)).toString();
+                    //this.LinearaccNow = (new AcceleratorData(tempL)).toString();
+                    //this.accNow = (new AcceleratorData(temp)).toString();
+
+                    this.LinearaccNow = (new AcceleratorData(linear_acceleration)).toString();
+                    this.accNow = (new AcceleratorData(event.values)).toString();
                 }
                 break;
             case Sensor.TYPE_GYROSCOPE:
@@ -363,7 +371,8 @@ public class DetectorSensorListener implements SensorEventListener {
                         temp[2] = -worldData[2];
                     }
 
-                    this.gyroNow = (new GyroData(temp)).toString();
+                    //this.gyroNow = (new GyroData(temp)).toString();
+                    this.gyroNow = (new GyroData(event.values)).toString();
                     timeOld = time;
                 }
                 break;
@@ -391,7 +400,8 @@ public class DetectorSensorListener implements SensorEventListener {
                         temp[1] = worldData[0];
                         temp[2] = -worldData[2];
                     }
-                    this.magNow = (new MagnetData(temp)).toString();
+                    //this.magNow = (new MagnetData(temp)).toString();
+                    this.magNow = (new MagnetData(event.values)).toString();
                 }
                 break;
         }
@@ -401,13 +411,24 @@ public class DetectorSensorListener implements SensorEventListener {
 
 
     public void setLinearAccData() {
-        if (((LinearAcc_cur + 1) % Data_Size != LinearAcc_old) && accNow != null) {// 不满
-            if (accNow != null) {
+        if (((LinearAcc_cur + 1) % Data_Size != LinearAcc_old) && LinearaccNow != null) {// 不满
+            if (LinearaccNow != null) {
                 this.LinearaccData[LinearAcc_cur] = System.currentTimeMillis() + "\t" + LinearaccNow;
             } else {
                 this.LinearaccData[LinearAcc_cur] = null;
             }
             LinearAcc_cur = (LinearAcc_cur + 1) % Data_Size;
+        }
+    }
+
+    public void setAccData() {
+        if (((acc_cur + 1) % Data_Size != acc_old) && accNow != null) {// 不满
+            if (accNow != null) {
+                this.accData[acc_cur] = System.currentTimeMillis() + "\t" + accNow;
+            } else {
+                this.accData[acc_cur] = null;
+            }
+            acc_cur = (acc_cur + 1) % Data_Size;
         }
     }
 
@@ -468,6 +489,15 @@ public class DetectorSensorListener implements SensorEventListener {
             return LinearaccData[i];
         } else return null;
     }
+
+    public String getAccData() {
+        if (acc_cur != acc_old) { // 不空
+            int i = acc_old;
+            acc_old = (acc_old + 1) % Data_Size;
+            return accData[i];
+        } else return null;
+    }
+
 
     public String getGyroData() {
         if (gyro_cur != gyro_old) {// 不空

@@ -5,7 +5,7 @@ package com.ustc.wsn.mydataapp.detectorservice;
  */
 
 public class LPF_I {
-    private float alpha = 0.8f;// 截至频率: Ft = [(1-alpha) / (2*PI) * Fc]
+    private float alpha = 0.6f;// 截至频率: Ft = [(1-alpha) / (2*PI) * Fc]
     private float[] in;
     private float[] out;
 

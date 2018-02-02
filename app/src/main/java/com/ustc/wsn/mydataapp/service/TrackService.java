@@ -100,7 +100,7 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
         marker = new NChartMarker();
         marker.setBrush(brushes);
         marker.setShape(NChartMarkerShape.Circle);
-        marker.setSize(5);
+        marker.setSize(2);
 
         brushesP = new NChartSolidColorBrush(Color.argb(255, 205, 0, 0));
         brushesP.setShadingModel(NChartShadingModel.Phong);
@@ -150,11 +150,12 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
         // Create points with some data for the series.
         NChartPoint[] result = new NChartPoint[window_size + 1];
         for (int i = 0; i <= window_size; i++) {
+            //Log.d("windowsize","windowsize:\t"+String.valueOf(window_size));
             NChartPointState[] states = new NChartPointState[1];
             if (i != window_size) {
                 if (POSITION_ENABLED) {
                     //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 0, 0, 205));
-                    states[0] = NChartPointState.PointStateWithXYZ(position[i][0] * 100, 20, position[i][1] * 100);//position[j][2]
+                    states[0] = NChartPointState.PointStateWithXYZ(position[i][0] * 100, position[i][2] * 100, position[i][1] * 100);//position[j][2]
                     //Log.d(TAG,"pathpoint:"+position[i][0]+"\t"+position[i][1]);
                 } else {
                     //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 205, 0, 0));

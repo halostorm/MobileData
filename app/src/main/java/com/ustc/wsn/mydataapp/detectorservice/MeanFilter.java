@@ -5,11 +5,12 @@ package com.ustc.wsn.mydataapp.detectorservice;
  */
 
 public class MeanFilter {
-    private final int SAMPLE_NUMBER = 10;
+    private int SAMPLE_NUMBER = 1;
     private float[][] sampleList;
     private float[] mean;
 
-    public MeanFilter() {
+    public MeanFilter(int sample_number) {
+        SAMPLE_NUMBER = sample_number;
         sampleList = new float[SAMPLE_NUMBER][3];
         mean = new float[3];
     }
@@ -22,7 +23,6 @@ public class MeanFilter {
         calMean();
         return this.mean;
     }
-
     public void calMean() {
         for (int i = 0; i < SAMPLE_NUMBER; i++) {
             mean[0] += sampleList[i][0];
