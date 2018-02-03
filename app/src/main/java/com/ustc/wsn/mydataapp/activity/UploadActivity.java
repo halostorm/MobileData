@@ -44,7 +44,7 @@ public class UploadActivity extends Activity implements OnClickListener {
     @Override
     public void onClick(View view) {
         // TODO Auto-generated method stub
-        Toast.makeText(this, "Start", Toast.LENGTH_LONG);
+        //Toast.makeText(this, "Start", Toast.LENGTH_LONG);
         switch (view.getId()) {
             case R.id.btnStartUpload:
                 int netType = getNetworkType();

@@ -110,11 +110,13 @@ public class LabelActivity extends Activity implements OnClickListener {
                         Label = 0;
                         break;
                 }
+                /*
                 if(Label!=LabelOld) {
                     t = Toast.makeText(getApplicationContext(), "当前标签是:" + label.getText(), Toast.LENGTH_SHORT);
                     t.setGravity(Gravity.CENTER, 0, 0);
                     t.show();
                 }
+                */
             }
         });
     }
