@@ -1,4 +1,5 @@
 Mobile Data 简介
+
 Mobile Data 是一款致力于分析提取智能手机传感器信息的App。您可以使用手机号匿名登陆Mobile Data系统，采集您的手机传感器信息，也可以实时观测你的传感器运行情况。Mobile Data同时提供数据上传服务，您可以将采集到的数据上传至云服务器。
 
 Mobile Data 传感器信息说明
@@ -15,6 +16,8 @@ Mobile Data 提供数据标签的功能，如果您需要采集人工智能模�
 
 如有使用疑问，请联系：
 WenwenDu
+
 Email: dwwo@mail.ustc.edu.cn
+
 Tel:18355180339
 
