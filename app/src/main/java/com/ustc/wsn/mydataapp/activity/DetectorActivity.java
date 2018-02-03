@@ -124,7 +124,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
         try{
             startActivity(intent);
         }catch(Exception e){
-            Toast.makeText(this, "没有正确打开文件管理器", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "无可用文件管理器", Toast.LENGTH_SHORT).show();
         }
     }
 

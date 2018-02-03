@@ -106,9 +106,26 @@
                 android:text="Mobile Data 提供数据标签的功能，如果您需要采集人工智能模型训练数据，请使用此功能。系统目前提供：静止（1），步行（2），跑步（3），乘电梯（4），骑自行车（5），坐车（6），上楼梯（7），下楼梯（8）等8种运动状态标签。在您进行某种运动时，请点击对应标签标记数据。"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
+            <TextView
+                android:id="@+id/text_header_introduction_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:text="Mobile Data 轨迹还原功能"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/text_introduction_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:text="Mobile Data 提供短时手机轨迹还原功能，app会自动检测手机的静止状态，从手机位置发生移动开始，还原持续数秒的轨迹。值得注意的是，轨迹还原功能仅在手机 “静->动” 切换时，还原轨迹。"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+
+            <TextView
+                android:id="@+id/text_introduction_4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
