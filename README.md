@@ -1,4 +1,4 @@
-Mobile Data 简介-请使用最新版本branch(Vx.x.0)
+Mobile Data 简介-请使用最新版本branch(Vx.x.x)
 
 Mobile Data 是一款致力于分析提取智能手机传感器信息的App。您可以使用手机号匿名登陆Mobile Data系统，采集您的手机传感器信息，也可以实时观测你的传感器运行情况。Mobile Data同时提供数据上传服务，您可以将采集到的数据上传至云服务器。
 
