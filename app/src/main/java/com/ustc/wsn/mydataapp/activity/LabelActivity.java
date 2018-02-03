@@ -42,6 +42,7 @@ public class LabelActivity extends Activity implements OnClickListener {
     private Toast t;
     private Timer timer;
     private int Label = 0;
+    private int LabelOld = 0;
 
     private RadioButton Static;
     private RadioButton Walk;
@@ -109,9 +110,11 @@ public class LabelActivity extends Activity implements OnClickListener {
                         Label = 0;
                         break;
                 }
-                t = Toast.makeText(getApplicationContext(), "当前标签是:" + label.getText(), Toast.LENGTH_SHORT);
-                t.setGravity(Gravity.CENTER, 0, 0);
-                t.show();
+                if(Label!=LabelOld) {
+                    t = Toast.makeText(getApplicationContext(), "当前标签是:" + label.getText(), Toast.LENGTH_SHORT);
+                    t.setGravity(Gravity.CENTER, 0, 0);
+                    t.show();
+                }
             }
         });
     }
@@ -152,6 +155,7 @@ public class LabelActivity extends Activity implements OnClickListener {
         public void onServiceConnected(ComponentName name, IBinder binder) {
             service = (DetectorService.MyBinder) binder;
             Label = service.getLabel();
+            LabelOld = Label;
             switch (service.getLabel()) {
                 case 0:
                     StopLabel.setChecked(true);

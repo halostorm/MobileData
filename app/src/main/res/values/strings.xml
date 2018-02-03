@@ -85,5 +85,7 @@
     <string name="chooseFrame">chooseFrame</string>
     <string name="PhoneFrame">PhoneFrame</string>
     <string name="InertialFrame">InertialFrame</string>
+    <string name="ifdetectoropen">ifdetectoropen</string>
+    <string name="open_path">open_path</string>
 
 </resources>

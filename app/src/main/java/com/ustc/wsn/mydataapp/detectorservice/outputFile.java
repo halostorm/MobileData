@@ -47,6 +47,9 @@ public class outputFile {
 
 	}
 
+	public static File  getDir(){
+		return dir;
+	}
 	public static File getaccFile() {
 		current_time = System.currentTimeMillis();
 		accFile = new File(dir, "Accel" + "_" + TimeUtil.getTime_name(current_time) + ".txt");

@@ -11,13 +11,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -26,13 +29,16 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
+
 import com.ustc.wsn.mydataapp.detectorservice.outputFile;
 import com.ustc.wsn.mydataapp.service.DetectorService;
 import com.ustc.wsn.mydataapp.service.GpsService;
 import com.ustc.wsn.mydataapp.utils.UploadManagers;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,12 +54,16 @@ public class DetectorActivity extends Activity implements OnClickListener {
     protected Intent LabelActivityIntent;
     protected Intent UploadActivityIntent;
     protected Intent trackActivityIntent;
+    private outputFile store;
     private Toast t;
     private LocationManager loc_int;
+    private TextView ifCollecting;
+    private Button btnStartService;
+    private Button btnStopService;
     //private volatile int stateLabel;
     //private DetectorService msgService;
     private boolean serviceStart = false;
-    protected static final String TAG = null;
+    protected final String TAG = DetectorActivity.this.toString();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +82,9 @@ public class DetectorActivity extends Activity implements OnClickListener {
             startActivityForResult(intent, 0);
             // return;
         }
-          //  就是这一句使图标能显示
-        Button btnStartService = (Button) findViewById(R.id.btnStartService);
-        Button btnStopService = (Button) findViewById(R.id.btnStopService);
+        //  就是这一句使图标能显示
+        btnStartService = (Button) findViewById(R.id.btnStartService);
+        btnStopService = (Button) findViewById(R.id.btnStopService);
         btnStartService.setOnClickListener(this);
         btnStopService.setOnClickListener(this);
 
@@ -90,13 +100,32 @@ public class DetectorActivity extends Activity implements OnClickListener {
         Button btnTrack = (Button) findViewById(R.id.btnTrack);
         btnTrack.setOnClickListener(this);
 
-        new outputFile();//create data path
+        //ifCollecting.setOnClickListener(this);
+
+        store = new outputFile();//create data path
+        //Log.d(TAG,"path:"+store.getDir().getPath()+"\t"+store.getDir().getName());
         DetectorserviceIntent = new Intent(this, DetectorService.class);
         GpsserviceIntent = new Intent(this, GpsService.class);
         SimpleActivityIntent = new Intent(this, SimulationActivity.class);
         LabelActivityIntent = new Intent(this, LabelActivity.class);
         UploadActivityIntent = new Intent(this, UploadActivity.class);
         trackActivityIntent = new Intent(this, ChartingDemoActivity.class);
+    }
+
+    public void openSystemFile(){
+        Intent intent=new Intent(Intent.ACTION_VIEW);
+        //系统调用Action属性
+        intent.setDataAndType(Uri.fromFile(store.getDir()),"*/*");
+        //设置文件类型
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        // 添加Category属性
+        try{
+            startActivity(intent);
+        }catch(Exception e){
+            Toast.makeText(this, "没有正确打开文件管理器", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showHelpDialog() {
@@ -112,18 +141,15 @@ public class DetectorActivity extends Activity implements OnClickListener {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.setting, menu);
+        getMenuInflater().inflate(R.menu.detector_setting, menu);
         //setIconEnable(menu,true);
         return true;
     }
 
-    private void setIconEnable(Menu menu, boolean enable)
-    {
-        try
-        {
+    private void setIconEnable(Menu menu, boolean enable) {
+        try {
             Class<?> clazz = Class.forName("com.ustc.wsn.mydataapp.activity.DetectorActivity");
             Method m = clazz.getDeclaredMethod("setOptionalIconsVisible", boolean.class);
             m.setAccessible(true);
@@ -131,8 +157,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
             //MenuBuilder实现Menu接口，创建菜单时，传进来的menu其实就是MenuBuilder对象(java的多态特征)
             m.invoke(menu, enable);
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -142,6 +167,9 @@ public class DetectorActivity extends Activity implements OnClickListener {
         switch (item.getItemId()) {
             case R.id.menu_settings_help:
                 showHelpDialog();
+                return true;
+            case R.id.open_path:
+                openSystemFile();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -204,27 +232,34 @@ public class DetectorActivity extends Activity implements OnClickListener {
         Toast.makeText(this, "Start", Toast.LENGTH_LONG);
         switch (view.getId()) {
             case R.id.btnStartService:
-                startService(DetectorserviceIntent);
-                startService(GpsserviceIntent);
-                serviceStart = true;
-                // bindService(DetectorserviceIntent, conn, Context.BIND_AUTO_CREATE);
-                t = Toast.makeText(this, "开始采集", Toast.LENGTH_SHORT);
-                t.setGravity(Gravity.CENTER, 0, 0);
-                t.show();
-                break;
+                if (serviceStart == false) {
+                    startService(DetectorserviceIntent);
+                    startService(GpsserviceIntent);
+                    serviceStart = true;
+                    /*
+                    t = Toast.makeText(this, "开始采集", Toast.LENGTH_SHORT);
+                    t.setGravity(Gravity.CENTER, 0, 0);
+                    t.show();
+                    */
+                    btnStartService.setText("采集中");
+                    btnStartService.setTextColor(Color.BLUE);
+                } break;
             case R.id.btnViewData:
-                    startActivity(SimpleActivityIntent);
-
+                startActivity(SimpleActivityIntent);
                 break;
             case R.id.btnStopService:
                 if (serviceStart == true) {
                     // unbindService(conn);
                     stopService(DetectorserviceIntent);
                     stopService(GpsserviceIntent);
+                    /*
                     t = Toast.makeText(this, "停止采集", Toast.LENGTH_SHORT);
                     t.setGravity(Gravity.CENTER, 0, 0);
                     t.show();
+                    */
                     serviceStart = false;
+                    btnStartService.setText("开始采集");
+                    btnStartService.setTextColor(Color.BLACK);
                     break;
                 } else {
                     t = Toast.makeText(this, "未开始采集", Toast.LENGTH_SHORT);
@@ -236,7 +271,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 if (serviceStart == true) {
                     startActivity(LabelActivityIntent);
                     break;
-                } else{
+                } else {
                     t = Toast.makeText(this, "请先开始采集数据", Toast.LENGTH_SHORT);
                     t.setGravity(Gravity.CENTER, 0, 0);
                     t.show();

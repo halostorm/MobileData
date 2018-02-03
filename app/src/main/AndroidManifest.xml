@@ -35,7 +35,7 @@
         </activity>
         <activity
             android:name="com.ustc.wsn.mydataapp.activity.DetectorActivity"
-            android:label="@string/app_name" />
+            android:label="@string/app_name"/>
 
         <service
             android:name="com.ustc.wsn.mydataapp.service.DetectorService"
@@ -65,10 +65,12 @@
 
         <activity
             android:name="com.ustc.wsn.mydataapp.activity.LabelActivity"
-            android:label="标签" />
+            android:label="标签"
+            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.MinWidth" />
         <activity
             android:name="com.ustc.wsn.mydataapp.activity.UploadActivity"
-            android:label="上传数据" />
+            android:label="上传数据"
+            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.MinWidth"/>
 
         <service
             android:name="com.ustc.wsn.mydataapp.service.TrackService"
