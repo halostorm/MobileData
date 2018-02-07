@@ -147,7 +147,7 @@ public class CalibrateStateActivity extends Activity {
                 out += PhoneState.GYRO_STATIC_THRESHOLD + "\n";
             } else {
                 PhoneState.GYRO_STATIC_THRESHOLD = Float.parseFloat(gyroUserParams);
-                out += gyroAbParams + "\n";
+                out += gyroUserParams + "\n";
             }
 
             File params = outputFile.getParamsFile();

@@ -7,10 +7,14 @@ package com.ustc.wsn.mydataapp.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -106,8 +110,8 @@ public class DetectorActivity extends Activity implements OnClickListener {
         //ifCollecting.setOnClickListener(this);
 
         Intent intent = this.getIntent();
-        psw=intent.getStringExtra("userId");
-        Log.d(TAG,"userID1:"+psw);
+        psw = intent.getStringExtra("userId");
+        Log.d(TAG, "userID1:" + psw);
         store = new outputFile(psw);//create data path
 
         PhoneState.initParams();
@@ -117,22 +121,22 @@ public class DetectorActivity extends Activity implements OnClickListener {
         SimpleActivityIntent = new Intent(this, SimulationActivity.class);
         LabelActivityIntent = new Intent(this, LabelActivity.class);
         UploadActivityIntent = new Intent(this, UploadActivity.class);
-        UploadActivityIntent.putExtra("userId",psw);
+        UploadActivityIntent.putExtra("userId", psw);
         trackActivityIntent = new Intent(this, ChartingDemoActivity.class);
     }
 
-    public void openSystemFile(){
-        Intent intent=new Intent(Intent.ACTION_VIEW);
+    public void openSystemFile() {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
         //系统调用Action属性
-        intent.setDataAndType(Uri.fromFile(store.getDir()),"*/*");
+        intent.setDataAndType(Uri.fromFile(store.getDir()), "*/*");
         //设置文件类型
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         // 添加Category属性
-        try{
+        try {
             startActivity(intent);
-        }catch(Exception e){
+        } catch (Exception e) {
             Toast.makeText(this, "无可用文件管理器", Toast.LENGTH_SHORT).show();
         }
     }
@@ -180,11 +184,38 @@ public class DetectorActivity extends Activity implements OnClickListener {
             case R.id.open_path:
                 openSystemFile();
                 return true;
+            case R.id.exitSystem:
+                finish();
+                System.exit(0);
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        PackageManager pm = getPackageManager();
+        ResolveInfo homeInfo = pm.resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            ActivityInfo ai = homeInfo.activityInfo;
+            Intent startIntent = new Intent(Intent.ACTION_MAIN);
+            startIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+            startIntent.setComponent(new ComponentName(ai.packageName, ai.name));
+            startActivitySafely(startIntent);
+            return true;
+        } else return super.onKeyDown(keyCode, event);
+    }
+
+    private void startActivitySafely(Intent intent) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+        } catch (SecurityException e) {
+        }
+    }
+
+/*
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -213,7 +244,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
             System.exit(0);
         }
     }
-
+*/
 
     @Override
     protected void onDestroy() {
@@ -250,21 +281,21 @@ public class DetectorActivity extends Activity implements OnClickListener {
                     loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                     // 判断GPS是否正常启动
                     if (!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                        t = Toast.makeText(this, "请开启高精度GPS导航！", Toast.LENGTH_SHORT);
+                        t = Toast.makeText(this, "请开启高精度GPS！", Toast.LENGTH_SHORT);
                         t.setGravity(Gravity.CENTER, 0, 0);
                         t.show();
                         // 返回开启GPS导航设置界面
                         Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivityForResult(intent, 0);
-                    }
-                    else {
+                    } else {
                         startService(DetectorserviceIntent);
                         startService(GpsserviceIntent);
                         serviceStart = true;
                         btnStartService.setText("采集中");
                         btnStartService.setTextColor(Color.BLUE);
                     }
-                } break;
+                }
+                break;
             case R.id.btnViewData:
                 startActivity(SimpleActivityIntent);
                 break;
@@ -282,10 +313,6 @@ public class DetectorActivity extends Activity implements OnClickListener {
                     btnStartService.setText("开始采集");
                     btnStartService.setTextColor(Color.BLACK);
                     break;
-                } else {
-                    t = Toast.makeText(this, "未开始采集", Toast.LENGTH_SHORT);
-                    t.setGravity(Gravity.CENTER, 0, 0);
-                    t.show();
                 }
                 break;
             case R.id.btnStartLabel:

@@ -86,7 +86,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:text="Mobile Data 使用的传感器包括：GPS，3轴陀螺仪，3轴加速度计，3轴线性加速度计，3轴电子罗盘。采集到的数据位于您的手机存储空间 Mobile Data 文件夹下。\n传感器数据格式：[状态标签L，时间戳，线性加速度计X，线性加速度计Y，线性加速度计Z，陀螺仪X，陀螺仪Y，陀螺仪Z，罗盘X，罗盘Y，罗盘Z，手机运动方向D]。\n数据坐标系：NED(北-东-地)坐标系。"
+                android:text="Mobile Data 使用的传感器包括：GPS，3轴陀螺仪，3轴加速度计，3轴线性加速度计，3轴电子罗盘。采集到的数据位于您的手机存储空间 Mobile Data 文件夹下。\n传感器数据格式：[状态标签L，时间戳，线性加速度计X，线性加速度计Y，线性加速度计Z，陀螺仪X，陀螺仪Y，陀螺仪Z，罗盘X，罗盘Y，罗盘Z，手机运动方向D]。\n数据坐标系：\n1. Android手机坐标系。2. NED(北-东-地)坐标系。"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView
@@ -120,7 +120,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:text="Mobile Data 提供短时手机轨迹还原功能，app会自动检测手机的静止状态，从手机位置发生移动开始，还原持续数秒的轨迹。值得注意的是，轨迹还原功能仅在手机 “静->动” 切换时，还原轨迹。"
+                android:text="Mobile Data 提供短时手机轨迹还原功能，app会自动检测手机的静止状态，从手机位置发生移动开始，还原持续数秒的轨迹。值得注意的是，轨迹还原功能仅在检测到手机 “静->动” 切换时，才还原轨迹。"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
 

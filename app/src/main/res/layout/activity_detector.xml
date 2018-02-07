@@ -26,6 +26,17 @@
         android:text="停止采集" />
 
     <Button
+        android:id="@+id/btnStartLabel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@layout/label_round"
+        android:elevation="10dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="10dp"
+        android:text="标记数据" />
+
+    <Button
         android:id="@+id/btnViewData"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -47,16 +58,6 @@
         android:layout_marginBottom="10dp"
         android:text="轨迹还原" />
 
-    <Button
-        android:id="@+id/btnStartLabel"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@layout/label_round"
-        android:elevation="10dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="10dp"
-        android:text="标记数据" />
     <Button
         android:id="@+id/btnBeginUploadActivity"
         android:layout_width="fill_parent"
