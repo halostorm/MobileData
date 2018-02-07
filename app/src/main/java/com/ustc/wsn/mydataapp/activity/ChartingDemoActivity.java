@@ -5,12 +5,17 @@ package com.ustc.wsn.mydataapp.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
 import android.view.animation.RotateAnimation;
 import android.widget.Toast;
 
@@ -44,6 +49,44 @@ public class ChartingDemoActivity extends Activity {
         WindowSize = sensorListener.windowSize*sensorListener.DurationWindow;
         sampleInterval = sensorListener.sampleInterval;
         loadView();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.path_params_setting, menu);
+        //setIconEnable(menu,true);
+        return true;
+    }
+
+    private void showHelpDialog() {
+        Dialog helpDialog = new Dialog(this);
+        helpDialog.setCancelable(true);
+        helpDialog.setCanceledOnTouchOutside(true);
+
+        helpDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        helpDialog.setContentView(getLayoutInflater().inflate(R.layout.help, null));
+
+        helpDialog.show();
+    }
+
+    private void calibrate_state(){
+        Intent intent = new Intent(this,CalibrateStateActivity.class);
+        startActivity(intent);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_settings_help:
+                showHelpDialog();
+                return true;
+            case R.id.calibrate_state:
+                calibrate_state();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void loadView() {

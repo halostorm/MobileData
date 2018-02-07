@@ -34,7 +34,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/mid_orange"
                         android:text="手机坐标系"
-                        android:textStyle="bold" 
+                        android:textStyle="bold"
                         android:textAppearance="?android:attr/textAppearanceSmall" />
                 </RelativeLayout>
 

@@ -22,10 +22,11 @@ public class TrackSensorListener implements SensorEventListener {
     private Context c = null;
     private static int LAST_STATE = PhoneState.UNKONW_STATE;
     private static int NOW_STATE = PhoneState.UNKONW_STATE;
-    private final float ACC_ABSOLUTE_STATIC_THRESHOLD = 0.01f;
-    private final float GYRO_ABSOLUTE_STATIC_THRESHOLD = 0.01f;
-    private final float ACC_STATIC_THRESHOLD = 0.1f;
-    private final float GYRO_STATIC_THRESHOLD = 0.1f;
+    private float ACC_ABSOLUTE_STATIC_THRESHOLD;
+    private float GYRO_ABSOLUTE_STATIC_THRESHOLD;
+    private float ACC_STATIC_THRESHOLD;
+    private float GYRO_STATIC_THRESHOLD;
+
     private final String TAG = TrackSensorListener.this.toString();
     private TrackSensorListener mContext = TrackSensorListener.this;
     public final int windowSize = 20;//20*windowSize ms - 500ms
@@ -101,6 +102,7 @@ public class TrackSensorListener implements SensorEventListener {
     public TrackSensorListener(AppResourceApplication resource) {
         // TODO Auto-generated constructor stub
         super();
+        updateThresHoldParams();
         accLPF = new LPF_I();
         gyroLPF = new LPF_I();
         magLPF = new LPF_I();
@@ -148,7 +150,7 @@ public class TrackSensorListener implements SensorEventListener {
                         dcmOld = DCM_static.clone();
                         i = 0;
                     }
-                    
+
                     nacc = phoneToEarth(dcm, acc);//得到一次理想加速度
                     nlacc = phoneToEarth(dcm, lacc);
                     ngyro = phoneToEarth(dcm, gyro);
@@ -227,6 +229,7 @@ public class TrackSensorListener implements SensorEventListener {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    updateThresHoldParams();
                     //状态参数更新
                     float[] gyroMean = getMean(gyroSample);
                     float[] gyroVar = getVar(gyroSample);
@@ -250,13 +253,13 @@ public class TrackSensorListener implements SensorEventListener {
 
                     if (laccMean[0] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroMean[0] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccVar[0] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroVar[0] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccMean[1] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroMean[1] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccVar[1] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroVar[1] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccMean[2] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroMean[2] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccVar[2] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroVar[2] < GYRO_ABSOLUTE_STATIC_THRESHOLD) {
                         NOW_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
-                        Log.d(TAG, "当前状态是:绝对静止");
+                        //Log.d(TAG, "当前状态是:绝对静止");
                     } else if (laccMean[0] < ACC_STATIC_THRESHOLD && gyroMean[0] < GYRO_STATIC_THRESHOLD && laccVar[0] < ACC_STATIC_THRESHOLD && gyroVar[0] < GYRO_STATIC_THRESHOLD && laccMean[1] < ACC_STATIC_THRESHOLD && gyroMean[1] < GYRO_STATIC_THRESHOLD && laccVar[1] < ACC_STATIC_THRESHOLD && gyroVar[1] < GYRO_STATIC_THRESHOLD && laccMean[2] < ACC_STATIC_THRESHOLD && gyroMean[2] < GYRO_STATIC_THRESHOLD && laccVar[2] < ACC_STATIC_THRESHOLD && gyroVar[2] < GYRO_STATIC_THRESHOLD) {
                         NOW_STATE = PhoneState.USER_STATIC_STATE;
-                        Log.d(TAG, "当前状态是:相对静止");
+                        //Log.d(TAG, "当前状态是:相对静止");
                     } else {
                         NOW_STATE = PhoneState.UNKONW_STATE;
-                        Log.d(TAG, "当前状态是:其他");
+                        //Log.d(TAG, "当前状态是:其他");
                     }
                     //姿态参数更新
                     float[] gravityMean = getMean(gravitySample);
@@ -286,13 +289,13 @@ public class TrackSensorListener implements SensorEventListener {
                             float[] laccVarin = getVar(laccSample);
                             if (laccMeanin[0] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroMeanin[0] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccVarin[0] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroVarin[0] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccMeanin[1] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroMeanin[1] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccVarin[1] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroVarin[1] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccMeanin[2] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroMeanin[2] < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccVarin[2] < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroVarin[2] < GYRO_ABSOLUTE_STATIC_THRESHOLD) {
                                 NOW_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
-                                Log.d(TAG, "内部状态是:绝对静止");
+                                //Log.d(TAG, "内部状态是:绝对静止");
                             } else if (laccMeanin[0] < ACC_STATIC_THRESHOLD && gyroMeanin[0] < GYRO_STATIC_THRESHOLD && laccVarin[0] < ACC_STATIC_THRESHOLD && gyroVarin[0] < GYRO_STATIC_THRESHOLD && laccMeanin[1] < ACC_STATIC_THRESHOLD && gyroMeanin[1] < GYRO_STATIC_THRESHOLD && laccVarin[1] < ACC_STATIC_THRESHOLD && gyroVarin[1] < GYRO_STATIC_THRESHOLD && laccMeanin[2] < ACC_STATIC_THRESHOLD && gyroMeanin[2] < GYRO_STATIC_THRESHOLD && laccVarin[2] < ACC_STATIC_THRESHOLD && gyroVarin[2] < GYRO_STATIC_THRESHOLD) {
                                 NOW_STATE = PhoneState.USER_STATIC_STATE;
-                                Log.d(TAG, "内部状态是:相对静止");
+                                //Log.d(TAG, "内部状态是:相对静止");
                             } else {
                                 NOW_STATE = PhoneState.UNKONW_STATE;
-                                Log.d(TAG, "内部状态是:其他");
+                                //Log.d(TAG, "内部状态是:其他");
                             }
                             if (NOW_STATE == PhoneState.ABSOLUTE_STATIC_STATE) {//|| NOW_STATE == PhoneState.USER_STATIC_STATE) {
                                 //当前窗口已经停止
@@ -359,6 +362,13 @@ public class TrackSensorListener implements SensorEventListener {
 
     }
 
+    public void updateThresHoldParams(){
+        ACC_ABSOLUTE_STATIC_THRESHOLD = PhoneState.ACC_ABSOLUTE_STATIC_THRESHOLD;
+        GYRO_ABSOLUTE_STATIC_THRESHOLD = PhoneState.GYRO_ABSOLUTE_STATIC_THRESHOLD;
+        ACC_STATIC_THRESHOLD = PhoneState.ACC_STATIC_THRESHOLD;
+        GYRO_STATIC_THRESHOLD = PhoneState.GYRO_STATIC_THRESHOLD;
+    }
+
     public float[] readLinearAccData(int TYPE) {
         if (TYPE == 0) {
             return this.lacc;
@@ -388,6 +398,10 @@ public class TrackSensorListener implements SensorEventListener {
     public float[][] getPosition() {
 
         return positionQueue;
+    }
+
+    public int getNowState() {
+        return NOW_STATE;
     }
 
     /*

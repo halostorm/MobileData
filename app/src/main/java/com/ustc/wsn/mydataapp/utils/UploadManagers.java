@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
+import com.ustc.wsn.mydataapp.activity.UploadActivity;
 import com.ustc.wsn.mydataapp.service.AutoUploadSeriver;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class UploadManagers {
     }
     public static void initAutoUploadSeriver(Context context, String foldersPath, String userId) {
         if (!isServiceRunning(AutoUploadSeriver.class.getName(),context)) {
+            Toast.makeText(context,foldersPath,Toast.LENGTH_SHORT).show();
             intent = new Intent(context, AutoUploadSeriver.class);
             intent.putExtra("foldersPath",foldersPath);
             intent.putExtra("userId",userId);

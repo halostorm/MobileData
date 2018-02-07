@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import com.ustc.wsn.mydataapp.bean.PhoneState;
 import com.ustc.wsn.mydataapp.detectorservice.outputFile;
 import com.ustc.wsn.mydataapp.service.DetectorService;
 import com.ustc.wsn.mydataapp.service.GpsService;
@@ -60,6 +61,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
     private TextView ifCollecting;
     private Button btnStartService;
     private Button btnStopService;
+    private String psw;
     //private volatile int stateLabel;
     //private DetectorService msgService;
     private boolean serviceStart = false;
@@ -73,6 +75,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
 
         loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         // 判断GPS是否正常启动
+        /*
         if (!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             t = Toast.makeText(this, "请开启高精度GPS导航！", Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
@@ -80,9 +83,9 @@ public class DetectorActivity extends Activity implements OnClickListener {
             // 返回开启GPS导航设置界面
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivityForResult(intent, 0);
-            // return;
         }
-        //  就是这一句使图标能显示
+        */
+
         btnStartService = (Button) findViewById(R.id.btnStartService);
         btnStopService = (Button) findViewById(R.id.btnStopService);
         btnStartService.setOnClickListener(this);
@@ -102,13 +105,19 @@ public class DetectorActivity extends Activity implements OnClickListener {
 
         //ifCollecting.setOnClickListener(this);
 
-        store = new outputFile();//create data path
+        Intent intent = this.getIntent();
+        psw=intent.getStringExtra("userId");
+        Log.d(TAG,"userID1:"+psw);
+        store = new outputFile(psw);//create data path
+
+        PhoneState.initParams();
         //Log.d(TAG,"path:"+store.getDir().getPath()+"\t"+store.getDir().getName());
         DetectorserviceIntent = new Intent(this, DetectorService.class);
         GpsserviceIntent = new Intent(this, GpsService.class);
         SimpleActivityIntent = new Intent(this, SimulationActivity.class);
         LabelActivityIntent = new Intent(this, LabelActivity.class);
         UploadActivityIntent = new Intent(this, UploadActivity.class);
+        UploadActivityIntent.putExtra("userId",psw);
         trackActivityIntent = new Intent(this, ChartingDemoActivity.class);
     }
 
@@ -233,16 +242,28 @@ public class DetectorActivity extends Activity implements OnClickListener {
         switch (view.getId()) {
             case R.id.btnStartService:
                 if (serviceStart == false) {
-                    startService(DetectorserviceIntent);
-                    startService(GpsserviceIntent);
-                    serviceStart = true;
                     /*
                     t = Toast.makeText(this, "开始采集", Toast.LENGTH_SHORT);
                     t.setGravity(Gravity.CENTER, 0, 0);
                     t.show();
                     */
-                    btnStartService.setText("采集中");
-                    btnStartService.setTextColor(Color.BLUE);
+                    loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                    // 判断GPS是否正常启动
+                    if (!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        t = Toast.makeText(this, "请开启高精度GPS导航！", Toast.LENGTH_SHORT);
+                        t.setGravity(Gravity.CENTER, 0, 0);
+                        t.show();
+                        // 返回开启GPS导航设置界面
+                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivityForResult(intent, 0);
+                    }
+                    else {
+                        startService(DetectorserviceIntent);
+                        startService(GpsserviceIntent);
+                        serviceStart = true;
+                        btnStartService.setText("采集中");
+                        btnStartService.setTextColor(Color.BLUE);
+                    }
                 } break;
             case R.id.btnViewData:
                 startActivity(SimpleActivityIntent);

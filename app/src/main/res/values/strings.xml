@@ -87,5 +87,9 @@
     <string name="InertialFrame">InertialFrame</string>
     <string name="ifdetectoropen">ifdetectoropen</string>
     <string name="open_path">open_path</string>
+    <string name="calibrate_state">calibrate_state</string>
+    <string name="current_state">current_state</string>
+    <string name="state_value">state_value</string>
+    <string name="title_activity_calibrate_state">CalibrateStateActivity</string>
 
 </resources>

@@ -21,6 +21,8 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
 import android.view.View.OnClickListener;
+
+import com.ustc.wsn.mydataapp.detectorservice.outputFile;
 import com.ustc.wsn.mydataapp.utils.UploadManagers;
 
 import detector.wsn.ustc.com.mydataapp.R;
@@ -62,7 +64,7 @@ public class UploadActivity extends Activity implements OnClickListener {
                     psw=intent.getStringExtra("userId");
                     //Toast.makeText(UploadActivity.this,psw,Toast.LENGTH_SHORT).show();
                     UploadManagers.initAutoUploadSeriver(UploadActivity.this,
-                            Environment.getExternalStorageDirectory().getPath() + "/MobileData",psw);
+                            outputFile.getAppDir().getPath()+"/"+psw,psw);
                 } else if (netType == ConnectivityManager.TYPE_MOBILE) {
                     t = Toast.makeText(this, "为避免数据流量消耗，请切换至Wifi再上传", Toast.LENGTH_SHORT);
                     t.setGravity(Gravity.CENTER, 0, 0);

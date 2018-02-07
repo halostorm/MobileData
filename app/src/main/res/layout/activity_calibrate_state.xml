@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="10dp"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/stateLogo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:gravity="center"
+                android:text="状态监控窗口"
+                android:textColor="@color/grey" />
+
+            <Button
+                android:id="@+id/state_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@+id/stateLogo"
+                android:text="***"
+                android:textColor="@color/dark_orange" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/paramsLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:gravity="center"
+            android:text="参数调整"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey" />
+
+        <TableRow>
+
+            <LinearLayout
+                android:id="@+id/paramsleft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/acc_Ab"
+                    android:layout_width="220dp"
+                    android:layout_height="30dp"
+                    android:layout_marginBottom="15dp"
+                    android:background="@layout/button_round"
+                    android:hint="请输入：绝对静止-加速度阈值，0.01（默认）"
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    android:textColor="@color/dark_orange"
+                    android:textColorHint="@color/lightgrey"
+                    android:textSize="10dp" />
+
+                <EditText
+                    android:id="@+id/gyro_Ab"
+                    android:layout_width="220dp"
+                    android:layout_height="30dp"
+                    android:layout_marginBottom="15dp"
+                    android:background="@layout/button_round"
+                    android:hint="请输入：绝对静止-角速度阈值，0.01（默认）"
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    android:textColor="@color/dark_orange"
+                    android:textColorHint="@color/lightgrey"
+                    android:textSize="10dp" />
+
+                <EditText
+                    android:id="@+id/acc_User"
+                    android:layout_width="220dp"
+                    android:layout_height="30dp"
+                    android:layout_marginBottom="15dp"
+                    android:background="@layout/button_round"
+                    android:hint="请输入：相对静止-加速度阈值，0.1（默认）"
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    android:textColor="@color/dark_orange"
+                    android:textColorHint="@color/lightgrey"
+                    android:textSize="10dp" />
+
+                <EditText
+                    android:id="@+id/gyro_User"
+                    android:layout_width="220dp"
+                    android:layout_height="30dp"
+                    android:background="@layout/button_round"
+                    android:hint="请输入：相对静止-角速度阈值，0.1（默认）"
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    android:textColor="@color/dark_orange"
+                    android:textColorHint="@color/lightgrey"
+                    android:textSize="10dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/btninitParams"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_toRightOf="@id/paramsleft"
+                    android:hint="默认值"
+                    android:gravity="center"
+                    android:textColorHint="@color/grey"
+                    android:textSize="30dp"/>
+
+                <Button
+                    android:id="@+id/btnconfirmParams"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_toRightOf="@id/paramsleft"
+                    android:gravity="center"
+                    android:hint="  确定  "
+                    android:textAlignment="center"
+                    android:textColorHint="@color/grey"
+                    android:textSize="30dp" />
+            </LinearLayout>
+        </TableRow>
+    </TableLayout>
+</LinearLayout>

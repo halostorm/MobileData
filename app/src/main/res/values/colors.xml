@@ -23,6 +23,7 @@
     <color name="lucency">#0000</color>
     <color name="grey">#696969</color>
     <color name="lightWhite">#F5F5F5</color>
+    <color name="lightgrey">#FFCCCCCC</color>
 
     <color name="black_overlay">#66000000</color>
 </resources>
