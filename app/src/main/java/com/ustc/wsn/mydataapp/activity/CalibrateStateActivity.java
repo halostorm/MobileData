@@ -72,6 +72,11 @@ public class CalibrateStateActivity extends Activity {
 
         EditText editTextGyro_User = (EditText) findViewById(R.id.gyro_User);
 
+        editTextAcc_Ab.setHint("请输入：绝对静止-加速度阈值，"+PhoneState.ACC_ABSOLUTE_STATIC_THRESHOLD+"（当前）");
+        editTextGyro_Ab.setHint("请输入：绝对静止-角速度阈值，"+PhoneState.GYRO_ABSOLUTE_STATIC_THRESHOLD+"（当前）");
+        editTextAcc_User.setHint("请输入：相对静止-加速度阈值，"+PhoneState.ACC_STATIC_THRESHOLD+"（当前）");
+        editTextGyro_User.setHint("请输入：相对静止-角速度阈值，"+PhoneState.GYRO_STATIC_THRESHOLD+"（当前）");
+
         TextView confirmText = (TextView) findViewById(R.id.btnconfirmParams);
 
         confirmText.setTag(R.id.key1, editTextAcc_Ab);
