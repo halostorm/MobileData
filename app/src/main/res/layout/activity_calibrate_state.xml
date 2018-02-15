@@ -25,6 +25,7 @@
                 android:id="@+id/stateLogo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@layout/button_round"
                 android:layout_alignParentLeft="true"
                 android:gravity="center"
                 android:text="状态监控窗口"
@@ -34,6 +35,7 @@
                 android:id="@+id/state_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@layout/button_round"
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@+id/stateLogo"
                 android:text="***"
@@ -49,6 +51,7 @@
             android:id="@+id/paramsLogo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@layout/button_round"
             android:layout_marginLeft="20dp"
             android:gravity="center"
             android:text="参数调整"
@@ -69,12 +72,12 @@
                 android:orientation="vertical">
 
                 <EditText
-                    android:id="@+id/acc_Ab"
+                    android:id="@+id/accMean_Ab"
                     android:layout_width="220dp"
                     android:layout_height="30dp"
                     android:layout_marginBottom="15dp"
                     android:background="@layout/button_round"
-                    android:hint="请输入：绝对静止-加速度阈值，0.01（默认）"
+                    android:hint="请输入绝对静止-加速度均值阈值（默认）"
                     android:inputType="phone"
                     android:maxLines="1"
                     android:textColor="@color/dark_orange"
@@ -82,12 +85,12 @@
                     android:textSize="10dp" />
 
                 <EditText
-                    android:id="@+id/gyro_Ab"
+                    android:id="@+id/accVar_Ab"
                     android:layout_width="220dp"
                     android:layout_height="30dp"
                     android:layout_marginBottom="15dp"
                     android:background="@layout/button_round"
-                    android:hint="请输入：绝对静止-角速度阈值，0.01（默认）"
+                    android:hint="请输入绝对静止-加速度方差阈值（默认）"
                     android:inputType="phone"
                     android:maxLines="1"
                     android:textColor="@color/dark_orange"
@@ -95,12 +98,12 @@
                     android:textSize="10dp" />
 
                 <EditText
-                    android:id="@+id/acc_User"
+                    android:id="@+id/accMean_User"
                     android:layout_width="220dp"
                     android:layout_height="30dp"
                     android:layout_marginBottom="15dp"
                     android:background="@layout/button_round"
-                    android:hint="请输入：相对静止-加速度阈值，0.1（默认）"
+                    android:hint="请输入相对静止-加速度均值阈值（默认）"
                     android:inputType="phone"
                     android:maxLines="1"
                     android:textColor="@color/dark_orange"
@@ -108,11 +111,11 @@
                     android:textSize="10dp" />
 
                 <EditText
-                    android:id="@+id/gyro_User"
+                    android:id="@+id/accVar_User"
                     android:layout_width="220dp"
                     android:layout_height="30dp"
                     android:background="@layout/button_round"
-                    android:hint="请输入：相对静止-角速度阈值，0.1（默认）"
+                    android:hint="请输入相对静止-加速度方差阈值（默认）"
                     android:inputType="phone"
                     android:maxLines="1"
                     android:textColor="@color/dark_orange"
@@ -135,6 +138,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
+                    android:background="@layout/button_round"
                     android:layout_toRightOf="@id/paramsleft"
                     android:hint="默认值"
                     android:gravity="center"
@@ -146,10 +150,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
+                    android:background="@layout/button_round"
                     android:layout_marginBottom="10dp"
                     android:layout_toRightOf="@id/paramsleft"
                     android:gravity="center"
-                    android:hint="  确定  "
+                    android:hint="  保存  "
                     android:textAlignment="center"
                     android:textColorHint="@color/grey"
                     android:textSize="30dp" />

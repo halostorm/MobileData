@@ -64,34 +64,34 @@ public class CalibrateStateActivity extends Activity {
             }
         }, 0, 500);
 
-        EditText editTextAcc_Ab = (EditText) findViewById(R.id.acc_Ab);
+        EditText editTextAccMean_Ab = (EditText) findViewById(R.id.accMean_Ab);
 
-        EditText editTextGyro_Ab = (EditText) findViewById(R.id.gyro_Ab);
+        EditText editTextAccVar_Ab = (EditText) findViewById(R.id.accVar_Ab);
 
-        EditText editTextAcc_User = (EditText) findViewById(R.id.acc_User);
+        EditText editTextAccMean_User = (EditText) findViewById(R.id.accMean_User);
 
-        EditText editTextGyro_User = (EditText) findViewById(R.id.gyro_User);
+        EditText editTextAccVar_User = (EditText) findViewById(R.id.accVar_User);
 
-        editTextAcc_Ab.setHint("请输入：绝对静止-加速度阈值，"+PhoneState.ACC_ABSOLUTE_STATIC_THRESHOLD+"（当前）");
-        editTextGyro_Ab.setHint("请输入：绝对静止-角速度阈值，"+PhoneState.GYRO_ABSOLUTE_STATIC_THRESHOLD+"（当前）");
-        editTextAcc_User.setHint("请输入：相对静止-加速度阈值，"+PhoneState.ACC_STATIC_THRESHOLD+"（当前）");
-        editTextGyro_User.setHint("请输入：相对静止-角速度阈值，"+PhoneState.GYRO_STATIC_THRESHOLD+"（当前）");
+        editTextAccMean_Ab.setHint("请输入绝对静止-加速度均值阈值（当前值：" + PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD + "）");
+        editTextAccVar_Ab.setHint("请输入绝对静止-加速度方差阈值（当前值：" + PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD + ")");
+        editTextAccMean_User.setHint("请输入相对静止-加速度均值阈值（当前值：" + PhoneState.ACC_MEAN_STATIC_THRESHOLD + "）");
+        editTextAccVar_User.setHint("请输入相对静止-加速度方差阈值(当前值：" + PhoneState.ACC_VAR_STATIC_THRESHOLD + "）");
 
         TextView confirmText = (TextView) findViewById(R.id.btnconfirmParams);
 
-        confirmText.setTag(R.id.key1, editTextAcc_Ab);
-        confirmText.setTag(R.id.key2, editTextGyro_Ab);
-        confirmText.setTag(R.id.key3, editTextAcc_User);
-        confirmText.setTag(R.id.key4, editTextGyro_User);
+        confirmText.setTag(R.id.key1, editTextAccMean_Ab);
+        confirmText.setTag(R.id.key2, editTextAccVar_Ab);
+        confirmText.setTag(R.id.key3, editTextAccMean_User);
+        confirmText.setTag(R.id.key4, editTextAccVar_User);
 
         confirmText.setOnClickListener(cOnClickListener);
 
         TextView initParams = (TextView) findViewById(R.id.btninitParams);
 
-        initParams.setTag(R.id.key1, editTextAcc_Ab);
-        initParams.setTag(R.id.key2, editTextGyro_Ab);
-        initParams.setTag(R.id.key3, editTextAcc_User);
-        initParams.setTag(R.id.key4, editTextGyro_User);
+        initParams.setTag(R.id.key1, editTextAccMean_Ab);
+        initParams.setTag(R.id.key2, editTextAccVar_Ab);
+        initParams.setTag(R.id.key3, editTextAccMean_User);
+        initParams.setTag(R.id.key4, editTextAccVar_User);
 
         initParams.setOnClickListener(mOnClickListener);
     }
@@ -99,15 +99,15 @@ public class CalibrateStateActivity extends Activity {
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            String accAbParams = String.valueOf(0.01);
-            String gyroAbParams = String.valueOf(0.01);
-            String accUserParams = String.valueOf(0.1);
-            String gyroUserParams = String.valueOf(0.1);
+            String accMeanAbParams = String.valueOf(PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD_DEFAULT);
+            String accVarAbParams = String.valueOf(PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD_DEFAULT);
+            String accMeanUserParams = String.valueOf(PhoneState.ACC_MEAN_STATIC_THRESHOLD_DEFAULT);
+            String accVarUserParams = String.valueOf(PhoneState.ACC_VAR_STATIC_THRESHOLD_DEFAULT);
 
-            ((EditText) view.getTag(R.id.key1)).setText(accAbParams);
-            ((EditText) view.getTag(R.id.key2)).setText(gyroAbParams);
-            ((EditText) view.getTag(R.id.key3)).setText(accUserParams);
-            ((EditText) view.getTag(R.id.key4)).setText(gyroUserParams);
+            ((EditText) view.getTag(R.id.key1)).setText(accMeanAbParams);
+            ((EditText) view.getTag(R.id.key2)).setText(accVarAbParams);
+            ((EditText) view.getTag(R.id.key3)).setText(accMeanUserParams);
+            ((EditText) view.getTag(R.id.key4)).setText(accVarUserParams);
         }
     };
 
@@ -119,40 +119,40 @@ public class CalibrateStateActivity extends Activity {
             EditText t3 = ((EditText) view.getTag(R.id.key3));
             EditText t4 = ((EditText) view.getTag(R.id.key4));
 
-            String accAbParams = t1.getText().toString().trim();
-            String gyroAbParams = t2.getText().toString().trim();
-            String accUserParams = t3.getText().toString().trim();
-            String gyroUserParams = t4.getText().toString().trim();
+            String accMeanAbParams = t1.getText().toString().trim();
+            String accVarAbParams = t2.getText().toString().trim();
+            String accMeanUserParams = t3.getText().toString().trim();
+            String accVarUserParams = t4.getText().toString().trim();
 
-            Log.d(TAG, "params1:" + accAbParams);
-            Log.d(TAG, "params2:" + gyroAbParams);
-            Log.d(TAG, "params3:" + accUserParams);
-            Log.d(TAG, "params4:" + gyroUserParams);
+            //Log.d(TAG, "params1:" + accMeanAbParams);
+            //Log.d(TAG, "params2:" + accVarAbParams);
+            //Log.d(TAG, "params3:" + accMeanUserParams);
+            //Log.d(TAG, "params4:" + accVarUserParams);
 
             String out = new String();
-            if (accAbParams.length() == 0) {
-                out += PhoneState.ACC_ABSOLUTE_STATIC_THRESHOLD + "\t";
+            if (accMeanAbParams.length() == 0) {
+                out += PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD + "\t";
             } else {
-                PhoneState.ACC_ABSOLUTE_STATIC_THRESHOLD = Float.parseFloat(accAbParams);
-                out += accAbParams + "\t";
+                PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD = Float.parseFloat(accMeanAbParams);
+                out += accMeanAbParams + "\t";
             }
-            if (gyroAbParams.length() == 0) {
-                out += PhoneState.GYRO_ABSOLUTE_STATIC_THRESHOLD + "\t";
+            if (accVarAbParams.length() == 0) {
+                out += PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD + "\t";
             } else {
-                PhoneState.GYRO_ABSOLUTE_STATIC_THRESHOLD = Float.parseFloat(gyroAbParams);
-                out += gyroAbParams + "\t";
+                PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD = Float.parseFloat(accVarAbParams);
+                out += accVarAbParams + "\t";
             }
-            if (accUserParams.length() == 0) {
-                out += PhoneState.ACC_STATIC_THRESHOLD + "\t";
+            if (accMeanUserParams.length() == 0) {
+                out += PhoneState.ACC_MEAN_STATIC_THRESHOLD + "\t";
             } else {
-                PhoneState.ACC_STATIC_THRESHOLD = Float.parseFloat(accUserParams);
-                out += accUserParams + "\t";
+                PhoneState.ACC_MEAN_STATIC_THRESHOLD = Float.parseFloat(accMeanUserParams);
+                out += accMeanUserParams + "\t";
             }
-            if (gyroUserParams.length() == 0) {
-                out += PhoneState.GYRO_STATIC_THRESHOLD + "\n";
+            if (accVarUserParams.length() == 0) {
+                out += PhoneState.ACC_VAR_STATIC_THRESHOLD + "\n";
             } else {
-                PhoneState.GYRO_STATIC_THRESHOLD = Float.parseFloat(gyroUserParams);
-                out += gyroUserParams + "\n";
+                PhoneState.ACC_VAR_STATIC_THRESHOLD = Float.parseFloat(accVarUserParams);
+                out += accVarUserParams + "\n";
             }
 
             File params = outputFile.getParamsFile();
@@ -170,10 +170,10 @@ public class CalibrateStateActivity extends Activity {
             t3.setText("");
             t4.setText("");
 
-            t1.setHint("请输入：绝对静止-加速度阈值，"+PhoneState.ACC_ABSOLUTE_STATIC_THRESHOLD+"（当前）");
-            t2.setHint("请输入：绝对静止-角速度阈值，"+PhoneState.GYRO_ABSOLUTE_STATIC_THRESHOLD+"（当前）");
-            t3.setHint("请输入：相对静止-加速度阈值，"+PhoneState.ACC_STATIC_THRESHOLD+"（当前）");
-            t4.setHint("请输入：相对静止-角速度阈值，"+PhoneState.GYRO_STATIC_THRESHOLD+"（当前）");
+            t1.setHint("请输入绝对静止-加速度均值阈值（当前值：" + PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD + "）");
+            t2.setHint("请输入绝对静止-加速度方差阈值（当前值：" + PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD + ")");
+            t3.setHint("请输入相对静止-加速度均值阈值（当前值：" + PhoneState.ACC_MEAN_STATIC_THRESHOLD + "）");
+            t4.setHint("请输入相对静止-加速度方差阈值(当前值：" + PhoneState.ACC_VAR_STATIC_THRESHOLD + "）");
 
         }
     };

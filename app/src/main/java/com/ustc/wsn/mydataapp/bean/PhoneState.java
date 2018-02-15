@@ -30,6 +30,16 @@ public class PhoneState {
     public static float ACC_STATIC_THRESHOLD = 0.1f;
     public static float GYRO_STATIC_THRESHOLD = 0.1f;
 
+    public static float ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD_DEFAULT = 0.01f;
+    public static float ACC_VAR_ABSOLUTE_STATIC_THRESHOLD_DEFAULT = 0.01f;
+    public static float ACC_MEAN_STATIC_THRESHOLD_DEFAULT = 0.5f;
+    public static float ACC_VAR_STATIC_THRESHOLD_DEFAULT = 1.0f;
+
+    public static float ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD = 0.01f;
+    public static float ACC_VAR_ABSOLUTE_STATIC_THRESHOLD = 0.01f;
+    public static float ACC_MEAN_STATIC_THRESHOLD = 0.5f;
+    public static float ACC_VAR_STATIC_THRESHOLD = 1.0f;
+
     public static void initParams() {
         File params = outputFile.getParamsFile();
         if (params.exists()) {
@@ -41,10 +51,10 @@ public class PhoneState {
                 if (values.length() != 0) {
                     String[] v = new String[10];
                     v = values.split("\t");
-                    ACC_ABSOLUTE_STATIC_THRESHOLD = Float.parseFloat(v[0]);
-                    GYRO_ABSOLUTE_STATIC_THRESHOLD = Float.parseFloat(v[1]);
-                    ACC_STATIC_THRESHOLD = Float.parseFloat(v[2]);
-                    GYRO_STATIC_THRESHOLD = Float.parseFloat(v[3]);
+                    ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD = Float.parseFloat(v[0]);
+                    ACC_VAR_ABSOLUTE_STATIC_THRESHOLD = Float.parseFloat(v[1]);
+                    ACC_MEAN_STATIC_THRESHOLD = Float.parseFloat(v[2]);
+                    ACC_VAR_STATIC_THRESHOLD = Float.parseFloat(v[3]);
                     Log.d(TAG, "params0:"+v[0]);
                     Log.d(TAG, "params1:"+v[1]);
                     Log.d(TAG, "params2:"+v[2]);
