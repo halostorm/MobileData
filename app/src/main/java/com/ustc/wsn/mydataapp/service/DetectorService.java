@@ -151,7 +151,7 @@ public class DetectorService extends Service {
             public void run() {
                 while (!threadDisable_sensor) {
                     try {
-                        Thread.sleep(6400);// 6400
+                        Thread.sleep(5120);// 6400
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -455,13 +455,13 @@ public class DetectorService extends Service {
         //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         sensorListener = new DetectorSensorListener((AppResourceApplication) getApplicationContext());
         if (ACCELERATOR_EXIST) {
-            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_FASTEST);
+            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME );
         }
         if (GYROSCROPE_EXIST) {
-            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
+            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME );
         }
         if (MAGNETIC_EXIST) {
-            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_FASTEST);
+            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME );
         }
         //sm.registerListener(sensorListener,rotation,SensorManager.SENSOR_DELAY_GAME);
     }

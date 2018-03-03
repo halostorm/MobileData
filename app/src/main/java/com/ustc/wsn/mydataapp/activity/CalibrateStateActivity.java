@@ -227,13 +227,13 @@ public class CalibrateStateActivity extends Activity {
         //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         sensorListener = new TrackSensorListener((AppResourceApplication) getApplicationContext());
         if (ACCELERATOR_EXIST) {
-            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_FASTEST);
+            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME );
         }
         if (GYROSCROPE_EXIST) {
-            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
+            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME );
         }
         if (MAGNETIC_EXIST) {
-            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_FASTEST);
+            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME );
         }
     }
 

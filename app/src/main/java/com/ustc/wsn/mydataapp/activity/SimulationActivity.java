@@ -159,7 +159,7 @@ public class SimulationActivity extends Activity {
             public void run() {
                 handler1.sendMessage(handler1.obtainMessage());
             }
-        }, 0, 25);
+        }, 0, 20);
 
         timer1 = new Timer();
         timer1.schedule(new TimerTask() {
@@ -257,7 +257,7 @@ public class SimulationActivity extends Activity {
             accService.rightUpdateChart(AccData[0], AccData[1], AccData[2]);
             gyroSeivice.rightUpdateChart(GyroData[0], GyroData[1], GyroData[2]);
             magService.rightUpdateChart(MagData[0], MagData[1], MagData[2]);
-            linearService.rightUpdateChart(LinearAccData[0], LinearAccData[1], LinearAccData[2]);
+            linearService.rightUpdateChart((float) Math.sqrt(LinearAccData[0]*LinearAccData[0]+LinearAccData[1]*LinearAccData[1]+LinearAccData[2]*LinearAccData[2]), 0, 0);
         }
     };
 
@@ -314,13 +314,13 @@ public class SimulationActivity extends Activity {
         //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         sensorListener = new TrackSensorListener((AppResourceApplication) getApplicationContext());
         if (ACCELERATOR_EXIST) {
-            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_FASTEST);
+            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME );
         }
         if (GYROSCROPE_EXIST) {
-            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_FASTEST);
+            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME );
         }
         if (MAGNETIC_EXIST) {
-            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_FASTEST);
+            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME );
         }
     }
 

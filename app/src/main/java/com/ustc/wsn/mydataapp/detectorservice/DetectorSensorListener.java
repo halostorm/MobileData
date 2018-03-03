@@ -23,6 +23,7 @@ public class DetectorSensorListener implements SensorEventListener {
     private static float GRAVITY = 9.79f;
     private float square_GRAVITY = 0;
     private static int windowSize = 256;// 256
+    public final int sampleInterval = 20;//ms
     private float[] accSample = new float[windowSize];
     private float[] gyroSample = new float[windowSize];
     private float[] gravity = new float[windowSize];
@@ -148,10 +149,20 @@ public class DetectorSensorListener implements SensorEventListener {
             public void run() {
                 while (!threadDisable_data_update) {
                     try {
-                        Thread.sleep(5);
+                        Thread.sleep(sampleInterval);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    gpsBear = DetectorLocationListener.getCurrentBear();
+                    if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
+                        //Log.d(TAG, "GPS__bear：" + gpsBear);
+                        setBearData(gpsBear);
+                    } else {
+                        String tmp = String.valueOf(getBear());
+                        setBearData(tmp);
+                        //Log.d(TAG, "AM__bear：" + tmp);
+                    }
+
                     if (gravityOriOriNew && magOriNew && gyroOriNew) {
                         if (AttitudeMode == Attitude_EKF) {
                             ekf.update_vect[0] = 1;
@@ -229,7 +240,7 @@ public class DetectorSensorListener implements SensorEventListener {
                 int sensorCount = 0;
                 while (!threadDisable_data_update) {
                     try {
-                        Thread.sleep(25);
+                        Thread.sleep(sampleInterval);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -245,16 +256,6 @@ public class DetectorSensorListener implements SensorEventListener {
                         setGyroData();
                         setMagData();
                         setRotData();
-
-                        gpsBear = DetectorLocationListener.getCurrentBear();
-                        if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
-                            //Log.d(TAG, "GPS__bear：" + gpsBear);
-                            setBearData(gpsBear);
-                        } else {
-                            String tmp = String.valueOf(getBear());
-                            setBearData(tmp);
-                            //Log.d(TAG, "AM__bear：" + tmp);
-                        }
                     }
                 }
             }

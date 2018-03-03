@@ -36,9 +36,9 @@ public class TrackSensorListener implements SensorEventListener {
     private final int stateParamsType = 1;
     private final String TAG = TrackSensorListener.this.toString();
     private TrackSensorListener mContext = TrackSensorListener.this;
-    public final int windowSize = 20;//20*windowSize ms - 500ms
-    public final int DurationWindow = 10;// 5s
-    public final int sampleInterval = 25;//ms
+    public final int windowSize = 25;//20*windowSize ms - 500ms
+    public final int DurationWindow = 10;// 4s
+    public final int sampleInterval = 20;//ms
     public int FRAME_TYPE;//0 - phone frame/ 1 - inertial frame
 
     //路径参数
@@ -84,6 +84,7 @@ public class TrackSensorListener implements SensorEventListener {
     private float[] gravityMeanOld = new float[3];
     private float[] accMeanOld = new float[3];
     private float[] magMeanOld = new float[3];
+    //private long bold = System.currentTimeMillis();
 
     //滤波器参数
     private FCF fcf;
@@ -366,12 +367,13 @@ public class TrackSensorListener implements SensorEventListener {
                             DcmQueue[i] = DcmMultiply(DcmQueue[i - 1], Matrix_W);//获取DCM
 
                             float[] accNow = phoneToEarth(DcmQueue[i], accWindow[i]);//得到一次理想加速度
+                            float[] accLast = phoneToEarth(DcmQueue[i-1], accWindow[i-1]);//
                             //Log.d(TAG, "accNow[0]:" + String.valueOf(i) + ":\t" + accNow[0]);
                             //Log.d(TAG, "accNow[1]:" + String.valueOf(i) + ":\t" + accNow[1]);
                             //Log.d(TAG, "accNow[2]:" + String.valueOf(i) + ":\t" + accNow[2]);
-                            velocityQueue[i][0] = velocityQueue[i - 1][0] + accNow[0] * deltTWindow[i];
-                            velocityQueue[i][1] = velocityQueue[i - 1][1] + accNow[1] * deltTWindow[i];
-                            velocityQueue[i][2] = velocityQueue[i - 1][2] + (accNow[2] - 9.81f) * deltTWindow[i];
+                            velocityQueue[i][0] = velocityQueue[i - 1][0] + 0.5f*(accNow[0]+accLast[0]) * deltTWindow[i];
+                            velocityQueue[i][1] = velocityQueue[i - 1][1] + 0.5f*(accNow[1]+accLast[1]) * deltTWindow[i];
+                            velocityQueue[i][2] = velocityQueue[i - 1][2] + 0.5f*((accNow[2] - 9.81f)+(accLast[2]-9.81f)) * deltTWindow[i];
 
                             //Log.d(TAG, "velocityQueue[0]:" + String.valueOf(i) + ":\t" + velocityQueue[i][0]);
                             //Log.d(TAG, "velocityQueue[1]:" + String.valueOf(i) + ":\t" + velocityQueue[i][1]);
@@ -517,6 +519,10 @@ public class TrackSensorListener implements SensorEventListener {
                     a[2] = (float) Math.sqrt(event.values[2]*event.values[2]/norm2)*9.81f;
                     */
                     //acc = accLPF2.filter(event.values);
+                    //long b = System.currentTimeMillis();
+                    //Log.d(TAG,"time_event:\t"+System.nanoTime());
+                    //Log.d(TAG,"time_sys:\t"+(b-bold));
+                    //bold = b;
                     acc = event.values.clone();
                     gravity = accLPF.filter(event.values);
                     lacc[0] = event.values[0] - gravity[0];
