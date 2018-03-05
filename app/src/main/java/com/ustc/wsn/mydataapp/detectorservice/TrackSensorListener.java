@@ -271,8 +271,8 @@ public class TrackSensorListener implements SensorEventListener {
                         float laccSumVar = getVar(laccSum);
                         //Log.d(TAG, "gyroSumMean:" + gyroSumMean);
                         //Log.d(TAG, "gyroSumVar:" + gyroSumVar);
-                        Log.d(TAG, "laccSumMean:" + laccSumMean);
-                        Log.d(TAG, "laccSumVar:" + laccSumVar);
+                        //Log.d(TAG, "laccSumMean:" + laccSumMean);
+                        //Log.d(TAG, "laccSumVar:" + laccSumVar);
                         if (laccSumMean < ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD && laccSumVar < ACC_VAR_ABSOLUTE_STATIC_THRESHOLD) {//gyroSumMean < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumMean < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroSumVar < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumVar < ACC_ABSOLUTE_STATIC_THRESHOLD) {
                             NOW_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
                             //Log.d(TAG, "当前状态是:绝对静止");

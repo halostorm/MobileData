@@ -28,6 +28,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.ustc.wsn.mydataapp.detectorservice.outputFile;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
@@ -45,6 +48,7 @@ public class MainActivity extends Activity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        new outputFile("Init");
 
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
@@ -71,7 +75,7 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.setting, menu);
+        getMenuInflater().inflate(R.menu.main_setting, menu);
         //setIconEnable(menu,true);
         return true;
     }
@@ -82,6 +86,9 @@ public class MainActivity extends Activity {
             case R.id.menu_settings_help:
                 showHelpDialog();
                 return true;
+            case R.id.calibrate_accel:
+                Intent intent = new Intent(MainActivity.this,AccCalibrateActivity.class);
+                startActivity(intent);
             default:
                 return super.onOptionsItemSelected(item);
         }

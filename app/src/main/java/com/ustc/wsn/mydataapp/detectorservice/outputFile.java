@@ -14,7 +14,8 @@ public class outputFile {
 
     private Context context;
     private File sdCardDir;
-    private static File paramsFile;
+    private static File stateParamsFile;
+    private static File accelParamsFile;
     private static File accFile;
     private static File magFile;
     private static File gyroFile;
@@ -62,9 +63,15 @@ public class outputFile {
     public static File getAppDir(){
         return appDir;
     }
+
     public static File getParamsFile() {
-        paramsFile = new File(paramsDir, "params.txt");
-        return paramsFile;
+        stateParamsFile = new File(paramsDir, "stateParams.txt");
+        return stateParamsFile;
+    }
+
+    public static File getAccParamsFile() {
+        accelParamsFile = new File(appDir, "accParams.txt");
+        return accelParamsFile;
     }
 
     public static File getaccFile() {

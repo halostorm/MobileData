@@ -84,7 +84,10 @@
             android:label="轨迹" />
         <activity
             android:name="com.ustc.wsn.mydataapp.activity.CalibrateStateActivity"
-            android:label="状态调试"></activity>
+            android:label="状态调试" />
+        <activity
+            android:name="com.ustc.wsn.mydataapp.activity.AccCalibrateActivity"
+            android:label="校准加速度计"></activity>
     </application>
 
 </manifest>

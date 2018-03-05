@@ -91,5 +91,6 @@
     <string name="current_state">current_state</string>
     <string name="state_value">state_value</string>
     <string name="title_activity_calibrate_state">CalibrateStateActivity</string>
+    <string name="title_activity_acc_calibrate">AccCalibrateActivity</string>
 
 </resources>
