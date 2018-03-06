@@ -409,8 +409,6 @@ public class DetectorSensorListener implements SensorEventListener {
 
     }
 
-
-
     public void setLinearAccData() {
         if (((LinearAcc_cur + 1) % Data_Size != LinearAcc_old) && LinearaccNow != null) {// 不满
             if (LinearaccNow != null) {

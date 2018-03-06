@@ -125,7 +125,7 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
         }
     }
 
-    public void setPosition(float[][] p) {
+    public void setPosition(float[][] p,int mark) {
         position = p.clone();
     }
 
@@ -166,7 +166,7 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
             } else {
                 if (POSITION_ENABLED) {
                     //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 0, 0, 205));
-                    states[0] = NChartPointState.PointStateWithXYZ(20, 20, 20);//position[j][2]
+                    states[0] = NChartPointState.PointStateWithXYZ(100, 100, 100);//position[j][2]
                 } else {
                     //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 205, 0, 0));
                     states[0] = NChartPointState.PointStateWithXYZ(random.nextInt(10), random.nextInt(10), random.nextInt(10));

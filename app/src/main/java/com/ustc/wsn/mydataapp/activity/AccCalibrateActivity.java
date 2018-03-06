@@ -47,8 +47,6 @@ public class AccCalibrateActivity extends Activity implements View.OnClickListen
     private Button back;
 
     private final float G = 9.806f;
-    private final int sampleSize = 100;
-    private final int sampleInteral = 40;//ms
     private float[] Sample = {0f, 0f, 0f};
 
     private float x_K = 0;
@@ -99,33 +97,33 @@ public class AccCalibrateActivity extends Activity implements View.OnClickListen
             case R.id.btnRight:
                 right.setText("请放置");
                 right.setTextColor(Color.BLUE);
-                delay(10,1);//等待10s
+                delay(10, 1);//等待10s
                 break;
             case R.id.btnLeft:
                 left.setText("请放置");
                 left.setTextColor(Color.BLUE);
-                delay(10,2);//等待10s
+                delay(10, 2);//等待10s
                 break;
             case R.id.btnForward:
                 forward.setText("请放置");
                 forward.setTextColor(Color.BLUE);
-                delay(10,3);//等待10s
+                delay(10, 3);//等待10s
                 break;
             case R.id.btnBack:
                 back.setText("请放置");
                 back.setTextColor(Color.BLUE);
-                delay(10,4);//等待10s
+                delay(10, 4);//等待10s
                 break;
             case R.id.btnUp:
                 up.setText("请放置");
                 up.setTextColor(Color.BLUE);
-                delay(10,5);//等待10s
+                delay(10, 5);//等待10s
                 //getSample(5);//屏幕朝上
                 break;
             case R.id.btnDown:
                 down.setText("请放置");
                 down.setTextColor(Color.BLUE);
-                delay(10,6);//等待10s
+                delay(10, 6);//等待10s
                 break;
             case R.id.btnCalCalibration:
                 calibration();
@@ -133,47 +131,22 @@ public class AccCalibrateActivity extends Activity implements View.OnClickListen
         }
     }
 
-    public void getSample( int ori) {
-        Log.d(TAG,"getSample\t"+ori);
-        handler_i = 0;
-        final int orientation = ori;
-        Timer timer1 = new Timer();
-        timer1.schedule(new TimerTask() {
-            Handler handler = new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    super.handleMessage(msg);
-                    if (handler_i < sampleSize) {
-                        float[] acc = sensorListener.readAccData(0);
-                        Sample[0] += acc[0];
-                        Sample[1] += acc[1];
-                        Sample[2] += acc[2];
-                        Log.d(TAG, "accSample[0]\t" + Sample[0] + "\t" + handler_i);
-                        Log.d(TAG, "accSample[1]\t" + Sample[1] + "\t" + handler_i);
-                        Log.d(TAG, "accSample[2]\t" + Sample[2] + "\t" + handler_i);
-                        handler_i++;
-                    } else if (handler_i == sampleSize) {
-                        setSample(msg.arg1);
-                        Log.d(TAG,"msg.arg1\t"+msg.arg1);
-                        handler_i++;
-                    }
-                }
-            };
-            @Override
+    public void getSample(int ori) {
+        final int _ori = ori;
+        Log.d(TAG, "getSample\t" + ori);
+        new Handler().postDelayed(new Runnable() {
             public void run() {
-                Message msg = new Message();
-                msg.arg1 = orientation;
-                handler.sendMessage(msg);
+                float[][] acc = sensorListener.getAccSample();
+                Sample= getMean(acc);
+                Log.d(TAG, "accSample[0]\t" + Sample[0]);
+                Log.d(TAG, "accSample[1]\t" + Sample[1]);
+                Log.d(TAG, "accSample[2]\t" + Sample[2]);
+                setSample(_ori);
             }
-        }, 0, sampleInteral);
+        }, 2 * 1000);
     }
 
-    //private
-
     public void setSample(int orientation) {
-        Sample[0] /= sampleSize;
-        Sample[1] /= sampleSize;
-        Sample[2] /= sampleSize;
 
         switch (orientation) {
             case 1:
@@ -201,10 +174,6 @@ public class AccCalibrateActivity extends Activity implements View.OnClickListen
                 down.setTextColor(Color.BLUE);
                 break;
         }
-
-        Log.d(TAG, "meanSample[0]\t" + Sample[0]);
-        Log.d(TAG, "meanSample[1]\t" + Sample[1]);
-        Log.d(TAG, "meanSample[2]\t" + Sample[2]);
 
         switch (orientation) {
             case 1:
@@ -238,19 +207,19 @@ public class AccCalibrateActivity extends Activity implements View.OnClickListen
         y_B = 2 * G * (yP[1] + yI[1]) / (yP[1] - yI[1]);
         z_B = 2 * G * (zP[2] + zI[2]) / (zP[2] - zI[2]);
 
-        Log.d(TAG,"x_k\t"+x_K);
-        Log.d(TAG,"y_K\t"+y_K);
-        Log.d(TAG,"z_k\t"+z_K);
-        Log.d(TAG,"x_B\t"+x_B);
-        Log.d(TAG,"y_B\t"+y_B);
-        Log.d(TAG,"z_B\t"+z_B);
+        Log.d(TAG, "x_k\t" + x_K);
+        Log.d(TAG, "y_K\t" + y_K);
+        Log.d(TAG, "z_k\t" + z_K);
+        Log.d(TAG, "x_B\t" + x_B);
+        Log.d(TAG, "y_B\t" + y_B);
+        Log.d(TAG, "z_B\t" + z_B);
 
         String out = new String();
-        out += x_K+"\t";
-        out += y_K+"\t";
-        out += z_K+"\t";
-        out += x_B+"\t";
-        out += y_B+"\t";
+        out += x_K + "\t";
+        out += y_K + "\t";
+        out += z_K + "\t";
+        out += x_B + "\t";
+        out += y_B + "\t";
         out += z_B;
 
         File accParams = outputFile.getParamsFile();
@@ -293,8 +262,23 @@ public class AccCalibrateActivity extends Activity implements View.OnClickListen
         return dAve;
     }
 
-    public void delay( int delay, final int orientation) { // S
-        Log.d(TAG,"delay\t"+orientation);
+    public float[] getMean(float[][] x) {
+        int m = x.length;
+        float[] sum = new float[3];
+        for (int i = 0; i < m; i++) {// 求和
+            sum[0] += x[i][0];
+            sum[1] += x[i][1];
+            sum[2] += x[i][2];
+        }
+        float dAve[] = new float[3];
+        dAve[0] = sum[0] / m;// 求平均值
+        dAve[1] = sum[1] / m;// 求平均值
+        dAve[2] = sum[2] / m;// 求平均值
+        return dAve;
+    }
+
+    public void delay(int delay, final int orientation) { // S
+        Log.d(TAG, "delay\t" + orientation);
         new Handler().postDelayed(new Runnable() {
             public void run() {
                 switch (orientation) {
@@ -318,8 +302,6 @@ public class AccCalibrateActivity extends Activity implements View.OnClickListen
                         break;
                 }
                 getSample(orientation);
-
-
             }
         }, delay * 1000);
     }

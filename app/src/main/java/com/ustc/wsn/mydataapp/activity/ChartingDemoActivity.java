@@ -108,8 +108,9 @@ public class ChartingDemoActivity extends Activity {
                         e.printStackTrace();
                     }
                     position = sensorListener.getPosition();
+                    int mark = sensorListener.getPosition_mark();
                     if(position!=null) {
-                        track.setPosition(position);
+                        track.setPosition(position,mark);
                         track.updateData(i);
                     }
                 }
