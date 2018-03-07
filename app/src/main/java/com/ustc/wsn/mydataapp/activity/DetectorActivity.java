@@ -114,7 +114,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
         Log.d(TAG, "userID1:" + psw);
         store = new outputFile(psw);//create data path
 
-        PhoneState.initParams();
+        PhoneState.initstateParams();
         //Log.d(TAG,"path:"+store.getDir().getPath()+"\t"+store.getDir().getName());
         DetectorserviceIntent = new Intent(this, DetectorService.class);
         GpsserviceIntent = new Intent(this, GpsService.class);

@@ -9,6 +9,7 @@ import android.os.Environment;
 import com.ustc.wsn.mydataapp.utils.TimeUtil;
 
 import java.io.File;
+import java.io.FileReader;
 
 public class outputFile {
 
@@ -26,6 +27,7 @@ public class outputFile {
 
     private static File combineFile;
     private static File rawFile;
+    private static File pathFile;
     private static File attitudeFile;
     private static File locFile;
     private static File z7RawFile;
@@ -55,6 +57,16 @@ public class outputFile {
         }
 
     }
+    public outputFile() {
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            sdCardDir = Environment.getExternalStorageDirectory();// 获取SDCard目录
+            String app =  sdCardDir.getPath() + "/MobileData/";
+            appDir = new File(app);
+        }else {
+            File temp = Environment.getDataDirectory();
+            appDir = new File(temp + "/MobileData/");
+        }
+    }
 
     public static File getDir() {
         return dir;
@@ -67,6 +79,11 @@ public class outputFile {
     public static File getParamsFile() {
         stateParamsFile = new File(paramsDir, "stateParams.txt");
         return stateParamsFile;
+    }
+
+    public static File getPathFile() {
+        pathFile = new File(dir, "path.txt");
+        return pathFile;
     }
 
     public static File getAccParamsFile() {
