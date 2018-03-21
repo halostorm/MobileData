@@ -105,12 +105,12 @@ public class SimulationActivity extends Activity {
 
         accService = new ChartService(this);
         accService.setXYMultipleSeriesDataset("AccX", "AccY", "AccZ");
-        accService.setXYMultipleSeriesRenderer(0, 10, -20, 20, "加速度", "时间 /s", "m2/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
+        accService.setXYMultipleSeriesRenderer(0, 10, -20, 20, "校准加速度", "时间 /s", "m2/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
         accView = accService.getGraphicalView();
 
         linearService = new ChartService(this);
-        linearService.setXYMultipleSeriesDataset("LinearAccX", "LinearAccY", "LinearAccZ");
-        linearService.setXYMultipleSeriesRenderer(0, 10, -10, 10, "线性加速度", "时间 /s", "m2/", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
+        linearService.setXYMultipleSeriesDataset("RawAccX", "RawAccY", "RawAccZ");
+        linearService.setXYMultipleSeriesRenderer(0, 10, -20, 20, "未校准加速度", "时间 /s", "m2/", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
         linearaccView = linearService.getGraphicalView();
 
         gyroSeivice = new ChartService(this);
@@ -249,7 +249,7 @@ public class SimulationActivity extends Activity {
         @Override
         //定时更新图表
         public void handleMessage(Message msg) {
-            LinearAccData = sensorListener.readLinearAccData(FRAME_TYPE);
+            LinearAccData = sensorListener.readRawAccData(FRAME_TYPE);
             AccData = sensorListener.readAccData(FRAME_TYPE);
             GyroData = sensorListener.readGyroData(FRAME_TYPE);
             MagData = sensorListener.readMagData(FRAME_TYPE);
@@ -257,7 +257,7 @@ public class SimulationActivity extends Activity {
             accService.rightUpdateChart(AccData[0], AccData[1], AccData[2]);
             gyroSeivice.rightUpdateChart(GyroData[0], GyroData[1], GyroData[2]);
             magService.rightUpdateChart(MagData[0], MagData[1], MagData[2]);
-            linearService.rightUpdateChart((float) Math.sqrt(LinearAccData[0]*LinearAccData[0]+LinearAccData[1]*LinearAccData[1]+LinearAccData[2]*LinearAccData[2]), 0, 0);
+            linearService.rightUpdateChart(LinearAccData[0],LinearAccData[1], LinearAccData[2]);
         }
     };
 
@@ -312,7 +312,7 @@ public class SimulationActivity extends Activity {
             t.show();
         }
         //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        sensorListener = new TrackSensorListener((AppResourceApplication) getApplicationContext());
+        sensorListener = new TrackSensorListener(false);
         if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME );
         }

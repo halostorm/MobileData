@@ -16,6 +16,7 @@ import android.support.annotation.RequiresApi;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,18 +38,23 @@ import java.io.FileNotFoundException;
 import detector.wsn.ustc.com.mydataapp.R;
 
 /**
- * Created by chong on 2017/9/6.
+ * Created by halo on 2017/9/6.
  */
 
 public class MainActivity extends Activity {
 
+    /*
+    static {
+        System.loadLibrary("native-lib");
+    }
+*/
     @SuppressLint("ResourceAsColor")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        new outputFile("Init");
+        new outputFile();
 
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
@@ -56,6 +62,7 @@ public class MainActivity extends Activity {
         EditText editText = (EditText) findViewById(R.id.IdNumber);
         TextView textView = (TextView) findViewById(R.id.btnlogin);
         textView.setTag(editText);
+        //textView.setText(getName());
         textView.setOnClickListener(mOnClickListener);
     }
 
@@ -72,8 +79,7 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_setting, menu);
         //setIconEnable(menu,true);
@@ -87,7 +93,8 @@ public class MainActivity extends Activity {
                 showHelpDialog();
                 return true;
             case R.id.calibrate_accel:
-                Intent intent = new Intent(MainActivity.this,AccCalibrateActivity.class);
+                //Intent intent = new Intent(MainActivity.this, AccCalibrateActivity.class);
+                Intent intent = new Intent(MainActivity.this, EllipsoidFitActivity.class);
                 startActivity(intent);
             default:
                 return super.onOptionsItemSelected(item);
@@ -98,19 +105,24 @@ public class MainActivity extends Activity {
         @Override
         public void onClick(View view) {
             String psw = ((EditText) view.getTag()).getText().toString().trim();
-            if (psw.length() == 0){
-                Toast.makeText(MainActivity.this,"请输入手机号",Toast.LENGTH_SHORT).show();
+            if (psw.length() == 0) {
+                Toast.makeText(MainActivity.this, "请输入手机号", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (psw.length() != 11){
-                Toast.makeText(MainActivity.this,"手机号码只能为11位",Toast.LENGTH_SHORT).show();
+            if (psw.length() != 11) {
+                Toast.makeText(MainActivity.this, "手机号码只能为11位", Toast.LENGTH_SHORT).show();
                 return;
             }
             //Intent intent=new Intent(MainActivity.this,DetectorActivity.class);
-            Intent intent=new Intent(MainActivity.this,DetectorActivity.class);
-            intent.putExtra("userId",psw);
+            Intent intent = new Intent(MainActivity.this, DetectorActivity.class);
+            intent.putExtra("userId", psw);
             startActivity(intent);
             finish();
         }
     };
+
+    /*
+    public native String stringFromJNI();
+    public native String getName();
+    */
 }

@@ -49,12 +49,12 @@ public class AccCalibrateActivity extends Activity implements View.OnClickListen
     private final float G = 9.806f;
     private float[] Sample = {0f, 0f, 0f};
 
-    private float x_K = 0;
-    private float y_K = 0;
-    private float z_K = 0;
-    private float x_B = 0;
-    private float y_B = 0;
-    private float z_B = 0;
+    private static float x_K = 1;
+    private static float y_K = 1;
+    private static float z_K = 1;
+    private static float x_B = 0;
+    private static float y_B = 0;
+    private static float z_B = 0;
 
     private float[] xP = {0f, 0f, 0f};
     private float[] xI = {0f, 0f, 0f};
@@ -62,6 +62,13 @@ public class AccCalibrateActivity extends Activity implements View.OnClickListen
     private float[] zI = {0f, 0f, 0f};
     private float[] yP = {0f, 0f, 0f};
     private float[] yI = {0f, 0f, 0f};
+
+    private static boolean is_xP = false;
+    private static boolean is_yP = false;
+    private static boolean is_zP = false;
+    private static boolean is_xI = false;
+    private static boolean is_yI = false;
+    private static boolean is_zI = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,26 +159,32 @@ public class AccCalibrateActivity extends Activity implements View.OnClickListen
             case 1:
                 right.setText("校准完成");
                 right.setTextColor(Color.BLUE);
+                is_xP = true;
                 break;
             case 2:
                 left.setText("校准完成");
                 left.setTextColor(Color.BLUE);
+                is_xI = true;
                 break;
             case 3:
                 forward.setText("校准完成");
                 forward.setTextColor(Color.BLUE);
+                is_yP = true;
                 break;
             case 4:
                 back.setText("校准完成");
                 back.setTextColor(Color.BLUE);
+                is_yI = true;
                 break;
             case 5:
                 up.setText("校准完成");
                 up.setTextColor(Color.BLUE);
+                is_zP = true;
                 break;
             case 6:
                 down.setText("校准完成");
                 down.setTextColor(Color.BLUE);
+                is_zI = true;
                 break;
         }
 
@@ -199,13 +212,18 @@ public class AccCalibrateActivity extends Activity implements View.OnClickListen
     }
 
     public void calibration() {
-        x_K = 2 * G / (xP[0] - xI[0]);
-        y_K = 2 * G / (yP[1] - yI[1]);
-        z_K = 2 * G / (zP[2] - zI[2]);
-
-        x_B = 2 * G * (xP[0] + xI[0]) / (xP[0] - xI[0]);
-        y_B = 2 * G * (yP[1] + yI[1]) / (yP[1] - yI[1]);
-        z_B = 2 * G * (zP[2] + zI[2]) / (zP[2] - zI[2]);
+        if(is_xP&&is_xI) {
+            x_K = 2 * G / (xP[0] - xI[0]);
+            x_B = 2 * G * (xP[0] + xI[0]) / (xP[0] - xI[0]);
+        }
+        if(is_yI&&is_yP) {
+            y_K = 2 * G / (yP[1] - yI[1]);
+            y_B = 2 * G * (yP[1] + yI[1]) / (yP[1] - yI[1]);
+        }
+        if(is_zI&&is_zP) {
+            z_K = 2 * G / (zP[2] - zI[2]);
+            z_B = 2 * G * (zP[2] + zI[2]) / (zP[2] - zI[2]);
+        }
 
         Log.d(TAG, "x_k\t" + x_K);
         Log.d(TAG, "y_K\t" + y_K);
@@ -222,7 +240,7 @@ public class AccCalibrateActivity extends Activity implements View.OnClickListen
         out += y_B + "\t";
         out += z_B;
 
-        File accParams = outputFile.getParamsFile();
+        File accParams = outputFile.getAccParamsFile();
         try {
             FileWriter writer = new FileWriter(accParams);
             Log.d(TAG, "come in");
@@ -246,7 +264,7 @@ public class AccCalibrateActivity extends Activity implements View.OnClickListen
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        sensorListener = new TrackSensorListener((AppResourceApplication) getApplicationContext());
+        sensorListener = new TrackSensorListener(false);
         if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME);
         }

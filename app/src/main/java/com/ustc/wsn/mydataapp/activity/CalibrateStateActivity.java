@@ -225,7 +225,7 @@ public class CalibrateStateActivity extends Activity {
             t.show();
         }
         //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        sensorListener = new TrackSensorListener((AppResourceApplication) getApplicationContext());
+        sensorListener = new TrackSensorListener(false);
         if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME );
         }

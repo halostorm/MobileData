@@ -47,7 +47,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="1dp"
-                        android:text="3D加速度(m2/s)" />
+                        android:text="3D校准加速度(m2/s)" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -171,7 +171,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="1dp"
-                        android:text="3D线性加速度(m2/s)" />
+                        android:text="3D未校准加速度(m2/s)" />
                 </RelativeLayout>
 
                 <RelativeLayout

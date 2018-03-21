@@ -1,10 +1,8 @@
 apply plugin: 'com.android.application'
 
-
-
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion '27'
     defaultConfig {
         applicationId "com.ustc.wsn.mydataapp"
         minSdkVersion 15
@@ -13,13 +11,19 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            jniDebuggable true
+        }
     }
+
 }
+
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
@@ -33,6 +37,5 @@ dependencies {
     compile 'com.google.code.gson:gson:2.2.4'
     compile files('libs/achartengine-0.7.0.jar')
     compile files('libs/jmathplot.jar')
-    //compile 'com.github.yannrichet:JMathPlot:1.0.1'
     compile files('libs/NChart3D.jar')
 }

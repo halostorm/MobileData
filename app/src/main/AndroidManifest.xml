@@ -87,7 +87,10 @@
             android:label="状态调试" />
         <activity
             android:name="com.ustc.wsn.mydataapp.activity.AccCalibrateActivity"
-            android:label="校准加速度计"></activity>
+            android:label="校准加速度计" />
+        <activity
+            android:name="com.ustc.wsn.mydataapp.activity.EllipsoidFitActivity"
+            android:label="校准加速度计" />
     </application>
 
 </manifest>
