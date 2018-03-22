@@ -1,6 +1,10 @@
 package com.ustc.wsn.mydataapp.ellipsoidFit;
 
 import android.util.Log;
+
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +23,7 @@ public class EllipsoidFit
 {
 	final String TAG = EllipsoidFit.class.toString();
 	ArrayList<ThreeSpacePoint> p;
-	float[] params = new float[6];
+	float[] params = new float[12];//系数矩阵-9 + 偏移向量-3 = 12
 	final float G = 9.806f;
 	/*
 	static ArrayList<ThreeSpacePoint> CONTROL_SPHERE_POINTS;
@@ -114,6 +118,7 @@ public class EllipsoidFit
 		p = sample;
 		FitPoints gravityFit = new FitPoints();
 		gravityFit.fitEllipsoid(p);
+		calParams(gravityFit);
 		log(gravityFit, "Gravity");
 	}
 
@@ -130,7 +135,10 @@ public class EllipsoidFit
 		Log.d(TAG,points.evecs.toString());
 		Log.d(TAG,points.evecs1.toString());
 		Log.d(TAG,points.evecs2.toString());
+	}
 
+	private void calParams(FitPoints points){
+		/*
 		double[] scale = points.radii.toArray().clone();
 		params[0] = (float)(G/scale[0]);
 		params[1] = (float)(G/scale[1]);
@@ -139,5 +147,52 @@ public class EllipsoidFit
 		params[3] = (float) shilft[0];
 		params[4] = (float) shilft[1];
 		params[5] = (float) shilft[2];
+		*/
+		double[][] K = new double[3][3];
+		double [] m = points.radii.toArray();
+		double[] l = new double[]{G/m[0],G/m[1],G/m[2]};
+
+		K[0] = points.evecs.toArray();
+		K[1] = points.evecs1.toArray();
+		K[2] = points.evecs2.toArray();
+		//特征矩阵
+		RealMatrix A = new Array2DRowRealMatrix(3, 3);
+		A.setEntry(0, 0, K[0][0]);
+		A.setEntry(0, 1, K[0][1]);
+		A.setEntry(0, 2, K[0][2]);
+
+		A.setEntry(1, 0, K[1][0]);
+		A.setEntry(1, 1, K[1][1]);
+		A.setEntry(1, 2, K[1][2]);
+
+		A.setEntry(2, 0, K[2][0]);
+		A.setEntry(2, 1, K[2][1]);
+		A.setEntry(2, 2, K[2][2]);
+
+		RealMatrix _A;
+
+		_A = A.transpose();
+
+		RealMatrix L = new Array2DRowRealMatrix(3, 3);
+
+		L.setEntry(0, 0, l[0]);
+		L.setEntry(1, 1, l[1]);
+		L.setEntry(2, 2, l[2]);
+
+		RealMatrix Cal;
+		//计算校准系数矩阵
+		Cal = (_A.multiply(L)).multiply(A);
+		double[][] P = Cal.getData();
+		//计算偏移向量
+		double[] C = points.center.toArray();
+
+		for(int i =0;i<3;i++){
+			for(int j =0;j<3;j++) {
+				params[3*i+j] = (float)P[i][j];
+			}
+		}
+		params[9] = (float) C[0];
+		params[10] = (float) C[1];
+		params[11] = (float) C[2];
 	}
 }

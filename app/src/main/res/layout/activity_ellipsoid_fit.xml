@@ -14,7 +14,7 @@
         android:layout_marginTop="10dp"
         android:contentDescription="login image"
         android:gravity="center_horizontal"
-        android:src="@drawable/ic_launcher1"
+        android:src="@drawable/ic_launcher2"
         android:visibility="visible" />
 
     <Button

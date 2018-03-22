@@ -99,12 +99,7 @@ public class TrackSensorListener implements SensorEventListener {
     private MeanFilter magMF;
 
     //加速度校准参数
-    private static float x_K = 1;
-    private static float y_K = 1;
-    private static float z_K = 1;
-    private static float x_B = 0;
-    private static float y_B = 0;
-    private static float z_B = 0;
+    private static float[] params;
 
     //线程参数
     private boolean threadDisable_data_update = false;
@@ -419,12 +414,7 @@ public class TrackSensorListener implements SensorEventListener {
 
     private void getAccCalibrateParams(){
         PhoneState.initAccCalibrateParams();
-        x_K = PhoneState.x_K;
-        y_K = PhoneState.y_K;
-        z_K = PhoneState.z_K;
-        x_B = PhoneState.x_B;
-        y_B = PhoneState.y_B;
-        z_B = PhoneState.z_B;
+        params = PhoneState.getCalibrateParams();
     }
 
     public void updateThresHoldParams() {
@@ -575,10 +565,7 @@ public class TrackSensorListener implements SensorEventListener {
             case Sensor.TYPE_ACCELEROMETER:
                 if (event.values != null) {
                     accRaw = event.values.clone();
-                    event.values[0] = x_K*(event.values[0]-x_B);
-                    event.values[1] = x_K*(event.values[1]-x_B);
-                    event.values[2] = x_K*(event.values[2]-x_B);
-                    acc = event.values.clone();
+                    acc = accCalibrate(event.values);
                     gravity = accLPF.filter(acc);
                     lacc[0] = event.values[0] - gravity[0];
                     lacc[1] = event.values[1] - gravity[1];
@@ -600,6 +587,22 @@ public class TrackSensorListener implements SensorEventListener {
                 }
                 break;
         }
+    }
+
+    public float[] accCalibrate(float[] rData){
+        float[] data = new float[3];
+        data[0] = rData[0] - params[9];
+        data[1] = rData[1] - params[10];
+        data[2] = rData[2] - params[11];
+        //减去shift
+        float[] aData = new float[3];
+        for(int i =0;i<3;i++) {
+            for (int j = 0; j < 3; j++) {
+                aData[i] += params[i*3+j]*data[j];
+            }
+        }
+        //乘以比例系数
+        return  aData;
     }
 
     public float[] phoneToEarth(float[] DCM, float[] values) {

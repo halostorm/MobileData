@@ -50,7 +50,7 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
     private boolean ifFit = false;
 
     private EllipsoidFit fit;
-    private float[] params = new float[6];
+    private float[] params = new float[12];//系数矩阵-9 + 偏移向量-3 = 12
     private ArrayList<ThreeSpacePoint> sample = new ArrayList<ThreeSpacePoint>();
 
     @Override

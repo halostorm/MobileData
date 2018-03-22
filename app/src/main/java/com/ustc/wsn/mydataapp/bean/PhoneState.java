@@ -43,38 +43,24 @@ public class PhoneState {
     public static float ACC_VAR_STATIC_THRESHOLD = 1.0f;
 
     //加速度校准参数
-    public static float x_K = 1;
-    public static float y_K = 1;
-    public static float z_K = 1;
-    public static float x_B = 0;
-    public static float y_B = 0;
-    public static float z_B = 0;
+    private static float[] params = {1,0,0, 0,1,0, 0,0,1, 0,0,0};
 
     public static void initAccCalibrateParams(){
 
-        File params = outputFile.getAccParamsFile();
-        if (params.exists()) {
+        File accparams = outputFile.getAccParamsFile();
+        if (accparams.exists()) {
             try {
-                BufferedReader bf = new BufferedReader(new FileReader(params));
+                BufferedReader bf = new BufferedReader(new FileReader(accparams));
                 Log.d(TAG, "read params");
                 String values = new String();
                 values = bf.readLine();
                 if (values.length() != 0) {
                     String[] v = new String[10];
                     v = values.split("\t");
-                    x_K = Float.parseFloat(v[0]);
-                    y_K = Float.parseFloat(v[1]);
-                    z_K = Float.parseFloat(v[2]);
-                    x_B = Float.parseFloat(v[3]);
-                    y_B = Float.parseFloat(v[4]);
-                    z_B = Float.parseFloat(v[5]);
-                    Log.d(TAG, "params0:"+v[0]);
-                    Log.d(TAG, "params0:"+v[1]);
-                    Log.d(TAG, "params0:"+v[2]);
-                    Log.d(TAG, "params0:"+v[3]);
-                    Log.d(TAG, "params0:"+v[4]);
-                    Log.d(TAG, "params0:"+v[5]);
-
+                    for(int i = 0;i<params.length;i++) {
+                        params[i] = Float.parseFloat(v[i]);
+                        Log.d(TAG, "params0:"+params[i]);
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -82,7 +68,7 @@ public class PhoneState {
         }
     }
 
-    public static void initstateParams() {
+    public static void initStateParams() {
         File params = outputFile.getParamsFile();
         if (params.exists()) {
             try {
@@ -108,4 +94,9 @@ public class PhoneState {
         }
 
     }
+
+    public static float[] getCalibrateParams() {
+        return params;
+    }
+
 }
