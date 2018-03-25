@@ -29,12 +29,9 @@ import java.util.List;
 import com.ustc.wsn.mydataapp.bean.PhoneState;
 
 public class DetectorService extends Service {
-    private static int PHONE_STATE;
-
     protected final String TAG = DetectorService.this.toString();
     public volatile int stateLabel = 0;
     private Toast t;
-    // private static final boolean false = false;
     ArrayList<CellInfo> cellIds = null;
     private SensorManager sm;
     private boolean ACCELERATOR_EXIST = false;
@@ -112,36 +109,6 @@ public class DetectorService extends Service {
             // TODO Auto-generated catch block
             e2.printStackTrace();
         }
-
-        /*
-        sgps = new gps(mContext);// start gps
-        // GPS thread
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!threadDisable_gps) {
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if (sgps != null) {
-                        location = sgps.getLocation();
-                        if (location != null) { //
-                            try {
-                                sd.storeLocation(location);
-                            } catch (IOException e1) {
-                                // TODO Auto-generated catch block
-                                e1.printStackTrace();
-                            }
-                        }
-                    }
-
-                }
-            }
-        }).start();
-        */
-
     }
 
     public void sensorDataHandle() {
@@ -169,9 +136,8 @@ public class DetectorService extends Service {
                         gyroData = sensorListener.getGyroData();
                         magData = sensorListener.getMagData();
                         bearData = sensorListener.getBearData();
-                        //rotData = sensorListener.getRotData();
+                        rotData = sensorListener.getRotData();
 
-                        // rotationData = sensorListener.getRotationData();
                         // 转化数据
                         if (GYROSCROPE_EXIST) {
                             if (accData != null && gyroData != null && magData != null && bearData != null) {
@@ -179,6 +145,7 @@ public class DetectorService extends Service {
                                 GYRO[i] = gyroData;
                                 MAG[i] = magData;
                                 BEAR[i] = bearData;
+                                ROT[i] = rotData;
                                 //recognise static and move
                                 i++;
                             }
@@ -197,6 +164,7 @@ public class DetectorService extends Service {
                                 GYRO[i] = gyroData;
                                 MAG[i] = magData;
                                 BEAR[i] = bearData;
+                                ROT[i] = "-" + "\t" + "-" + "\t" + "-";;
                                 //recognise static and move
                                 i++;
                             }
@@ -213,7 +181,7 @@ public class DetectorService extends Service {
                     for (int i_2 = 0; i_2 < windowSize; i_2++) {
                         //outStoreRaw[i_2] = cLabel + "\t" +"q0"+ "\t" +"q1"+ "\t" +"q2"+"\t" +"q3"+ "\t"
                         //       + ROT[i_2]+"\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2]+"\t" + BEAR[i_2];
-                        outStoreRaw[i_2] = cLabel + "\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2] + "\t" + BEAR[i_2];
+                        outStoreRaw[i_2] = "time"+"\t"+"q0"+ "\t" +"q1"+ "\t" +"q2"+"\t" +"q3"+ "\t" + ROT[i_2]+ "\t"+ cLabel + "\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2] + "\t" + BEAR[i_2];
                     }
 
                     // sensorListener.ifABSOLUTE_STATE();

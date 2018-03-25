@@ -1,16 +1,18 @@
 package com.ustc.wsn.mydataapp.detectorservice;
 
+import android.util.Log;
+
 /**
  * Created by halo on 2018/1/17.
  */
 //FCF_gyro_acc_mag(gyro, acc, mag, last_q, 0.005f, 0.01f, 0.285f, 0.5f, dt, q_est);
 //FCF do in NED Frame, North-x, East-y, Down-z
 public class FCF {
-
+    private final String TAG = FCF.class.toString();
     float[] acc;
     float[] gyro;
     float[] mag;
-    float[] euler_true;
+    float[] euler;
     float[] last_q;
     float[] q_est;
     float time;//s
@@ -22,16 +24,16 @@ public class FCF {
     //long time_k, time_k_1;
 
     public FCF() {
-        gain_a = 0.005f;
-        gain_m = 0.01f;
-        //gain_a = 0.905f;
-        //gain_m = 0.91f;
+        //gain_a = 0.005f;
+        //gain_m = 0.01f;
+        gain_a = 0.905f;
+        gain_m = 0.91f;
         std_norm_m = 0.285f;
         threshold_m = 0.5f;
         acc = new float[3];
         gyro = new float[3];
         mag = new float[3];
-        euler_true = new float[3];
+        euler = new float[3];
         last_q = new float[4];
         q_est = new float[4];
         time = 0.f;
@@ -47,16 +49,23 @@ public class FCF {
         last_q[3] = 0.0f;
     }
 
-    public float[] Filter(float dt) {
+    public float[] attitude(float dt) {
 
         FCF_gyro_acc_mag(gyro, acc, mag, last_q, gain_a, gain_m, std_norm_m, threshold_m, dt, q_est);
         last_q[0] = q_est[0];
         last_q[1] = q_est[1];
         last_q[2] = q_est[2];
         last_q[3] = q_est[3];
-
+        q2Euler();
         return q_est;
     }
+
+    public void q2Euler(){
+        euler[0] = (float) Math.atan2(2.0f * (q_est[0] * q_est[1] + q_est[2] * q_est[3]), 1.0f - 2.0f * (q_est[1] * q_est[1] + q_est[2] * q_est[2]));
+        euler[1] = (float)Math.asin(2.0f * (q_est[0] * q_est[2] - q_est[3] * q_est[1]));
+        euler[2] = (float) Math.atan2(2.0f * (q_est[0] * q_est[3] + q_est[1] * q_est[2]), 1.0f - 2.0f * (q_est[2] * q_est[2] + q_est[3] * q_est[3]));
+    }
+
     public float InSqrt(float x) {
         double y = 1 / Math.sqrt(x);
         return (float) y;
@@ -196,12 +205,16 @@ public class FCF {
         Magnetometer[1] *= norm_m;
         Magnetometer[2] *= norm_m;
 
+
+        Log.d(TAG,"norm_a:\t"+norm_a);
+        Log.d(TAG,"norm_m:\t"+norm_m);
         float[][] P = new float[][]{{Accelerometer[2] + 1.0f, Accelerometer[1], -Accelerometer[0], 0}, {Accelerometer[1], -Accelerometer[2] + 1.0f, 0, Accelerometer[0]}, {-Accelerometer[0], 0, -Accelerometer[2] + 1.0f, Accelerometer[1]}, {0, Accelerometer[0], Accelerometer[1], Accelerometer[2] + 1.0f}};
 
         float[][] omega = new float[][]{{0, -Gyroscope[0], -Gyroscope[1], -Gyroscope[2]}, {Gyroscope[0], 0, Gyroscope[2], -Gyroscope[1]}, {Gyroscope[1], -Gyroscope[2], 0, Gyroscope[0]}, {Gyroscope[2], Gyroscope[1], -Gyroscope[0], 0}};
 
-        if (Math.abs(1.0f / norm_a - 1.0f) < 0.2f) {
+        if (true) {
 
+            Log.d(TAG,"use accel");
             float[] q_0 = new float[4];
             float[] q_1 = new float[4];
             q_0[0] = (0.5f * dt * omega[0][0] + 1.0f) * q_[0] + (0.5f * dt * omega[0][1]) * q_[1] + (0.5f * dt * omega[0][2]) * q_[2] + (0.5f * dt * omega[0][3]) * q_[3];
@@ -245,7 +258,8 @@ public class FCF {
 
         float[] M = new float[]{vx, vy, vz, Magnetometer[0], Magnetometer[1], Magnetometer[2]};
 
-        if (Math.abs(1.0f / norm_m - std_norm_m) < threshold_m) {
+        if (true) {
+            Log.d(TAG,"use mag");
             acc_mag(M, q_acc, q_gravity_mag);
 
             q_est[0] = (1.0f - gain_m) * q_acc[0] + gain_m * q_gravity_mag[0];
@@ -277,27 +291,6 @@ public class FCF {
         return q;
     }
 
-    public float[] translate_to_BODY(float[] q, float[] data) {
-
-        float q0q0 = q[0] * q[0];
-        float q1q1 = q[1] * q[1];
-        float q2q2 = q[2] * q[2];
-        float q3q3 = q[3] * q[3];
-        float[] data_BODY = new float[3];
-        data_BODY[0] = data[0] * (q0q0 + q1q1 - q2q2 - q3q3) +
-                data[1] * 2.0f * (q[1] * q[2] + q[0] * q[3]) +
-                data[2] * 2.0f * (q[1] * q[3] - q[0] * q[2]);
-
-        data_BODY[1] = data[0] * 2.0f * (q[1] * q[2] - q[0] * q[3]) +
-                data[1] * (q0q0 - q1q1 + q2q2 - q3q3) +
-                data[2] * 2.0f * (q[2] * q[3] + q[0] * q[1]);
-
-        data_BODY[2] = data[0] * 2.0f * (q[1] * q[3] + q[0] * q[2]) +
-                data[1] * 2.0f * (q[2] * q[3] - q[0] * q[1]) +
-                data[2] * (q0q0 - q1q1 - q2q2 + q3q3);
-        return data_BODY;
-    }
-
     public float[] translate_to_NED(float[] q, float[] data) {
 
         float q0q0 = q[0] * q[0];
@@ -317,6 +310,27 @@ public class FCF {
                 data[1] * 2.0f * (q[2] * q[3] + q[0] * q[1]) +
                 data[2] * (q0q0 - q1q1 - q2q2 + q3q3);
         return data_NED;
+    }
+
+    public float[] translate_to_BODY(float[] q, float[] data) {
+
+        float q0q0 = q[0] * q[0];
+        float q1q1 = q[1] * q[1];
+        float q2q2 = q[2] * q[2];
+        float q3q3 = q[3] * q[3];
+        float[] data_BODY = new float[3];
+        data_BODY[0] = data[0] * (q0q0 + q1q1 - q2q2 - q3q3) +
+                data[1] * 2.0f * (q[1] * q[2] + q[0] * q[3]) +
+                data[2] * 2.0f * (q[1] * q[3] - q[0] * q[2]);
+
+        data_BODY[1] = data[0] * 2.0f * (q[1] * q[2] - q[0] * q[3]) +
+                data[1] * (q0q0 - q1q1 + q2q2 - q3q3) +
+                data[2] * 2.0f * (q[2] * q[3] + q[0] * q[1]);
+
+        data_BODY[2] = data[0] * 2.0f * (q[1] * q[3] + q[0] * q[2]) +
+                data[1] * 2.0f * (q[2] * q[3] - q[0] * q[1]) +
+                data[2] * (q0q0 - q1q1 - q2q2 + q3q3);
+        return data_BODY;
     }
 
 }

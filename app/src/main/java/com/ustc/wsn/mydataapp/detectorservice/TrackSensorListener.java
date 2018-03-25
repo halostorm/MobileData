@@ -14,6 +14,7 @@ import com.ustc.wsn.mydataapp.bean.AcceleratorData;
 import com.ustc.wsn.mydataapp.bean.GyroData;
 import com.ustc.wsn.mydataapp.bean.MagnetData;
 import com.ustc.wsn.mydataapp.bean.PhoneState;
+import com.ustc.wsn.mydataapp.quaternion.Quaternion;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -84,6 +85,7 @@ public class TrackSensorListener implements SensorEventListener {
 
     //姿态参数
     private volatile float[] DCM = new float[]{1.f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f};
+    private volatile Quaternion qAtt = new Quaternion();
     private volatile float[] DCM_static = new float[]{1.f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f};
 
     //滤波器参数
@@ -133,7 +135,8 @@ public class TrackSensorListener implements SensorEventListener {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                float[] dcm = DCM.clone();
+                Quaternion Q = qAtt;
+                int count=0;
                 while (!threadDisable_data_update) {
                     try {
                         Thread.sleep(sampleInterval);
@@ -145,14 +148,31 @@ public class TrackSensorListener implements SensorEventListener {
                     float dt = (time - timeOld) / 1000000000f;
                     timeOld = time;
 
-                    dcm = DCM.clone();
+                    float[] _w = gyro.clone();
+                    if(count++ ==windowSize) {
+                        Q = qAtt;
+                        count = 0;
+                    }
 
+                    //Log.d(TAG,"gyroWindow[0]:"+String.valueOf(i)+":\t"+W[0]);
+                    //Log.d(TAG,"gyroWindow[1]:"+String.valueOf(i)+":\t"+W[1]);
+                    //Log.d(TAG,"gyroWindow[2]:"+String.valueOf(i)+":\t"+W[2]);
+
+                    Q = Q.update(_w,dt);
+                    nacc = Q.rotate(acc);//得到一次理想加速度
+                    naccRaw = Q.rotate(accRaw);//得到一次理想加速度
+
+                    nlacc = Q.rotate(lacc);
+                    ngyro = Q.rotate(gyro);
+                    nmag = Q.rotate(mag);
+                    /*
                     nacc = phoneToEarth(dcm, acc);//得到一次理想加速度
                     naccRaw = phoneToEarth(dcm, accRaw);//得到一次理想加速度
 
                     nlacc = phoneToEarth(dcm, lacc);
                     ngyro = phoneToEarth(dcm, gyro);
                     nmag = phoneToEarth(dcm, mag);
+                    */
 
                     addData(deltT, dt);
                     addData(laccSample, lacc);
@@ -170,6 +190,7 @@ public class TrackSensorListener implements SensorEventListener {
                 }
             }
         }).start();
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -182,6 +203,7 @@ public class TrackSensorListener implements SensorEventListener {
                     float[] accMean = getMean(accSample);
                     float[] magMean = getMean(magSample);
                     SensorManager.getRotationMatrix(DCM, null, accMean, magMean);
+                    qAtt = qAtt.fromDcm(DCM);
                 }
             }
         }).start();
@@ -337,8 +359,8 @@ public class TrackSensorListener implements SensorEventListener {
                             String pathOut = new String();
 
                             for (int i = ((DurationWindow - w_count) * windowSize + 1); i < (DurationWindow - 1) * windowSize; i++) { //when i = 0, velocitySample[i] =0; positionSample[i] =0;
-                                float[] W = gyroWindow[i].clone();
-
+                                float[] _w = gyroWindow[i].clone();
+                                float[] W = phoneToEarth(DcmQueue[i-1],_w);
                                 //Log.d(TAG,"gyroWindow[0]:"+String.valueOf(i)+":\t"+W[0]);
                                 //Log.d(TAG,"gyroWindow[1]:"+String.valueOf(i)+":\t"+W[1]);
                                 //Log.d(TAG,"gyroWindow[2]:"+String.valueOf(i)+":\t"+W[2]);
@@ -348,7 +370,7 @@ public class TrackSensorListener implements SensorEventListener {
                                         -W[1] * deltTWindow[i], W[0] * deltTWindow[i], 1f};
                                 float[] euler = new float[3];
 
-                                DcmQueue[i] = DcmMultiply(DcmQueue[i - 1], Matrix_W);//获取新DCM
+                                DcmQueue[i] = mMultiply(DcmQueue[i - 1], Matrix_W);//获取新DCM
                                 SensorManager.getOrientation(DcmQueue[i], euler);//获取欧拉角
 
                                 //Log.d(TAG, "euler[0]\t" + i +"\t"+ euler[0]/3.1415*180);
@@ -605,30 +627,6 @@ public class TrackSensorListener implements SensorEventListener {
         return  aData;
     }
 
-    public float[] phoneToEarth(float[] DCM, float[] values) {
-        float[] valuesEarth = new float[3];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                valuesEarth[i] += values[j] * DCM[3 * i + j];
-            }
-        }
-        return valuesEarth;
-    }
-
-    public float[] DcmMultiply(float[] A, float[] B) {
-        float[] values = new float[9];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                float temp = 0;
-                for (int k = 0; k < 3; k++) {
-                    temp += A[i * 3 + k] * B[3 * k + j];
-                }
-                values[i * 3 + j] = temp;
-            }
-        }
-        return values;
-    }
-
     public float getVar(float[] x) {
         int m = x.length;
         float sum = 0;
@@ -692,6 +690,32 @@ public class TrackSensorListener implements SensorEventListener {
         return dAve;
     }
 
+    public float[] phoneToEarth(float[] DCM, float[] values) {
+        float[] valuesEarth = new float[3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                valuesEarth[i] += values[j] * DCM[3 * i + j];
+            }
+        }
+        return valuesEarth;
+    }
+
+    public float[] mMultiply(float[] A, float[] B) {
+        float[] values = new float[9];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                float temp = 0;
+                for (int k = 0; k < 3; k++) {
+                    temp += A[i * 3 + k] * B[3 * k + j];
+                }
+                values[i * 3 + j] = temp;
+            }
+        }
+        return values;
+    }
+
+
+    /*
     public void eulerAnglesToQuaternion(float angle[], float q[]) {
         float cosRoll = (float) Math.cos(angle[2] * 0.5f);
         float sinRoll = (float) Math.sin(angle[2] * 0.5f);
@@ -709,9 +733,9 @@ public class TrackSensorListener implements SensorEventListener {
     }
 
     public void quaternionToRotationMatrix(float q[], float rMat[]) {
-        float q1q1 = (float) Math.sqrt(q[1]);
-        float q2q2 = (float) Math.sqrt(q[2]);
-        float q3q3 = (float) Math.sqrt(q[3]);
+        float q1q1 = q[1]*q[1];
+        float q2q2 = q[2]*q[2];
+        float q3q3 = q[3]*q[3];
 
         float q0q1 = q[0] * q[1];
         float q0q2 = q[0] * q[2];
@@ -732,4 +756,34 @@ public class TrackSensorListener implements SensorEventListener {
         rMat[7] = 2.0f * (q2q3 - q0q1);
         rMat[8] = 1.0f - 2.0f * q1q1 - 2.0f * q2q2;
     }
+
+    public void DcmToQ(float[] data,float[][] mData) {
+        float tr = mData[0][0] + mData[1][1] + mData[2][2];
+        if (tr > 0.0f) {
+            float s = (float)Math.sqrt(tr + 1.0f);
+            data[0] = s * 0.5f;
+            s = 0.5f / s;
+            data[1] = (mData[2][1] - mData[1][2]) * s;
+            data[2] = (mData[0][2] - mData[2][0]) * s;
+            data[3] = (mData[1][0] - mData[0][1]) * s;
+        } else {
+            int dcm_i = 0;
+            for (int i = 1; i < 3; i++) {
+                if (mData[i][i] > mData[dcm_i][dcm_i]) {
+                    dcm_i = i;
+                }
+            }
+            int dcm_j = (dcm_i + 1) % 3;
+            int dcm_k = (dcm_i + 2) % 3;
+            float s = (float)Math.sqrt((mData[dcm_i][dcm_i] - mData[dcm_j][dcm_j] -
+                    mData[dcm_k][dcm_k]) + 1.0f);
+            data[dcm_i + 1] = s * 0.5f;
+            s = 0.5f / s;
+            data[dcm_j + 1] = (mData[dcm_i][dcm_j] + mData[dcm_j][dcm_i]) * s;
+            data[dcm_k + 1] = (mData[dcm_k][dcm_i] + mData[dcm_i][dcm_k]) * s;
+            data[0] = (mData[dcm_k][dcm_j] - mData[dcm_j][dcm_k]) * s;
+        }
+    }
+    */
+
 }

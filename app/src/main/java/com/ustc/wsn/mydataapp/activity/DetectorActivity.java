@@ -52,7 +52,6 @@ import detector.wsn.ustc.com.mydataapp.R;
 
 public class DetectorActivity extends Activity implements OnClickListener {
 
-    Boolean isExit = false;
     protected Intent DetectorserviceIntent;
     protected Intent GpsserviceIntent;
     protected Intent SimpleActivityIntent;
@@ -62,12 +61,11 @@ public class DetectorActivity extends Activity implements OnClickListener {
     private outputFile store;
     private Toast t;
     private LocationManager loc_int;
-    private TextView ifCollecting;
     private Button btnStartService;
     private Button btnStopService;
     private String psw;
-    //private volatile int stateLabel;
-    //private DetectorService msgService;
+
+    private boolean gpsEnabled = true;
     private boolean serviceStart = false;
     protected final String TAG = DetectorActivity.this.toString();
 
@@ -78,17 +76,6 @@ public class DetectorActivity extends Activity implements OnClickListener {
         setContentView(R.layout.activity_detector);
 
         loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        // 判断GPS是否正常启动
-        /*
-        if (!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            t = Toast.makeText(this, "请开启高精度GPS导航！", Toast.LENGTH_SHORT);
-            t.setGravity(Gravity.CENTER, 0, 0);
-            t.show();
-            // 返回开启GPS导航设置界面
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivityForResult(intent, 0);
-        }
-        */
 
         btnStartService = (Button) findViewById(R.id.btnStartService);
         btnStopService = (Button) findViewById(R.id.btnStopService);
@@ -215,37 +202,6 @@ public class DetectorActivity extends Activity implements OnClickListener {
         }
     }
 
-/*
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            exitByDoubleClick();
-        }
-        if (keyCode == KeyEvent.KEYCODE_HOME) {
-            //exitByDoubleClick();
-        }
-        return false;
-    }
-
-    private void exitByDoubleClick() {
-        Timer tExit = null;
-        if (!isExit) {
-            isExit = true;
-            Toast.makeText(this, "再按一次可以退出Mobile Data!", Toast.LENGTH_SHORT).show();
-            tExit = new Timer();
-            tExit.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    isExit = false;//取消退出
-                }
-            }, 1000);// 如果1秒钟内没有按下返回键，则启动定时器取消掉刚才执行的任务
-        } else {
-            finish();
-            System.exit(0);
-        }
-    }
-*/
-
     @Override
     protected void onDestroy() {
         // TODO Auto-generated method stub
@@ -280,16 +236,21 @@ public class DetectorActivity extends Activity implements OnClickListener {
                     */
                     loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                     // 判断GPS是否正常启动
-                    if (!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    if (!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER)&& gpsEnabled) {
                         t = Toast.makeText(this, "请开启高精度GPS！", Toast.LENGTH_SHORT);
                         t.setGravity(Gravity.CENTER, 0, 0);
                         t.show();
                         // 返回开启GPS导航设置界面
                         Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivityForResult(intent, 0);
+                        if(!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                            gpsEnabled = false;
+                        }
                     } else {
                         startService(DetectorserviceIntent);
-                        startService(GpsserviceIntent);
+                        if(gpsEnabled) {
+                            startService(GpsserviceIntent);
+                        }
                         serviceStart = true;
                         btnStartService.setText("采集中");
                         btnStartService.setTextColor(Color.BLUE);

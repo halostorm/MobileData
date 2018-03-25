@@ -1499,6 +1499,17 @@ public class EKF {
         eulerAngles[2] = (float) atan2(Rot_matrix[3], Rot_matrix[0]);
     }
 
+    void Ned2Android(){
+        float[] R = Rot_matrix.clone();
+        Rot_matrix = new float[]{
+                R[3],R[4],R[5],
+                R[0],R[1],R[2],
+                -R[6],-R[7],-R[8],};
+        euler[0] = (float) atan2(Rot_matrix[7], Rot_matrix[8]);
+        euler[1] = -(float) asin(Rot_matrix[6]);
+        euler[2] = (float) atan2(Rot_matrix[3], Rot_matrix[0]);
+    }
+
     void AttitudeEKF_initialize() {
         Q_not_empty = false;
         Ji_not_empty = false;
