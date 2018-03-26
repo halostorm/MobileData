@@ -2,12 +2,9 @@ package com.ustc.wsn.mydataapp.bean;
 
 import android.util.Log;
 
-import com.ustc.wsn.mydataapp.bean.outputFile;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
 /**
@@ -44,6 +41,9 @@ public class PhoneState {
 
     //加速度校准参数
     private static float[] params = {1,0,0, 0,1,0, 0,0,1, 0,0,0};
+
+    //
+    public static float[] Euler = {1.0f,0f,0f};
 
     public static void initAccCalibrateParams(){
 

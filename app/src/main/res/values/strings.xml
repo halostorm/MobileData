@@ -93,5 +93,6 @@
     <string name="title_activity_calibrate_state">CalibrateStateActivity</string>
     <string name="title_activity_acc_calibrate">AccCalibrateActivity</string>
     <string name="title_activity_ellisoid_fit">EllisoidFitActivity</string>
+    <string name="title_activity_attitude_view">AttitudeViewActivity</string>
 
 </resources>

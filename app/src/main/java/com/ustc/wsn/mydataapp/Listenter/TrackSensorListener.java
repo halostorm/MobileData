@@ -92,6 +92,7 @@ public class TrackSensorListener implements SensorEventListener {
     //姿态参数
     private volatile float[] androidDCM = new float[]{1.f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f};
     private volatile float[] DCM_static = new float[]{1.f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f};
+    private volatile float[] Euler = {0f,0f,0f};
 
     //滤波器参数
     private EKF ekf;
@@ -212,7 +213,8 @@ public class TrackSensorListener implements SensorEventListener {
                                 ekfP.r[2], // r_mag
                                 ekfP.moment_inertia_J, ekf.x_aposteriori_k, ekf.P_aposteriori_k, ekf.Rot_matrix, ekf.euler, ekf.debugOutput, ekf.euler_pre);
                         ekf.time = System.nanoTime();
-
+                        Euler = ekf.euler.clone();
+                        readEuler();
                         SensorManager.getRotationMatrix(androidDCM, null, accOri, magOri);
                         androidDCM = myMath.R_android2Ned(androidDCM);
                     }
@@ -542,6 +544,11 @@ public class TrackSensorListener implements SensorEventListener {
         if (TYPE == 0) {
             return this.mag;
         } else return this.nmag;
+    }
+
+    public float[] readEuler(){
+        PhoneState.Euler = this.Euler;
+        return this.Euler;
     }
 
     public float[][] getPosition() {

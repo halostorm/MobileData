@@ -47,6 +47,17 @@
         android:layout_marginTop="10dp"
         android:text="查看数据视图" />
     <Button
+        android:id="@+id/btnAttView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@layout/label_round"
+        android:elevation="10dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="10dp"
+        android:text="手机实时姿态视图" />
+
+    <Button
         android:id="@+id/btnTrack"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

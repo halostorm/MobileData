@@ -5,27 +5,15 @@ package com.ustc.wsn.mydataapp.activity;
  */
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.app.Activity;
-
-import java.text.DecimalFormat;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import org.achartengine.GraphicalView;
-
-import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
-import com.ustc.wsn.mydataapp.Listenter.DetectorSensorListener;
-import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
-import com.ustc.wsn.mydataapp.service.ChartService;
-
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -35,10 +23,17 @@ import android.view.MenuItem;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
+import com.ustc.wsn.mydataapp.service.ChartService;
+
+import org.achartengine.GraphicalView;
+
+import java.text.DecimalFormat;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import detector.wsn.ustc.com.mydataapp.R;
 

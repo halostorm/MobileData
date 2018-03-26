@@ -4,7 +4,13 @@ package com.ustc.wsn.mydataapp.service;
  * Created by halo on 2018/1/17.
  */
 
-import java.util.List;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Paint.Align;
+import android.os.IBinder;
+
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
 import org.achartengine.chart.PointStyle;
@@ -13,12 +19,7 @@ import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Paint.Align;
-import android.os.IBinder;
+import java.util.List;
 
 public class ChartService extends Service {
 

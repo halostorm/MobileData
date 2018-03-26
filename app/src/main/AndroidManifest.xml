@@ -91,6 +91,10 @@
         <activity
             android:name="com.ustc.wsn.mydataapp.activity.EllipsoidFitActivity"
             android:label="校准加速度计" />
+        <activity
+            android:name="com.ustc.wsn.mydataapp.activity.AttitudeViewActivity"
+            android:label="手机姿态" />
+
     </application>
 
 </manifest>

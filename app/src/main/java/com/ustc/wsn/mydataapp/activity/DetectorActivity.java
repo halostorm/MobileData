@@ -57,6 +57,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
     protected Intent SimpleActivityIntent;
     protected Intent LabelActivityIntent;
     protected Intent UploadActivityIntent;
+    protected Intent AttitudeViewActivityIntent;
     protected Intent trackActivityIntent;
     private outputFile store;
     private Toast t;
@@ -91,6 +92,9 @@ public class DetectorActivity extends Activity implements OnClickListener {
         Button btnBeginUploadActivity = (Button) findViewById(R.id.btnBeginUploadActivity);
         btnBeginUploadActivity.setOnClickListener(this);
 
+        Button btnAttView = (Button) findViewById(R.id.btnAttView);
+        btnAttView.setOnClickListener(this);
+
         Button btnTrack = (Button) findViewById(R.id.btnTrack);
         btnTrack.setOnClickListener(this);
 
@@ -109,6 +113,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
         LabelActivityIntent = new Intent(this, LabelActivity.class);
         UploadActivityIntent = new Intent(this, UploadActivity.class);
         UploadActivityIntent.putExtra("userId", psw);
+        AttitudeViewActivityIntent = new Intent(this, AttitudeViewActivity.class);
         trackActivityIntent = new Intent(this, ChartingDemoActivity.class);
     }
 
@@ -288,6 +293,9 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 break;
             case R.id.btnBeginUploadActivity:
                 startActivity(UploadActivityIntent);
+                break;
+            case R.id.btnAttView:
+                startActivity(AttitudeViewActivityIntent);
                 break;
             case R.id.btnTrack:
                 t = Toast.makeText(this, "3D启动中！", Toast.LENGTH_SHORT);
