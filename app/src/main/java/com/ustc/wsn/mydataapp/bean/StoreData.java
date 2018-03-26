@@ -3,7 +3,7 @@ package com.ustc.wsn.mydataapp.bean;
  * Created by halo on 2017/7/1.
  */
 
-import com.ustc.wsn.mydataapp.detectorservice.outputFile;
+import com.ustc.wsn.mydataapp.bean.outputFile;
 
 import java.io.BufferedWriter;
 import java.io.File;

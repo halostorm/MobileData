@@ -22,7 +22,7 @@ import android.widget.Button;
 import android.widget.Toast;
 import android.view.View.OnClickListener;
 
-import com.ustc.wsn.mydataapp.detectorservice.outputFile;
+import com.ustc.wsn.mydataapp.bean.outputFile;
 import com.ustc.wsn.mydataapp.utils.UploadManagers;
 
 import detector.wsn.ustc.com.mydataapp.R;

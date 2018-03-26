@@ -1,4 +1,4 @@
-package com.ustc.wsn.mydataapp.detectorservice;
+package com.ustc.wsn.mydataapp.Listenter;
 /**
  * Created by halo on 2017/7/1.
  */
@@ -7,13 +7,19 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
+
 
 import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
 import com.ustc.wsn.mydataapp.bean.AcceleratorData;
+import com.ustc.wsn.mydataapp.bean.Filter.FCF;
+import com.ustc.wsn.mydataapp.bean.Filter.EKF;
+import com.ustc.wsn.mydataapp.bean.Filter.LPF_II;
+import com.ustc.wsn.mydataapp.bean.Filter.MeanFilter;
+import com.ustc.wsn.mydataapp.bean.Filter.ekfParams;
+import com.ustc.wsn.mydataapp.bean.Filter.ekfParamsHandle;
 import com.ustc.wsn.mydataapp.bean.GyroData;
 import com.ustc.wsn.mydataapp.bean.MagnetData;
-import com.ustc.wsn.mydataapp.bean.PhoneState;
+import com.ustc.wsn.mydataapp.bean.math.myMath;
 
 public class DetectorSensorListener implements SensorEventListener {
 
@@ -58,13 +64,16 @@ public class DetectorSensorListener implements SensorEventListener {
 
     private volatile float[] accOri;
     private volatile float[] magnetOri;
+    private volatile float[] gyroOri;
 
     private float bearAngle;
     private String gpsBear;
     private volatile float[] DCM;
     private volatile float[] euler;
+
     private boolean accOriOriNew = false;
     private boolean magOriNew = false;
+    private boolean gyroOriNew = false;
 
     private LPF_II accLPF;
     private LPF_II gyroLPF;
@@ -78,8 +87,7 @@ public class DetectorSensorListener implements SensorEventListener {
     private ekfParams ekfP;
     private ekfParamsHandle ekfPH;
     private float mag_decl = -0.091f; //合肥磁偏角
-    private float[] gyroOri;
-    private boolean gyroOriNew = false;
+
     private long time;
     private long timeOld;
     private float dt;
@@ -121,6 +129,7 @@ public class DetectorSensorListener implements SensorEventListener {
             ekfPH = new ekfParamsHandle();
             ekfP = new ekfParams();
             ekf = new EKF();
+            //ekf.AttitudeEKF_initialize();
         }
         if (AttitudeMode == Attitude_FCF) {
             fcf = new FCF();
@@ -181,7 +190,7 @@ public class DetectorSensorListener implements SensorEventListener {
                             //Log.d(TAG, "calculateOrientation");
                             ekfP.parameters_update(ekfPH);
                             ekf.dt = (System.nanoTime()-ekf.time)/1000000000.f;
-                            ekf.AttitudeEKF(0, // approx_prediction
+                            ekf.AttitudeEKF(false, // approx_prediction
                                     ekfP.use_moment_inertia, ekf.update_vect, ekf.dt, ekf.z_k, ekfP.q[0], // q_rotSpeed,
                                     ekfP.q[1], // q_rotAcc
                                     ekfP.q[2], // q_acc
@@ -274,13 +283,13 @@ public class DetectorSensorListener implements SensorEventListener {
 
                     float[] worldData = new float[3];
                     if (AttitudeMode == Attitude_EKF) {
-                        worldData = phoneToEarth(ekf.Rot_matrix, event.values);
+                        worldData = myMath.coordinatesTransform(ekf.Rot_matrix, event.values);
                     }
                     if (AttitudeMode == Attitude_ANDROID) {
-                        worldData = phoneToEarth(DCM, event.values);
+                        worldData = myMath.coordinatesTransform(DCM, event.values);
                     }
                     if (AttitudeMode == Attitude_FCF) {
-                        //worldData = phoneToEarth(DCM, event.values);
+                        //worldData = myMath.coordinatesTransform(DCM, event.values);
                         worldData = fcf.translate_to_NED(fcf.q_est, event.values);
                     }
                     this.accNow = (new AcceleratorData(event.values)).toString();
@@ -293,10 +302,10 @@ public class DetectorSensorListener implements SensorEventListener {
                     float[] worldData = new float[3];
 
                     if (AttitudeMode == Attitude_EKF) {
-                        worldData = phoneToEarth(ekf.Rot_matrix, event.values);
+                        worldData = myMath.coordinatesTransform(ekf.Rot_matrix, event.values);
                     }
                     if (AttitudeMode == Attitude_ANDROID) {
-                        worldData = phoneToEarth(DCM, event.values);
+                        worldData = myMath.coordinatesTransform(DCM, event.values);
                     }
                     if (AttitudeMode == Attitude_FCF) {
                         worldData = fcf.translate_to_NED(fcf.q_est, event.values);
@@ -312,13 +321,13 @@ public class DetectorSensorListener implements SensorEventListener {
                     magOriNew = true;
                     float[] worldData = new float[3];
                     if (AttitudeMode == Attitude_EKF) {
-                        worldData = phoneToEarth(ekf.Rot_matrix, event.values);
+                        worldData = myMath.coordinatesTransform(ekf.Rot_matrix, event.values);
                     }
                     if (AttitudeMode == Attitude_ANDROID) {
-                        worldData = phoneToEarth(DCM, event.values);
+                        worldData = myMath.coordinatesTransform(DCM, event.values);
                     }
                     if (AttitudeMode == Attitude_FCF) {
-                        //worldData = phoneToEarth(DCM, event.values);
+                        //worldData = myMath.coordinatesTransform(DCM, event.values);
                         worldData = fcf.translate_to_NED(fcf.q_est, event.values);
                     }
                     //this.magNow = (new MagnetData(temp)).toString();
@@ -330,7 +339,7 @@ public class DetectorSensorListener implements SensorEventListener {
     }
 
 
-    public void setAccData() {
+    private void setAccData() {
         if (((acc_cur + 1) % Data_Size != acc_old) && accNow != null) {// 不满
             if (accNow != null) {
                 this.accData[acc_cur] = System.currentTimeMillis() + "\t" + accNow;
@@ -341,7 +350,7 @@ public class DetectorSensorListener implements SensorEventListener {
         }
     }
 
-    public void setGyroData() {
+    private void setGyroData() {
         if (((gyro_cur + 1) % Data_Size != gyro_old) && gyroNow != null) {// 不满
             if (gyroNow != null) {
                 this.gyroData[gyro_cur] = gyroNow;
@@ -352,7 +361,7 @@ public class DetectorSensorListener implements SensorEventListener {
         }
     }
 
-    public void setMagData() {
+    private void setMagData() {
         if (((mag_cur + 1) % Data_Size != mag_old) && magNow != null) {// 不满
             if (magNow != null) {
                 this.magData[mag_cur] = magNow;
@@ -364,7 +373,7 @@ public class DetectorSensorListener implements SensorEventListener {
     }
 
 
-    public void setRotData() {
+    private void setRotData() {
         if (((rot_cur + 1) % Data_Size != rot_old) && rotNow != null) {// 不满
             if (rotNow != null) {
                 this.rotData[rot_cur] = rotNow;
@@ -375,7 +384,7 @@ public class DetectorSensorListener implements SensorEventListener {
         }
     }
 
-    public void setBearData(String bear) {
+    private void setBearData(String bear) {
         if (((bear_cur + 1) % Data_Size != bear_old)) {// 不满
             //Log.d(TAG,"bear"+bear);
             this.bearData[bear_cur] = bear;
@@ -416,8 +425,7 @@ public class DetectorSensorListener implements SensorEventListener {
             return magData[i];
         } else return null;
     }
-
-
+    
     public String getRotData() {
         if (rot_cur != rot_old) {// 不空
             int i = rot_old;
@@ -430,17 +438,7 @@ public class DetectorSensorListener implements SensorEventListener {
         return bearAngle;
     }
 
-    public float[] phoneToEarth(float[] DCM, float[] values) {
-        float[] valuesEarth = new float[3];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                valuesEarth[i] += values[j] * DCM[3 * i + j];
-            }
-        }
-        return valuesEarth;
-    }
-
-    public void calBear() {
+    private void calBear() {
         float[] values = new float[3];
         //float[] R = new float[9];
         SensorManager.getRotationMatrix(DCM, null, accOri, magnetOri);

@@ -38,7 +38,7 @@ import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.ustc.wsn.mydataapp.bean.PhoneState;
-import com.ustc.wsn.mydataapp.detectorservice.outputFile;
+import com.ustc.wsn.mydataapp.bean.outputFile;
 import com.ustc.wsn.mydataapp.service.DetectorService;
 import com.ustc.wsn.mydataapp.service.GpsService;
 import com.ustc.wsn.mydataapp.utils.UploadManagers;

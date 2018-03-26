@@ -9,7 +9,6 @@ import android.location.LocationManager;
 
 import com.ustc.wsn.mydataapp.bean.AcceleratorData;
 import com.ustc.wsn.mydataapp.bean.CellInfo;
-import com.ustc.wsn.mydataapp.bean.Data;
 import com.ustc.wsn.mydataapp.bean.GyroData;
 import com.ustc.wsn.mydataapp.bean.LocationData;
 import com.ustc.wsn.mydataapp.bean.MagnetData;

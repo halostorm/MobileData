@@ -19,8 +19,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
-import com.ustc.wsn.mydataapp.detectorservice.TrackSensorListener;
-import com.ustc.wsn.mydataapp.detectorservice.outputFile;
+import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
+import com.ustc.wsn.mydataapp.bean.outputFile;
 
 import java.io.File;
 import java.io.FileWriter;

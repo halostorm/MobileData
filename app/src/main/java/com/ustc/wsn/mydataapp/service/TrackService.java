@@ -71,7 +71,6 @@ import com.nulana.NChart.NChartShadingModel;
 import com.nulana.NChart.NChartSolidColorBrush;
 import com.nulana.NChart.NChartValueAxesType;
 import com.nulana.NChart.NChartView;
-import com.ustc.wsn.mydataapp.detectorservice.FCF;
 
 import java.util.Random;
 

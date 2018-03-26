@@ -1,6 +1,6 @@
 package com.ustc.wsn.mydataapp.utils;
 
-import com.ustc.wsn.mydataapp.detectorservice.ReceiveThread;
+import com.ustc.wsn.mydataapp.Listenter.ReceiveThread;
 
 import java.util.TimerTask;
 

@@ -5,7 +5,7 @@ import android.app.Application;
 import android.os.Handler;
 import android.os.Message;
 
-import com.ustc.wsn.mydataapp.detectorservice.ReceiveThread;
+import com.ustc.wsn.mydataapp.Listenter.ReceiveThread;
 
 import java.io.BufferedReader;
 import java.io.IOException;

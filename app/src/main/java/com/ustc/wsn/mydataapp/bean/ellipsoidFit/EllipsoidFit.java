@@ -1,4 +1,4 @@
-package com.ustc.wsn.mydataapp.ellipsoidFit;
+package com.ustc.wsn.mydataapp.bean.ellipsoidFit;
 
 import android.util.Log;
 

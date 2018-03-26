@@ -1,4 +1,4 @@
-package com.ustc.wsn.mydataapp.quaternion;
+package com.ustc.wsn.mydataapp.bean.math;
 
 import java.io.Serializable;
 

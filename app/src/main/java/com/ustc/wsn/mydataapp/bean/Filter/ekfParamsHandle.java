@@ -1,4 +1,4 @@
-package com.ustc.wsn.mydataapp.detectorservice;
+package com.ustc.wsn.mydataapp.bean.Filter;
 
 /**
  * Created by halo on 2018/1/16.

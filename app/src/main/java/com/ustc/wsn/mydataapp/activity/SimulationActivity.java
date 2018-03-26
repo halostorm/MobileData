@@ -21,8 +21,8 @@ import java.util.TimerTask;
 import org.achartengine.GraphicalView;
 
 import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
-import com.ustc.wsn.mydataapp.detectorservice.DetectorSensorListener;
-import com.ustc.wsn.mydataapp.detectorservice.TrackSensorListener;
+import com.ustc.wsn.mydataapp.Listenter.DetectorSensorListener;
+import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
 import com.ustc.wsn.mydataapp.service.ChartService;
 
 import android.graphics.Color;

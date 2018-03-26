@@ -2,7 +2,7 @@ package com.ustc.wsn.mydataapp.bean;
 
 import android.util.Log;
 
-import com.ustc.wsn.mydataapp.detectorservice.outputFile;
+import com.ustc.wsn.mydataapp.bean.outputFile;
 
 import java.io.BufferedReader;
 import java.io.File;

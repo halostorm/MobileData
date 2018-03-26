@@ -1,4 +1,4 @@
-package com.ustc.wsn.mydataapp.detectorservice;
+package com.ustc.wsn.mydataapp.bean.Filter;
 
 import android.util.Log;
 
@@ -9,14 +9,14 @@ import android.util.Log;
 //FCF do in NED Frame, North-x, East-y, Down-z
 public class FCF {
     private final String TAG = FCF.class.toString();
-    float[] acc;
-    float[] gyro;
-    float[] mag;
-    float[] euler;
+    public float[] acc;
+    public float[] gyro;
+    public float[] mag;
+    public float[] euler;
     float[] last_q;
-    float[] q_est;
+    public float[] q_est;
     float time;//s
-    float dt;
+    public float dt;
     float gain_a;
     float gain_m;
     float std_norm_m;

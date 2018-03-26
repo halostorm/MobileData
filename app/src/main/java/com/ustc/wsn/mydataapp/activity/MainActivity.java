@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -30,8 +31,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ustc.wsn.mydataapp.detectorservice.outputFile;
+import com.ustc.wsn.mydataapp.bean.outputFile;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
@@ -62,8 +64,14 @@ public class MainActivity extends Activity {
         EditText editText = (EditText) findViewById(R.id.IdNumber);
         TextView textView = (TextView) findViewById(R.id.btnlogin);
         textView.setTag(editText);
-        //textView.setText(getName());
         textView.setOnClickListener(mOnClickListener);
+        //Calibrate accel if app is firstly used
+        File accParams = outputFile.getAccParamsFile();
+        if(!accParams.exists()){
+            Toast.makeText(MainActivity.this, "首次使用，请先校准加速度计！", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(MainActivity.this, EllipsoidFitActivity.class);
+            startActivity(intent);
+        }
     }
 
     private void showHelpDialog() {

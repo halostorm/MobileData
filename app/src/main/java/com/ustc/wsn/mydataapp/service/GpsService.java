@@ -9,7 +9,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.ustc.wsn.mydataapp.bean.StoreData;
-import com.ustc.wsn.mydataapp.detectorservice.DetectorLocationListener;
+import com.ustc.wsn.mydataapp.Listenter.DetectorLocationListener;
 
 import java.io.IOException;
 
