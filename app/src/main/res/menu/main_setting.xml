@@ -7,8 +7,5 @@
     <item
         android:id="@+id/calibrate_accel"
         android:title="校准加速度计" />
-    <item
-        android:id="@+id/exitSystem"
-        android:title="退出App" />
 
 </menu>
