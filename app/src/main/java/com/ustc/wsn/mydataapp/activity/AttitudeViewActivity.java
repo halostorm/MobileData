@@ -21,7 +21,6 @@ public class AttitudeViewActivity extends Activity {
     private boolean ACCELERATOR_EXIST = false;
     private boolean GYROSCROPE_EXIST = false;
     private boolean MAGNETIC_EXIST = false;
-
     private Toast t;
     private SensorManager sm;
     private Sensor accelerator;

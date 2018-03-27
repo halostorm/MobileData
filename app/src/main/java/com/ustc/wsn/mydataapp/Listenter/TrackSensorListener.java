@@ -211,21 +211,19 @@ public class TrackSensorListener implements SensorEventListener {
                                 ekfP.r[0], // r_gyro
                                 ekfP.r[1], // r_accel
                                 ekfP.r[2], // r_mag
-                                ekfP.moment_inertia_J, ekf.x_aposteriori_k, ekf.P_aposteriori_k, ekf.Rot_matrix, ekf.euler, ekf.debugOutput, ekf.euler_pre);
+                                ekfP.moment_inertia_J, ekf.x_aposteriori, ekf.P_aposteriori, ekf.Rot_matrix, ekf.euler, ekf.debugOutput, ekf.euler_pre);
                         ekf.time = System.nanoTime();
                         Euler = ekf.euler.clone();
-                        readEuler();
                         SensorManager.getRotationMatrix(androidDCM, null, accOri, magOri);
                         androidDCM = myMath.R_android2Ned(androidDCM);
                     }
-                    //myLog.log(TAG,ekf.Rot_matrix,"RotMatrix",3);
+                    myLog.log(TAG,ekf.Rot_matrix,"RotMatrix",3);
                     //myLog.log(TAG,androidDCM,"androidDCM",3);
 
                     time = System.nanoTime();
                     float dt = (time - timeOld) / 1000000000f;
                     timeOld = time;
                     if((count++)%100 == 0) {
-                        //DCM = ekf.Rot_matrix.clone();
                         DCM = androidDCM.clone();
                     }
                     float[] Matrix_W = new float[]{
@@ -233,6 +231,7 @@ public class TrackSensorListener implements SensorEventListener {
                             gyro[2] * dt, 1f, -gyro[0] * dt, //
                             -gyro[1] * dt, gyro[0] * dt, 1f};
 
+                    DCM = ekf.Rot_matrix.clone();
                     DCM = myMath.matrixMultiply(DCM, Matrix_W);//获取新DCM
                     //全部转入NED坐标系基准
                     nrawacc = myMath.coordinatesTransform( DCM, rawacc);//得到一次理想加速度
@@ -547,7 +546,6 @@ public class TrackSensorListener implements SensorEventListener {
     }
 
     public float[] readEuler(){
-        PhoneState.Euler = this.Euler;
         return this.Euler;
     }
 
