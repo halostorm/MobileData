@@ -1503,16 +1503,6 @@ public class EKF {
         return (float) (scale * Math.sqrt(y));//sqrt(y);
     }
 
-    /*
-    public void Ned2Android(){
-        float[] R = Rot_matrix.clone();
-        Rot_matrix = new float[]{
-                R[3],R[4],R[5],
-                R[0],R[1],R[2],
-                -R[6],-R[7],-R[8],};
-    }
-    */
-
     public void AttitudeEKF_initialize() {
         Q_not_empty = false;
         Ji_not_empty = false;

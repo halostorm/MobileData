@@ -191,13 +191,13 @@ public class DetectorSensorListener implements SensorEventListener {
                             ekfP.parameters_update(ekfPH);
                             ekf.dt = (System.nanoTime()-ekf.time)/1000000000.f;
                             ekf.AttitudeEKF(false, // approx_prediction
-                                    ekfP.use_moment_inertia, ekf.update_vect, ekf.dt, ekf.z_k, ekfP.q[0], // q_rotSpeed,
-                                    ekfP.q[1], // q_rotAcc
-                                    ekfP.q[2], // q_acc
-                                    ekfP.q[3], // q_mag
-                                    ekfP.r[0], // r_gyro
-                                    ekfP.r[1], // r_accel
-                                    ekfP.r[2], // r_mag
+                                    ekfP.use_moment_inertia, ekf.update_vect, ekf.dt, ekf.z_k, ekfP.q0, // q_rotSpeed,
+                                    ekfP.q1, // q_rotAcc
+                                    ekfP.q2, // q_acc
+                                    ekfP.q3, // q_mag
+                                    ekfP.r0, // r_gyro
+                                    ekfP.r1, // r_accel
+                                    ekfP.r2, // r_mag
                                     ekfP.moment_inertia_J, ekf.x_aposteriori_k, ekf.P_aposteriori_k, ekf.Rot_matrix, ekf.euler, ekf.debugOutput, ekf.euler_pre);
                             ekf.time = System.nanoTime();
                             //ekf.Ned2Android();

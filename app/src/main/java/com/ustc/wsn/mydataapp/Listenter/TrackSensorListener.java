@@ -36,6 +36,7 @@ public class TrackSensorListener implements SensorEventListener {
     public final int windowSize = 25;//20*windowSize ms - 500ms
     public final int DurationWindow = 10;// 5s
     public final int sampleInterval = 20;//ms
+    public volatile int sampleIntervalReal = 20;//ms
     private final int stateParamsType = 1;
     private final String TAG = TrackSensorListener.this.toString();
     public int FRAME_TYPE;//0 - phone frame/ 1 - inertial frame
@@ -73,6 +74,7 @@ public class TrackSensorListener implements SensorEventListener {
 
     private long time;
     private long timeOld;
+    private float dt;
 
     //传感器参数
     private volatile float[] rawacc = new float[3];
@@ -117,6 +119,8 @@ public class TrackSensorListener implements SensorEventListener {
     private MeanFilter gyroMF;
     private MeanFilter magMF;
 
+    private MeanFilter timeMF;
+
     //加速度校准参数
     private static float[] params;
 
@@ -138,6 +142,7 @@ public class TrackSensorListener implements SensorEventListener {
         gyroMF = new MeanFilter();
         magMF = new MeanFilter();
 
+        timeMF = new MeanFilter(windowSize);
 
         time = System.nanoTime();
         timeOld = System.nanoTime();
@@ -204,24 +209,31 @@ public class TrackSensorListener implements SensorEventListener {
                         ekfP.parameters_update(ekfPH);
                         ekf.dt = (System.nanoTime() - ekf.time) / 1000000000.f;
                         ekf.AttitudeEKF(false, // approx_prediction
-                                ekfP.use_moment_inertia, ekf.update_vect, ekf.dt, ekf.z_k, ekfP.q[0], // q_rotSpeed,
-                                ekfP.q[1], // q_rotAcc
-                                ekfP.q[2], // q_acc
-                                ekfP.q[3], // q_mag
-                                ekfP.r[0], // r_gyro
-                                ekfP.r[1], // r_accel
-                                ekfP.r[2], // r_mag
+                                ekfP.use_moment_inertia, ekf.update_vect, ekf.dt, ekf.z_k, ekfP.q0, // q_rotSpeed,
+                                ekfP.q1, // q_rotAcc
+                                ekfP.q2, // q_acc
+                                ekfP.q3, // q_mag
+                                ekfP.r0, // r_gyro
+                                ekfP.r1, // r_accel
+                                ekfP.r2, // r_mag
                                 ekfP.moment_inertia_J, ekf.x_aposteriori, ekf.P_aposteriori, ekf.Rot_matrix, ekf.euler, ekf.debugOutput, ekf.euler_pre);
                         ekf.time = System.nanoTime();
                         Euler = ekf.euler.clone();
-                        SensorManager.getRotationMatrix(androidDCM, null, accOri, magOri);
-                        androidDCM = myMath.R_android2Ned(androidDCM);
+                        float[] aDCM  = new float[9];
+                        SensorManager.getRotationMatrix(aDCM, null, accOri, magOri);
+                        androidDCM = myMath.R_android2Ned(aDCM);
+                        //Euler = myMath.Rot2Euler(androidDCM);
+                       // myLog.log(TAG,"EKF",ekf.euler);
+                       // myLog.log(TAG,"An",Euler);
                     }
-                    myLog.log(TAG,ekf.Rot_matrix,"RotMatrix",3);
-                    //myLog.log(TAG,androidDCM,"androidDCM",3);
+                   // myLog.log(TAG,ekf.Rot_matrix,"RotMatrix",3);
+                   // myLog.log(TAG,androidDCM,"androidDCM",3);
 
                     time = System.nanoTime();
-                    float dt = (time - timeOld) / 1000000000f;
+                    dt = (time - timeOld) / 1000000000f;
+                    sampleIntervalReal = (int)timeMF.filter(dt*1000);
+                    //Log.d(TAG,"DT Thread 1:\t"+dt);
+                    //Log.d(TAG,"DsampleIntervalRealT Thread 1:\t"+sampleIntervalReal);
                     timeOld = time;
                     if((count++)%100 == 0) {
                         DCM = androidDCM.clone();
@@ -232,7 +244,7 @@ public class TrackSensorListener implements SensorEventListener {
                             -gyro[1] * dt, gyro[0] * dt, 1f};
 
                     DCM = ekf.Rot_matrix.clone();
-                    DCM = myMath.matrixMultiply(DCM, Matrix_W);//获取新DCM
+                    //DCM = myMath.matrixMultiply(DCM, Matrix_W);//获取新DCM
                     //全部转入NED坐标系基准
                     nrawacc = myMath.coordinatesTransform( DCM, rawacc);//得到一次理想加速度
                     nacc = myMath.coordinatesTransform( DCM, acc);//得到一次理想加速度
@@ -276,11 +288,14 @@ public class TrackSensorListener implements SensorEventListener {
                 float[] deltBegin = new float[windowSize];
                 long[] timeStampBegin = new long[windowSize];
 
+                long t1;
+                long t2;
+
                 @Override
                 public void run() {
                     while (!threadDisable_data_update) {
                         try {
-                            Thread.sleep(windowSize * sampleInterval);
+                            Thread.sleep(windowSize * sampleIntervalReal);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -331,10 +346,19 @@ public class TrackSensorListener implements SensorEventListener {
 
                         //计算初始DCM
                         if (NOW_STATE == PhoneState.ABSOLUTE_STATIC_STATE || NOW_STATE == PhoneState.USER_STATIC_STATE) {
-                            float[] accOriMean = myMath.getMean(accOriSample);
-                            float[] magOriMean = myMath.getMean(magOriSample);
-                            SensorManager.getRotationMatrix(DCM_static, null, accOriMean, magOriMean);
-                            DCM_static = myMath.R_android2Ned(DCM_static);
+                            //float[] accOriMean = myMath.getMean(accOriSample);
+                            //float[] magOriMean = myMath.getMean(magOriSample);
+                            float[][] DCM_s = new float[accOriSample.length][9];
+                            for(int i =0; i<accOriSample.length;i++) {
+                                SensorManager.getRotationMatrix(DCM_s[i], null, accOriSample[i], magOriSample[i]);
+                                DCM_s[i] = myMath.R_android2Ned(DCM_s[i]);
+                            }
+                            DCM_static = myMath.getMean(DCM_s);
+
+                            t1 = System.nanoTime();
+                            float dt1 = (t1-t2)/1000000000.f;
+                            Log.d(TAG,"Thread 2 time:\t"+dt1);
+                            t2 = System.nanoTime();
                             //jing静止记录上一次积分变量
                             gyroSampleBegin = gyroSample.clone();
                             accSampleBegin = accSample.clone();
@@ -348,30 +372,19 @@ public class TrackSensorListener implements SensorEventListener {
                             float[][] velocityQueue = new float[DurationWindow * windowSize][3];
                             float[][] DcmQueue = new float[DurationWindow * windowSize][3];
 
+
                             //获取path传感器数据
                             long[] time = new long[DurationWindow * windowSize];
                             float[][] gyroWindow = new float[DurationWindow * windowSize][3];//;
                             float[] deltTWindow = new float[DurationWindow * windowSize];//;
                             float[][] accWindow = new float[DurationWindow * windowSize][3];//;
 
-                            int w_count = 0;
-                            //添加上一次变量
-                            myMath.addData(time, timeStampBegin);
-                            myMath.addData(gyroWindow, gyroSampleBegin);
-                            myMath.addData(deltTWindow, deltBegin);
-                            myMath.addData(accWindow, accSampleBegin);
-                            w_count++;
-                            //添加本次变量
-                            myMath.addData(time, timeStamp);
-                            myMath.addData(gyroWindow, gyroSample);
-                            myMath.addData(deltTWindow, deltT);
-                            myMath.addData(accWindow, accSample);
-                            w_count++;//w_count = 2;
+                            int w_count = 2;
                             //判断后续窗口状态，后续窗口最多DurationWindow-2个
                             for (int w = 1; w < DurationWindow - 1; w++) {
                                 //暂停1个窗口查是否停止动作
                                 try {
-                                    Thread.sleep(windowSize * sampleInterval);
+                                    Thread.sleep(windowSize * sampleIntervalReal);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -383,8 +396,8 @@ public class TrackSensorListener implements SensorEventListener {
                                 float laccSumMean = myMath.getMean(nlaccSum);
                                 float laccSumVar = myMath.getVar(nlaccSum);
 
-                                // Log.d(TAG, "laccSumMean:" + laccSumMean);
-                                // Log.d(TAG, "laccSumVar:" + laccSumVar);
+                                Log.d(TAG, "laccSumMean:" + laccSumMean);
+                                Log.d(TAG, "laccSumVar:" + laccSumVar);
 
                                 if (laccSumMean < ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD && laccSumVar < ACC_VAR_ABSOLUTE_STATIC_THRESHOLD) {//gyroSumMean < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumMean < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroSumVar < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumVar < ACC_ABSOLUTE_STATIC_THRESHOLD) {
                                     NOW_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
@@ -402,18 +415,19 @@ public class TrackSensorListener implements SensorEventListener {
                                     //若当前窗口已经停止，跳出，不再添加
                                     break;
                                 }
-                                myMath.addData(time, timeStamp);
-                                myMath.addData(gyroWindow, gyroSample);
-                                myMath.addData(deltTWindow, deltT);
-                                myMath.addData(accWindow, accSample);
                             }
 
+                            //从判断开始的位置记录，初始化path参数
                             DcmQueue[(DurationWindow - w_count) * windowSize] = DCM_static.clone();
+
                             time = timeStamp.clone();
                             gyroWindow = gyroQueue.clone();//;
                             deltTWindow = deltTQueue.clone();//;
                             accWindow = accQueue.clone();//;
 
+                            float[] accNow = myMath.coordinatesTransform(DcmQueue[(DurationWindow - w_count) * windowSize], accWindow[(DurationWindow - w_count) * windowSize]);//得到一次新惯性加速度
+                            float[] accLast = accNow.clone();
+                            //申明path文件
                             String pathOut = new String();
 
                             for (int i = ((DurationWindow - w_count) * windowSize + 1); i < (DurationWindow - 1) * windowSize; i++) { //when i = 0, velocitySample[i] =0; positionSample[i] =0;
@@ -435,31 +449,47 @@ public class TrackSensorListener implements SensorEventListener {
                                 Log.d(TAG, "accWindow[i][0]:" + String.valueOf(i) + ":\t" + accWindow[i][0]);
                                 Log.d(TAG, "accWindow[i][1]:" + String.valueOf(i) + ":\t" + accWindow[i][1]);
                                 Log.d(TAG, "accWindow[i][2]:" + String.valueOf(i) + ":\t" + accWindow[i][2]);
+
                                 pathOut += time[i] + "\t";
                                 pathOut += accWindow[i][0] + "\t";
                                 pathOut += accWindow[i][1] + "\t";
                                 pathOut += accWindow[i][2] + "\t";
-                                float[] accNow = myMath.coordinatesTransform(DcmQueue[i], accWindow[i]);//得到一次新惯性加速度
-                                float[] accLast = myMath.coordinatesTransform(DcmQueue[i - 1], accWindow[i - 1]);//记录上一次惯性加速度
+
+                                accNow = myMath.coordinatesTransform(DcmQueue[i], accWindow[i]);//得到一次新惯性加速度
+
                                 Log.d(TAG, "accNow[0]:" + String.valueOf(i) + ":\t" + accNow[0]);
                                 Log.d(TAG, "accNow[1]:" + String.valueOf(i) + ":\t" + accNow[1]);
-                                Log.d(TAG, "accNow[2]:" + String.valueOf(i) + ":\t" + (accNow[2] - G));
-                                pathOut += accNow[0] + "\t";
-                                pathOut += accNow[1] + "\t";
-                                pathOut += accNow[2] + "\t";
+                                Log.d(TAG, "accNow[2]:" + String.valueOf(i) + ":\t" + (accNow[2]-G));
+
+                                Log.d(TAG, "accLast[0]:" + String.valueOf(i) + ":\t" + accLast[0]);
+                                Log.d(TAG, "accLast[1]:" + String.valueOf(i) + ":\t" + accLast[1]);
+                                Log.d(TAG, "accLast[2]:" + String.valueOf(i) + ":\t" + (accLast[2]-G));
+
+                                pathOut += (accNow[0]+accLast[0] -2*G)/2+ "\t";
+                                pathOut += (accNow[1]+accLast[1] -2*G)/2+ "\t";
+                                pathOut += (accNow[2]+accLast[2] -2*G)/2+ "\t";
+
                                 velocityQueue[i][0] = velocityQueue[i - 1][0] + 0.5f * (accNow[0] + accLast[0]) * deltTWindow[i];
                                 velocityQueue[i][1] = velocityQueue[i - 1][1] + 0.5f * (accNow[1] + accLast[1]) * deltTWindow[i];
-                                velocityQueue[i][2] = velocityQueue[i - 1][2] + 0.5f * ((accNow[2] - G) + (accLast[2] - G)) * deltTWindow[i];
+                                velocityQueue[i][2] = velocityQueue[i - 1][2] + 0.5f * ((accNow[2]-G) + (accLast[2]-G)) * deltTWindow[i];
+
+                                accLast = accNow.clone();//记录上一次惯性加速度
+
                                 pathOut += velocityQueue[i][0] + "\t";
                                 pathOut += velocityQueue[i][1] + "\t";
                                 pathOut += velocityQueue[i][2] + "\t";
+
                                 Log.d(TAG, "velocityQueue[0]:" + String.valueOf(i) + ":\t" + velocityQueue[i][0]);
                                 Log.d(TAG, "velocityQueue[1]:" + String.valueOf(i) + ":\t" + velocityQueue[i][1]);
                                 Log.d(TAG, "velocityQueue[2]:" + String.valueOf(i) + ":\t" + velocityQueue[i][2]);
 
+                                // free fall: P = P0 + 0.5*G*dt*dt
+                                //freeFallPosition = freeFallPositionLast + 0.5f*G*deltTWindow[i]*deltTWindow[i];
+                                //freeFallPositionLast = freeFallPosition;
+
                                 positionQ[i][0] = positionQ[i - 1][0] + 0.5f * (velocityQueue[i][0] + velocityQueue[i - 1][0]) * deltTWindow[i];
                                 positionQ[i][1] = positionQ[i - 1][1] + 0.5f * (velocityQueue[i][1] + velocityQueue[i - 1][1]) * deltTWindow[i];
-                                positionQ[i][2] = positionQ[i - 1][2] + 0.5f * (velocityQueue[i][2] + velocityQueue[i - 1][2]) * deltTWindow[i];
+                                positionQ[i][2] = positionQ[i - 1][2] + 0.5f * (velocityQueue[i][2] + velocityQueue[i - 1][2]) * deltTWindow[i]; //- freeFallPosition;
 
                                 pathOut += positionQ[i][0] + "\t";
                                 pathOut += positionQ[i][1] + "\t";
@@ -470,6 +500,7 @@ public class TrackSensorListener implements SensorEventListener {
                                 Log.d(TAG, "position[2]" + String.valueOf(i) + ":\t" + positionQ[i][2]);
                             }
                             //
+                            pathOut +="\n";
                             try {
                                 FileWriter writer = new FileWriter(path);
                                 Log.d(TAG, "path write");

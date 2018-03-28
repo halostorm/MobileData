@@ -1,5 +1,8 @@
 package com.ustc.wsn.mydataapp.bean.math;
 
+import static java.lang.Math.asin;
+import static java.lang.Math.atan2;
+
 /**
  * Created by halo on 2018/3/26.
  */
@@ -59,16 +62,16 @@ public class myMath {
 
     public static float[] getMean(float[][] x) {
         int m = x.length;
-        float[] sum = new float[3];
+        float[] sum = new float[x[0].length];
         for (int i = 0; i < m; i++) {// 求和
-            sum[0] += x[i][0];
-            sum[1] += x[i][1];
-            sum[2] += x[i][2];
+            for (int j = 0; j < x[0].length; j++) {
+                sum[j] += x[i][j];
+            }
         }
-        float dAve[] = new float[3];
-        dAve[0] = sum[0] / m;// 求平均值
-        dAve[1] = sum[1] / m;// 求平均值
-        dAve[2] = sum[2] / m;// 求平均值
+        float dAve[] = new float[x[0].length];
+        for (int j = 0; j < x[0].length; j++) {
+            dAve[j] = sum[j] / m;// 求平均值
+        }
         return dAve;
     }
 
@@ -110,7 +113,7 @@ public class myMath {
     public static float[] matrixSub(float[] A, float[] B) {
         float[] values = new float[A.length];
         for (int i = 0; i < A.length; i++) {
-            values[i ] = A[i]  - B[i];
+            values[i] = A[i] - B[i];
         }
         return values;
     }
@@ -192,7 +195,16 @@ public class myMath {
         }
     }
 
-    public static float[] android2Ned(float[] data){
+    public static float[] Rot2Euler(float[] Rot_matrix) {
+        float[] eulerAngles = {0, 0, 0};
+        eulerAngles[0] = (float) Math.atan2(Rot_matrix[7], Rot_matrix[8]);
+        //Log.d((String) TAG, "eulerAngles0：" + eulerAngles[0]);
+        eulerAngles[1] = -(float) Math.asin(Rot_matrix[6]);
+        eulerAngles[2] = (float) Math.atan2(Rot_matrix[3], Rot_matrix[0]);
+        return eulerAngles;
+    }
+
+    public static float[] android2Ned(float[] data) {
         float[] nData = new float[data.length];
         nData[0] = data[1];
         nData[1] = data[0];
@@ -200,7 +212,7 @@ public class myMath {
         return nData;
     }
 
-    public static float[] R_android2Ned(float[] data){
+    public static float[] R_android2Ned(float[] data) {
         float[] nData = new float[data.length];
         nData[0] = data[4];
         nData[1] = data[3];

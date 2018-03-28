@@ -115,7 +115,7 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
             public void run() {
                 while (!threadDisable_data_update) {
                     try {
-                        Thread.sleep(40);
+                        Thread.sleep(sensorListener.sampleIntervalReal);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
