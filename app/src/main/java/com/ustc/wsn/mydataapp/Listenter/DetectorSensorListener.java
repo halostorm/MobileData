@@ -13,6 +13,7 @@ import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
 import com.ustc.wsn.mydataapp.bean.AcceleratorData;
 import com.ustc.wsn.mydataapp.bean.Filter.FCF;
 import com.ustc.wsn.mydataapp.bean.Filter.EKF;
+import com.ustc.wsn.mydataapp.bean.Filter.GDF;
 import com.ustc.wsn.mydataapp.bean.Filter.LPF_II;
 import com.ustc.wsn.mydataapp.bean.Filter.MeanFilter;
 import com.ustc.wsn.mydataapp.bean.Filter.ekfParams;
@@ -30,7 +31,8 @@ public class DetectorSensorListener implements SensorEventListener {
     private static final int Attitude_ANDROID = 1;
     private static final int Attitude_EKF = 2;
     private static final int Attitude_FCF = 3;
-    private static int AttitudeMode = Attitude_EKF;
+    private static final int Attitude_GDF = 4;
+    private static int AttitudeMode = Attitude_GDF;
 
     // 传感器数据缓冲池
     private DetectorSensorListener mContext = DetectorSensorListener.this;
@@ -93,6 +95,8 @@ public class DetectorSensorListener implements SensorEventListener {
     private float dt;
     private FCF fcf;
 
+    private GDF gdf;
+
     public DetectorSensorListener(AppResourceApplication resource) {
         // TODO Auto-generated constructor stub
         super();
@@ -133,6 +137,10 @@ public class DetectorSensorListener implements SensorEventListener {
         }
         if (AttitudeMode == Attitude_FCF) {
             fcf = new FCF();
+        }
+
+        if (AttitudeMode == Attitude_GDF) {
+            gdf = new GDF();
         }
 
         time = System.nanoTime();
@@ -223,6 +231,17 @@ public class DetectorSensorListener implements SensorEventListener {
                             fcf.attitude(dt);
                             rotNow = fcf.euler[0] + "\t" + fcf.euler[1] + "\t" + fcf.euler[2];
                         }
+                        if(AttitudeMode ==Attitude_GDF){
+                            float[] _accOri = accOri;
+                            float[] _gyroOri = gyroOri;
+                            float[] _magOri = magnetOri;
+
+                            gdf.Filter(_gyroOri[1],-_gyroOri[0],_gyroOri[2],
+                                    _accOri[1],-_accOri[0],_accOri[2],
+                                    _magOri[1],-_magOri[0],_magOri[2], dt);
+
+                            rotNow = gdf.Euler[0] + "\t" + gdf.Euler[1] + "\t" + gdf.Euler[2];
+                        }
                     }
                 }
             }
@@ -285,6 +304,9 @@ public class DetectorSensorListener implements SensorEventListener {
                     if (AttitudeMode == Attitude_EKF) {
                         worldData = myMath.coordinatesTransform(ekf.Rot_matrix, event.values);
                     }
+                    if (AttitudeMode == Attitude_GDF) {
+                        worldData = myMath.coordinatesTransform(gdf.Rot_Matrix, event.values);
+                    }
                     if (AttitudeMode == Attitude_ANDROID) {
                         worldData = myMath.coordinatesTransform(DCM, event.values);
                     }
@@ -304,6 +326,9 @@ public class DetectorSensorListener implements SensorEventListener {
                     if (AttitudeMode == Attitude_EKF) {
                         worldData = myMath.coordinatesTransform(ekf.Rot_matrix, event.values);
                     }
+                    if (AttitudeMode == Attitude_GDF) {
+                        worldData = myMath.coordinatesTransform(gdf.Rot_Matrix, event.values);
+                    }
                     if (AttitudeMode == Attitude_ANDROID) {
                         worldData = myMath.coordinatesTransform(DCM, event.values);
                     }
@@ -322,6 +347,9 @@ public class DetectorSensorListener implements SensorEventListener {
                     float[] worldData = new float[3];
                     if (AttitudeMode == Attitude_EKF) {
                         worldData = myMath.coordinatesTransform(ekf.Rot_matrix, event.values);
+                    }
+                    if (AttitudeMode == Attitude_GDF) {
+                        worldData = myMath.coordinatesTransform(gdf.Rot_Matrix, event.values);
                     }
                     if (AttitudeMode == Attitude_ANDROID) {
                         worldData = myMath.coordinatesTransform(DCM, event.values);

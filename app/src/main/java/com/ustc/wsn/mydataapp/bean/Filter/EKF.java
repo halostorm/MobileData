@@ -1,6 +1,7 @@
 package com.ustc.wsn.mydataapp.bean.Filter;
 
 import com.ustc.wsn.mydataapp.bean.Log.myLog;
+import com.ustc.wsn.mydataapp.bean.math.Quaternion;
 
 import static java.lang.Math.asin;
 import static java.lang.Math.atan2;
@@ -1586,13 +1587,41 @@ public class EKF {
         return r;
     }
 
-    float[] Qfrom_DCM(float[] dcm) {
-        float[] q = new float[4];
-        q[0] = (float) ((0.5) * (Math.sqrt((1) + dcm[0] + dcm[4] + dcm[8])));
-        q[1] = ((dcm[7] - dcm[5]) / ((4) * q[0]));
-        q[2] = ((dcm[2] - dcm[6]) / ((4) * q[0]));
-        q[3] = ((dcm[3] - dcm[1]) / ((4) * q[0]));
-        return q;
+    public void Qfrom_DCM(float[] dcm) {
+        float[] _q = new float[4];
+        _q[0] = (float) ((0.5) * (Math.sqrt((1) + dcm[0] + dcm[4] + dcm[8])));
+        _q[1] = ((dcm[7] - dcm[5]) / ((4) * _q[0]));
+        _q[2] = ((dcm[2] - dcm[6]) / ((4) * _q[0]));
+        _q[3] = ((dcm[3] - dcm[1]) / ((4) * _q[0]));
+        q = _q.clone();
     }
 
+    public void fromDcm(float[] mData) {
+        float[] data = new float[4];
+        float tr = mData[0] + mData[4] + mData[8];
+        if (tr > 0.0f) {
+            float s = (float) Math.sqrt(tr + 1.0f);
+            data[0] = s * 0.5f;
+            s = 0.5f / s;
+            data[1] = (mData[7] - mData[5]) * s;
+            data[2] = (mData[2] - mData[6]) * s;
+            data[3] = (mData[3] - mData[1]) * s;
+        } else {
+            int dcm_i = 0;
+            for (int i = 1; i < 3; i++) {
+                if (mData[i * 3 + i] > mData[dcm_i * 3 + dcm_i]) {
+                    dcm_i = i;
+                }
+            }
+            int dcm_j = (dcm_i + 1) % 3;
+            int dcm_k = (dcm_i + 2) % 3;
+            float s = (float) Math.sqrt((mData[dcm_i * 3 + dcm_i] - mData[dcm_j * 3 + dcm_j] - mData[dcm_k * 3 + dcm_k]) + 1.0f);
+            data[dcm_i + 1] = s * 0.5f;
+            s = 0.5f / s;
+            data[dcm_j + 1] = (mData[dcm_i * 3 + dcm_j] + mData[dcm_j * 3 + dcm_i]) * s;
+            data[dcm_k + 1] = (mData[dcm_k * 3 + dcm_i] + mData[dcm_i * 3 + dcm_k]) * s;
+            data[0] = (mData[dcm_k * 3 + dcm_j] - mData[dcm_j * 3 + dcm_k]) * s;
+        }
+        q = data.clone();
+    }
 }

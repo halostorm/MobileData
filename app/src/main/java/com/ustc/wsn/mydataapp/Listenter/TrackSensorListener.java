@@ -10,6 +10,7 @@ import android.util.Log;
 import com.ustc.wsn.mydataapp.bean.Filter.BPF;
 import com.ustc.wsn.mydataapp.bean.Filter.EKF;
 import com.ustc.wsn.mydataapp.bean.Filter.FCF;
+import com.ustc.wsn.mydataapp.bean.Filter.GDF;
 import com.ustc.wsn.mydataapp.bean.Filter.LPF_I;
 import com.ustc.wsn.mydataapp.bean.Filter.LPF_II;
 import com.ustc.wsn.mydataapp.bean.Filter.MeanFilter;
@@ -50,6 +51,13 @@ public class TrackSensorListener implements SensorEventListener {
     private float ACC_VAR_ABSOLUTE_STATIC_THRESHOLD;
     private float ACC_VAR_STATIC_THRESHOLD;
     private TrackSensorListener mContext = TrackSensorListener.this;
+
+    private static final int Attitude_ANDROID = 1;
+    private static final int Attitude_EKF = 2;
+    private static final int Attitude_FCF = 3;
+    private static final int Attitude_GDF = 4;
+    private static int AttitudeMode = Attitude_GDF;
+
     //路径参数
 
     private volatile float[][] accSample = new float[windowSize][3];//加速度窗
@@ -72,10 +80,6 @@ public class TrackSensorListener implements SensorEventListener {
     private volatile float[] deltTQueue = new float[DurationWindow * windowSize];//积分步长
     private volatile long[] timeStamp = new long[DurationWindow * windowSize];//积分时间
 
-    private long time;
-    private long timeOld;
-    private float dt;
-
     //传感器参数
     private volatile float[] rawacc = new float[3];
     private volatile float[] acc = new float[3];
@@ -94,12 +98,14 @@ public class TrackSensorListener implements SensorEventListener {
     //姿态参数
     private volatile float[] androidDCM = new float[]{1.f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f};
     private volatile float[] DCM_static = new float[]{1.f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f};
-    private volatile float[] Euler = {0f,0f,0f};
+    private volatile float[] Euler = {0f, 0f, 0f};
 
     //滤波器参数
     private EKF ekf;
     private ekfParams ekfP;
     private ekfParamsHandle ekfPH;
+
+    private GDF gdf;
 
     private volatile float[] accOri;
     private volatile float[] magOri;
@@ -144,13 +150,13 @@ public class TrackSensorListener implements SensorEventListener {
 
         timeMF = new MeanFilter(windowSize);
 
-        time = System.nanoTime();
-        timeOld = System.nanoTime();
-
         ekfPH = new ekfParamsHandle();
         ekfP = new ekfParams();
         ekf = new EKF();
         //ekf.AttitudeEKF_initialize();
+
+        gdf = new GDF();
+
         //加速度校准参数提取
         getAccCalibrateParams();
 
@@ -158,10 +164,13 @@ public class TrackSensorListener implements SensorEventListener {
             @Override
             public void run() {
                 int count = 0;
-                float[] DCM = {1,0,0, 0,1,0, 0,0,1};
+                long time = System.nanoTime();
+                long timeOld = System.nanoTime();
+                float dt = sampleIntervalReal / 1000f;
+                float[] DCM = {1, 0, 0, 0, 1, 0, 0, 0, 1};
                 while (!threadDisable_data_update) {
                     try {
-                        Thread.sleep(sampleInterval);
+                        Thread.sleep(sampleIntervalReal);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -169,72 +178,57 @@ public class TrackSensorListener implements SensorEventListener {
                     if (accOriOriNew && magOriNew && gyroOriNew) {
                         //myLog.log(TAG,"x_apo",ekf.x_apo);
                         //myLog.log(TAG,"P_apo",ekf.P_apo);
-                        ekf.update_vect[0] = 1;
-                        ekf.update_vect[1] = 1;
-                        ekf.update_vect[2] = 1;
-                        /*
-                        float[] _accOri = accMF.filter(accOri);
-                        float[] _gyroOri = gyroMF.filter(gyroOri);
-                        float[] _magOri = magMF.filter(magOri);
-                        */
-
                         float[] _accOri = accOri;
                         float[] _gyroOri = gyroOri;
                         float[] _magOri = magOri;
-                        ekf.z_k[0] = _gyroOri[1];
-                        ekf.z_k[1] = _gyroOri[0];
-                        ekf.z_k[2] = -_gyroOri[2];
 
-                        ekf.z_k[3] = _accOri[1];
-                        ekf.z_k[4] = _accOri[0];
-                        ekf.z_k[5] = -_accOri[2];
+                        if (AttitudeMode == Attitude_GDF) {
+                            //用EKF初始化GDF
+                            if(gdf.InitCount++<100){
+                                ekfAtt(_accOri, _gyroOri, _magOri);
+                                gdf.q0 = ekf.q[0];
+                                gdf.q1 = ekf.q[1];
+                                gdf.q2 = -ekf.q[2];
+                                gdf.q3 = -ekf.q[3];
 
-                        ekf.z_k[6] = _magOri[1] / 100.f;
-                        ekf.z_k[7] = _magOri[0] / 100.f;
-                        ekf.z_k[8] = -_magOri[2] / 100.f;
+                                Euler = ekf.euler.clone();
+                                DCM = ekf.Rot_matrix.clone();
+                            }
+                            else {
+                                gdf.Filter(_gyroOri[1], -_gyroOri[0], _gyroOri[2], _accOri[1], -_accOri[0], _accOri[2], _magOri[1], -_magOri[0], _magOri[2], dt);
+                                Euler = gdf.Euler.clone();
+                                DCM = gdf.Rot_Matrix.clone();
+                            }
 
-                        ekf.x_aposteriori_k[0] = ekf.z_k[0];
-                        ekf.x_aposteriori_k[1] = ekf.z_k[1];
-                        ekf.x_aposteriori_k[2] = ekf.z_k[2];
-                        ekf.x_aposteriori_k[3] = 0.0f;
-                        ekf.x_aposteriori_k[4] = 0.0f;
-                        ekf.x_aposteriori_k[5] = 0.0f;
-                        ekf.x_aposteriori_k[6] = ekf.z_k[3];
-                        ekf.x_aposteriori_k[7] = ekf.z_k[4];
-                        ekf.x_aposteriori_k[8] = ekf.z_k[5];
-                        ekf.x_aposteriori_k[9] = ekf.z_k[6];
-                        ekf.x_aposteriori_k[10] = ekf.z_k[7];
-                        ekf.x_aposteriori_k[11] = ekf.z_k[8];
-                        //Log.d(TAG, "calculateOrientation");
-                        ekfP.parameters_update(ekfPH);
-                        ekf.dt = (System.nanoTime() - ekf.time) / 1000000000.f;
-                        ekf.AttitudeEKF(false, // approx_prediction
-                                ekfP.use_moment_inertia, ekf.update_vect, ekf.dt, ekf.z_k, ekfP.q0, // q_rotSpeed,
-                                ekfP.q1, // q_rotAcc
-                                ekfP.q2, // q_acc
-                                ekfP.q3, // q_mag
-                                ekfP.r0, // r_gyro
-                                ekfP.r1, // r_accel
-                                ekfP.r2, // r_mag
-                                ekfP.moment_inertia_J, ekf.x_aposteriori, ekf.P_aposteriori, ekf.Rot_matrix, ekf.euler, ekf.debugOutput, ekf.euler_pre);
-                        ekf.time = System.nanoTime();
-                        Euler = ekf.euler.clone();
-                        float[] aDCM  = new float[9];
-                        SensorManager.getRotationMatrix(aDCM, null, accOri, magOri);
-                        androidDCM = myMath.R_android2Ned(aDCM);
-                        //Euler = myMath.Rot2Euler(androidDCM);
-                       // myLog.log(TAG,"EKF",ekf.euler);
-                       // myLog.log(TAG,"An",Euler);
+                        }
+
+                        if (AttitudeMode == Attitude_EKF) {
+                            ekfAtt(_accOri, _gyroOri, _magOri);
+                            Euler = ekf.euler.clone();
+                            DCM = ekf.Rot_matrix.clone();
+                        }
+                        if (AttitudeMode == Attitude_ANDROID) {
+                            float[] aDCM = new float[9];
+                            SensorManager.getRotationMatrix(aDCM, null, _accOri, _magOri);
+                            androidDCM = myMath.R_android2Ned(aDCM);
+                            Euler = myMath.Rot2Euler(androidDCM);
+                            DCM = androidDCM.clone();
+                        }
+                        // myLog.log(TAG,"EKF",ekf.euler);
+                        // myLog.log(TAG,"An",Euler);
                     }
-                   // myLog.log(TAG,ekf.Rot_matrix,"RotMatrix",3);
-                   // myLog.log(TAG,androidDCM,"androidDCM",3);
+                    // myLog.log(TAG,ekf.Rot_matrix,"ekf RotMatrix",3);
+                    //myLog.log(TAG,androidDCM,"androidDCM",3);
+                    //myLog.log(TAG,"gdf RotMatrix",gdf.q0+"\t"+gdf.q1+"\t"+gdf.q2+"\t"+gdf.q3);
+                    //myLog.log(TAG,gdf.Rot_Matrix,"gdf RotMatrix",3);
 
                     time = System.nanoTime();
                     dt = (time - timeOld) / 1000000000f;
-                    sampleIntervalReal = (int)timeMF.filter(dt*1000);
+                    sampleIntervalReal = sampleInterval - ((int) timeMF.filter(dt * 1000) - sampleInterval);//测量计算时间，对delay进行补偿
                     //Log.d(TAG,"DT Thread 1:\t"+dt);
                     //Log.d(TAG,"DsampleIntervalRealT Thread 1:\t"+sampleIntervalReal);
                     timeOld = time;
+                    /*
                     if((count++)%100 == 0) {
                         DCM = androidDCM.clone();
                     }
@@ -242,15 +236,14 @@ public class TrackSensorListener implements SensorEventListener {
                             1f, -gyro[2] * dt, gyro[1] * dt,//
                             gyro[2] * dt, 1f, -gyro[0] * dt, //
                             -gyro[1] * dt, gyro[0] * dt, 1f};
-
-                    DCM = ekf.Rot_matrix.clone();
                     //DCM = myMath.matrixMultiply(DCM, Matrix_W);//获取新DCM
+                    */
                     //全部转入NED坐标系基准
-                    nrawacc = myMath.coordinatesTransform( DCM, rawacc);//得到一次理想加速度
-                    nacc = myMath.coordinatesTransform( DCM, acc);//得到一次理想加速度
-                    nlacc = myMath.coordinatesTransform( DCM, lacc);
-                    ngyro = myMath.coordinatesTransform( DCM, gyro);
-                    nmag = myMath.coordinatesTransform( DCM, mag);
+                    nrawacc = myMath.coordinatesTransform(DCM, rawacc);//得到一次理想加速度
+                    nacc = myMath.coordinatesTransform(DCM, acc);//得到一次理想加速度
+                    nlacc = myMath.coordinatesTransform(DCM, lacc);
+                    ngyro = myMath.coordinatesTransform(DCM, gyro);
+                    nmag = myMath.coordinatesTransform(DCM, mag);
 
                     myMath.addData(deltT, dt);
 
@@ -288,14 +281,14 @@ public class TrackSensorListener implements SensorEventListener {
                 float[] deltBegin = new float[windowSize];
                 long[] timeStampBegin = new long[windowSize];
 
-                long t1;
-                long t2;
-
                 @Override
                 public void run() {
+                    long time = System.nanoTime();
+                    long timeOld = System.nanoTime();
+                    float dt = sampleIntervalReal / 1000f;
                     while (!threadDisable_data_update) {
                         try {
-                            Thread.sleep(windowSize * sampleIntervalReal);
+                            Thread.sleep(windowSize * sampleInterval);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -349,16 +342,17 @@ public class TrackSensorListener implements SensorEventListener {
                             //float[] accOriMean = myMath.getMean(accOriSample);
                             //float[] magOriMean = myMath.getMean(magOriSample);
                             float[][] DCM_s = new float[accOriSample.length][9];
-                            for(int i =0; i<accOriSample.length;i++) {
+                            for (int i = 0; i < accOriSample.length; i++) {
                                 SensorManager.getRotationMatrix(DCM_s[i], null, accOriSample[i], magOriSample[i]);
                                 DCM_s[i] = myMath.R_android2Ned(DCM_s[i]);
                             }
                             DCM_static = myMath.getMean(DCM_s);
-
-                            t1 = System.nanoTime();
-                            float dt1 = (t1-t2)/1000000000.f;
-                            Log.d(TAG,"Thread 2 time:\t"+dt1);
-                            t2 = System.nanoTime();
+                            /*
+                            time = System.nanoTime();
+                            dt = (time-timeOld)/1000000000.f;
+                            Log.d(TAG,"Thread 2 time:\t"+dt);
+                            timeOld = time;
+                            */
                             //jing静止记录上一次积分变量
                             gyroSampleBegin = gyroSample.clone();
                             accSampleBegin = accSample.clone();
@@ -374,7 +368,7 @@ public class TrackSensorListener implements SensorEventListener {
 
 
                             //获取path传感器数据
-                            long[] time = new long[DurationWindow * windowSize];
+                            long[] timeS = new long[DurationWindow * windowSize];
                             float[][] gyroWindow = new float[DurationWindow * windowSize][3];//;
                             float[] deltTWindow = new float[DurationWindow * windowSize];//;
                             float[][] accWindow = new float[DurationWindow * windowSize][3];//;
@@ -384,7 +378,7 @@ public class TrackSensorListener implements SensorEventListener {
                             for (int w = 1; w < DurationWindow - 1; w++) {
                                 //暂停1个窗口查是否停止动作
                                 try {
-                                    Thread.sleep(windowSize * sampleIntervalReal);
+                                    Thread.sleep(windowSize * sampleInterval);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -420,7 +414,7 @@ public class TrackSensorListener implements SensorEventListener {
                             //从判断开始的位置记录，初始化path参数
                             DcmQueue[(DurationWindow - w_count) * windowSize] = DCM_static.clone();
 
-                            time = timeStamp.clone();
+                            timeS = timeStamp.clone();
                             gyroWindow = gyroQueue.clone();//;
                             deltTWindow = deltTQueue.clone();//;
                             accWindow = accQueue.clone();//;
@@ -436,8 +430,7 @@ public class TrackSensorListener implements SensorEventListener {
                                 //Log.d(TAG,"gyroWindow[1]:"+String.valueOf(i)+":\t"+W[1]);
                                 //Log.d(TAG,"gyroWindow[2]:"+String.valueOf(i)+":\t"+W[2]);
 
-                                float[] Matrix_W = new float[]{
-                                        1f, -W[2] * deltTWindow[i], W[1] * deltTWindow[i],//
+                                float[] Matrix_W = new float[]{1f, -W[2] * deltTWindow[i], W[1] * deltTWindow[i],//
                                         W[2] * deltTWindow[i], 1f, -W[0] * deltTWindow[i], //
                                         -W[1] * deltTWindow[i], W[0] * deltTWindow[i], 1f};
 
@@ -450,7 +443,7 @@ public class TrackSensorListener implements SensorEventListener {
                                 Log.d(TAG, "accWindow[i][1]:" + String.valueOf(i) + ":\t" + accWindow[i][1]);
                                 Log.d(TAG, "accWindow[i][2]:" + String.valueOf(i) + ":\t" + accWindow[i][2]);
 
-                                pathOut += time[i] + "\t";
+                                pathOut += timeS[i] + "\t";
                                 pathOut += accWindow[i][0] + "\t";
                                 pathOut += accWindow[i][1] + "\t";
                                 pathOut += accWindow[i][2] + "\t";
@@ -459,19 +452,19 @@ public class TrackSensorListener implements SensorEventListener {
 
                                 Log.d(TAG, "accNow[0]:" + String.valueOf(i) + ":\t" + accNow[0]);
                                 Log.d(TAG, "accNow[1]:" + String.valueOf(i) + ":\t" + accNow[1]);
-                                Log.d(TAG, "accNow[2]:" + String.valueOf(i) + ":\t" + (accNow[2]-G));
+                                Log.d(TAG, "accNow[2]:" + String.valueOf(i) + ":\t" + (accNow[2] - G));
 
                                 Log.d(TAG, "accLast[0]:" + String.valueOf(i) + ":\t" + accLast[0]);
                                 Log.d(TAG, "accLast[1]:" + String.valueOf(i) + ":\t" + accLast[1]);
-                                Log.d(TAG, "accLast[2]:" + String.valueOf(i) + ":\t" + (accLast[2]-G));
+                                Log.d(TAG, "accLast[2]:" + String.valueOf(i) + ":\t" + (accLast[2] - G));
 
-                                pathOut += (accNow[0]+accLast[0] -2*G)/2+ "\t";
-                                pathOut += (accNow[1]+accLast[1] -2*G)/2+ "\t";
-                                pathOut += (accNow[2]+accLast[2] -2*G)/2+ "\t";
+                                pathOut += (accNow[0] + accLast[0] - 2 * G) / 2 + "\t";
+                                pathOut += (accNow[1] + accLast[1] - 2 * G) / 2 + "\t";
+                                pathOut += (accNow[2] + accLast[2] - 2 * G) / 2 + "\t";
 
                                 velocityQueue[i][0] = velocityQueue[i - 1][0] + 0.5f * (accNow[0] + accLast[0]) * deltTWindow[i];
                                 velocityQueue[i][1] = velocityQueue[i - 1][1] + 0.5f * (accNow[1] + accLast[1]) * deltTWindow[i];
-                                velocityQueue[i][2] = velocityQueue[i - 1][2] + 0.5f * ((accNow[2]-G) + (accLast[2]-G)) * deltTWindow[i];
+                                velocityQueue[i][2] = velocityQueue[i - 1][2] + 0.5f * ((accNow[2] - G) + (accLast[2] - G)) * deltTWindow[i];
 
                                 accLast = accNow.clone();//记录上一次惯性加速度
 
@@ -500,7 +493,7 @@ public class TrackSensorListener implements SensorEventListener {
                                 Log.d(TAG, "position[2]" + String.valueOf(i) + ":\t" + positionQ[i][2]);
                             }
                             //
-                            pathOut +="\n";
+                            pathOut += "\n";
                             try {
                                 FileWriter writer = new FileWriter(path);
                                 Log.d(TAG, "path write");
@@ -576,7 +569,7 @@ public class TrackSensorListener implements SensorEventListener {
         } else return this.nmag;
     }
 
-    public float[] readEuler(){
+    public float[] readEuler() {
         return this.Euler;
     }
 
@@ -604,6 +597,7 @@ public class TrackSensorListener implements SensorEventListener {
     }
 
     private long timeCount = 0;
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         // TODO Auto-generated method stub
@@ -639,6 +633,7 @@ public class TrackSensorListener implements SensorEventListener {
             case Sensor.TYPE_MAGNETIC_FIELD:
                 if (event.values != null) {
                     float[] _mag = event.values.clone();
+                    //myLog.log(TAG,"mag raw:",_mag);
                     mag = myMath.android2Ned(_mag);
 
                     magOri = _mag.clone();
@@ -662,5 +657,50 @@ public class TrackSensorListener implements SensorEventListener {
         }
         //乘以比例系数
         return aData;
+    }
+
+    private void ekfAtt(float[] accOri, float[] gyroOri, float[] magOri) {
+        ekf.update_vect[0] = 1;
+        ekf.update_vect[1] = 1;
+        ekf.update_vect[2] = 1;
+
+        ekf.z_k[0] = gyroOri[1];
+        ekf.z_k[1] = gyroOri[0];
+        ekf.z_k[2] = -gyroOri[2];
+
+        ekf.z_k[3] = accOri[1];
+        ekf.z_k[4] = accOri[0];
+        ekf.z_k[5] = -accOri[2];
+
+        ekf.z_k[6] = magOri[1] / 100.f;
+        ekf.z_k[7] = magOri[0] / 100.f;
+        ekf.z_k[8] = -magOri[2] / 100.f;
+
+        ekf.x_aposteriori_k[0] = ekf.z_k[0];
+        ekf.x_aposteriori_k[1] = ekf.z_k[1];
+        ekf.x_aposteriori_k[2] = ekf.z_k[2];
+        ekf.x_aposteriori_k[3] = 0.0f;
+        ekf.x_aposteriori_k[4] = 0.0f;
+        ekf.x_aposteriori_k[5] = 0.0f;
+        ekf.x_aposteriori_k[6] = ekf.z_k[3];
+        ekf.x_aposteriori_k[7] = ekf.z_k[4];
+        ekf.x_aposteriori_k[8] = ekf.z_k[5];
+        ekf.x_aposteriori_k[9] = ekf.z_k[6];
+        ekf.x_aposteriori_k[10] = ekf.z_k[7];
+        ekf.x_aposteriori_k[11] = ekf.z_k[8];
+        //Log.d(TAG, "calculateOrientation");
+        ekfP.parameters_update(ekfPH);
+        ekf.dt = (System.nanoTime() - ekf.time) / 1000000000.f;
+        ekf.AttitudeEKF(false, // approx_prediction
+                ekfP.use_moment_inertia, ekf.update_vect, ekf.dt, ekf.z_k, ekfP.q0, // q_rotSpeed,
+                ekfP.q1, // q_rotAcc
+                ekfP.q2, // q_acc
+                ekfP.q3, // q_mag
+                ekfP.r0, // r_gyro
+                ekfP.r1, // r_accel
+                ekfP.r2, // r_mag
+                ekfP.moment_inertia_J, ekf.x_aposteriori, ekf.P_aposteriori, ekf.Rot_matrix, ekf.euler, ekf.debugOutput, ekf.euler_pre);
+        ekf.time = System.nanoTime();
+        ekf.Qfrom_DCM(ekf.Rot_matrix);
     }
 }
