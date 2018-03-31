@@ -204,7 +204,7 @@ public class myMath {
         return eulerAngles;
     }
 
-    public static float[] android2Ned(float[] data) {
+    public static float[] V_android2Ned(float[] data) {
         float[] nData = new float[data.length];
         nData[0] = data[1];
         nData[1] = data[0];

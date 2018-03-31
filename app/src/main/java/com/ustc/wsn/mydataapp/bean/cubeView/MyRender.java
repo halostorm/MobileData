@@ -58,7 +58,7 @@ public class MyRender implements Renderer {
         gl.glDisableClientState(GL_VERTEX_ARRAY);
         gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
 
-        Log.d(TAG, "cube view");
+        //Log.d(TAG, "cube view");
         float[] euler = eulerRead.clone();
 
         Euler[0] = euler[0] / myMath.PI * 180;

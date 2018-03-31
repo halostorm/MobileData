@@ -45,11 +45,11 @@ public class SimulationActivity extends Activity {
     private boolean MAGNETIC_EXIST = false;
 
     private LinearLayout accCurveLayout;//存放左图表的布局容器
-    private LinearLayout linearaccCurveLayout;//存放右图表的布局容器
+    private LinearLayout rawaccCurveLayout;//存放右图表的布局容器
     private LinearLayout gyroCurveLayout;//存放右图表的布局容器
     private LinearLayout magCurveLayout;//存放右图表的布局容器
-    private GraphicalView accView, gyroView, linearaccView, magView;//左右图表
-    private ChartService accService, linearService, gyroSeivice, magService;
+    private GraphicalView accView, gyroView, rawaccView, magView;//左右图表
+    private ChartService accService, rawService, gyroSeivice, magService;
     private Toast t;
     private Timer timer1;
     private Timer timer2;
@@ -57,9 +57,9 @@ public class SimulationActivity extends Activity {
     private Sensor accelerator;
     private Sensor gyroscrope;
     private Sensor magnetic;
-    //private DetectorSensorListener sensorListener;
+
     private TrackSensorListener sensorListener;
-    private float[] LinearAccData;
+    private float[] RawAccData;
     private float[] AccData;
     private float[] GyroData;
     private float[] MagData;
@@ -68,9 +68,9 @@ public class SimulationActivity extends Activity {
     private TextView accyAxis;
     private TextView acczAxis;
 
-    private TextView linearxAxis;
-    private TextView linearyAxis;
-    private TextView linearzAxis;
+    private TextView rawxAxis;
+    private TextView rawyAxis;
+    private TextView rawzAxis;
 
     private TextView gyroxAxis;
     private TextView gyroyAxis;
@@ -81,7 +81,7 @@ public class SimulationActivity extends Activity {
     private TextView magzAxis;
 
     private TextView aframevalue;
-    private TextView lframevalue;
+    private TextView rframevalue;
     private TextView gframevalue;
     private TextView mframevalue;
 
@@ -93,7 +93,7 @@ public class SimulationActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simulation);
 
-        linearaccCurveLayout = (LinearLayout) findViewById(R.id.linear_acc_curve);
+        rawaccCurveLayout = (LinearLayout) findViewById(R.id.linear_acc_curve);
         accCurveLayout = (LinearLayout) findViewById(R.id.acc_curve);
         gyroCurveLayout = (LinearLayout) findViewById(R.id.gyro_curve);
         magCurveLayout = (LinearLayout) findViewById(R.id.mag_curve);
@@ -103,10 +103,10 @@ public class SimulationActivity extends Activity {
         accService.setXYMultipleSeriesRenderer(0, 10, -20, 20, "校准加速度", "时间 /s", "m2/s", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
         accView = accService.getGraphicalView();
 
-        linearService = new ChartService(this);
-        linearService.setXYMultipleSeriesDataset("RawAccX", "RawAccY", "RawAccZ");
-        linearService.setXYMultipleSeriesRenderer(0, 10, -20, 20, "未校准加速度", "时间 /s", "m2/", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
-        linearaccView = linearService.getGraphicalView();
+        rawService = new ChartService(this);
+        rawService.setXYMultipleSeriesDataset("RawAccX", "RawAccY", "RawAccZ");
+        rawService.setXYMultipleSeriesRenderer(0, 10, -20, 20, "未校准加速度", "时间 /s", "m2/", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
+        rawaccView = rawService.getGraphicalView();
 
         gyroSeivice = new ChartService(this);
         gyroSeivice.setXYMultipleSeriesDataset("GyroX", "GyroY", "GyroZ");
@@ -119,7 +119,7 @@ public class SimulationActivity extends Activity {
         magView = magService.getGraphicalView();
         //将左右图表添加到布局容器中
         accCurveLayout.addView(accView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        linearaccCurveLayout.addView(linearaccView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        rawaccCurveLayout.addView(rawaccView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         gyroCurveLayout.addView(gyroView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         magCurveLayout.addView(magView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
@@ -127,9 +127,9 @@ public class SimulationActivity extends Activity {
         accyAxis = (TextView) findViewById(R.id.value_accy_axis);
         acczAxis = (TextView) findViewById(R.id.value_accz_axis);
 
-        linearxAxis = (TextView) findViewById(R.id.value_linearx_axis);
-        linearyAxis = (TextView) findViewById(R.id.value_lineary_axis);
-        linearzAxis = (TextView) findViewById(R.id.value_linearz_axis);
+        rawxAxis = (TextView) findViewById(R.id.value_linearx_axis);
+        rawyAxis = (TextView) findViewById(R.id.value_lineary_axis);
+        rawzAxis = (TextView) findViewById(R.id.value_linearz_axis);
 
         gyroxAxis = (TextView) findViewById(R.id.value_gyrox_axis);
         gyroyAxis = (TextView) findViewById(R.id.value_gyroy_axis);
@@ -140,14 +140,14 @@ public class SimulationActivity extends Activity {
         magzAxis = (TextView) findViewById(R.id.value_magz_axis);
 
         aframevalue = (TextView) findViewById(R.id.AframeType);
-        lframevalue = (TextView) findViewById(R.id.LframeType);
+        rframevalue = (TextView) findViewById(R.id.LframeType);
         gframevalue = (TextView) findViewById(R.id.GframeType);
         mframevalue = (TextView) findViewById(R.id.MframeType);
 
         df = new DecimalFormat("0.00");
 
         initSensor();
-        LinearAccData = new float[3];
+        RawAccData = new float[3];
         timer1 = new Timer();
         timer1.schedule(new TimerTask() {
             @Override
@@ -176,14 +176,14 @@ public class SimulationActivity extends Activity {
                 case 0:
                     FRAME_TYPE = 0;
                     aframevalue.setText(items[0]);
-                    lframevalue.setText(items[0]);
+                    rframevalue.setText(items[0]);
                     gframevalue.setText(items[0]);
                     mframevalue.setText(items[0]);
                     break;
                 case 1:
                     FRAME_TYPE = 1;
                     aframevalue.setText(items[1]);
-                    lframevalue.setText(items[1]);
+                    rframevalue.setText(items[1]);
                     mframevalue.setText(items[1]);
                     gframevalue.setText(items[1]);
                     break;
@@ -244,7 +244,7 @@ public class SimulationActivity extends Activity {
         @Override
         //定时更新图表
         public void handleMessage(Message msg) {
-            LinearAccData = sensorListener.readRawAccData(FRAME_TYPE);
+            RawAccData = sensorListener.readRawAccData(FRAME_TYPE);
             AccData = sensorListener.readAccData(FRAME_TYPE);
             GyroData = sensorListener.readGyroData(FRAME_TYPE);
             MagData = sensorListener.readMagData(FRAME_TYPE);
@@ -252,7 +252,7 @@ public class SimulationActivity extends Activity {
             accService.rightUpdateChart(AccData[0], AccData[1], AccData[2]);
             gyroSeivice.rightUpdateChart(GyroData[0], GyroData[1], GyroData[2]);
             magService.rightUpdateChart(MagData[0], MagData[1], MagData[2]);
-            linearService.rightUpdateChart(LinearAccData[0],LinearAccData[1], LinearAccData[2]);
+            rawService.rightUpdateChart(RawAccData[0],RawAccData[1], RawAccData[2]);
         }
     };
 
@@ -264,9 +264,9 @@ public class SimulationActivity extends Activity {
             accyAxis.setText(df.format(AccData[1]));
             acczAxis.setText(df.format(AccData[2]));
 
-            linearxAxis.setText(df.format(LinearAccData[0]));
-            linearyAxis.setText(df.format(LinearAccData[1]));
-            linearzAxis.setText(df.format(LinearAccData[2]));
+            rawxAxis.setText(df.format(RawAccData[0]));
+            rawyAxis.setText(df.format(RawAccData[1]));
+            rawzAxis.setText(df.format(RawAccData[2]));
 
             gyroxAxis.setText(df.format(GyroData[0]));
             gyroyAxis.setText(df.format(GyroData[1]));
@@ -328,8 +328,8 @@ public class SimulationActivity extends Activity {
         if (timer2 != null) {
             timer2.cancel();
         }
-        if(linearService!=null){
-            linearService.stopSelf();
+        if(rawService!=null){
+            rawService.stopSelf();
         }
         if(accService!=null){
             accService.stopSelf();

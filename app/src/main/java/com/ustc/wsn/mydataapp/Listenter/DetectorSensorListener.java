@@ -238,7 +238,7 @@ public class DetectorSensorListener implements SensorEventListener {
 
                             gdf.Filter(_gyroOri[1],-_gyroOri[0],_gyroOri[2],
                                     _accOri[1],-_accOri[0],_accOri[2],
-                                    _magOri[1],-_magOri[0],_magOri[2], dt);
+                                    _magOri[1],-_magOri[0],_magOri[2], dt,false);
 
                             rotNow = gdf.Euler[0] + "\t" + gdf.Euler[1] + "\t" + gdf.Euler[2];
                         }

@@ -112,4 +112,16 @@ public class AttitudeViewActivity extends Activity {
         sensorListener.closeSensorThread();
         sm.unregisterListener(sensorListener);
     }
+
+    @Override
+    protected void onPause() {
+        // TODO Auto-generated method stub
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        // TODO Auto-generated method stub
+        super.onResume();
+    }
 }
