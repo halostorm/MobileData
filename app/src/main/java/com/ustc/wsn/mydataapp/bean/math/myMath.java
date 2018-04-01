@@ -195,14 +195,7 @@ public class myMath {
         }
     }
 
-    public static float[] Rot2Euler(float[] Rot_matrix) {
-        float[] eulerAngles = {0, 0, 0};
-        eulerAngles[0] = (float) Math.atan2(Rot_matrix[7], Rot_matrix[8]);
-        //Log.d((String) TAG, "eulerAngles0：" + eulerAngles[0]);
-        eulerAngles[1] = -(float) Math.asin(Rot_matrix[6]);
-        eulerAngles[2] = (float) Math.atan2(Rot_matrix[3], Rot_matrix[0]);
-        return eulerAngles;
-    }
+
 
     public static float[] V_android2Ned(float[] data) {
         float[] nData = new float[data.length];
@@ -224,5 +217,43 @@ public class myMath {
         nData[7] = -data[6];
         nData[8] = data[8];
         return nData;
+    }
+
+    public static float[] Q2Rot(float q[]){
+
+        float[] matrix = new float[9];
+        float aSq = q[0] * q[0];
+        float bSq = q[1] * q[1];
+        float cSq = q[2] * q[2];
+        float dSq = q[3] * q[3];
+        matrix[0] = aSq + bSq - cSq - dSq;
+        matrix[1] = -2.0f * (q[1] * q[2] - q[0] * q[3]);
+        matrix[2] = -2.0f * (q[0] * q[2] + q[1] * q[3]);
+        matrix[3] = -2.0f * (q[1] * q[2] + q[0] * q[3]);
+        matrix[4] = aSq - bSq + cSq - dSq;
+        matrix[5] = 2.0f * (q[2] * q[3] - q[0] * q[1]);
+        matrix[6] = -2.0f * (q[1] * q[3] - q[0] * q[2]);
+        matrix[7] = 2.0f * (q[0] * q[1] + q[2] * q[3]);
+        matrix[8] = aSq - bSq - cSq + dSq;
+
+        return matrix.clone();
+    }
+
+    public static float[] Rot2Euler(float[] Rot_matrix) {
+        float[] eulerAngles = {0, 0, 0};
+        eulerAngles[0] = (float) Math.atan2(Rot_matrix[7], Rot_matrix[8]);
+        //Log.d((String) TAG, "eulerAngles0：" + eulerAngles[0]);
+        eulerAngles[1] = -(float) Math.asin(Rot_matrix[6]);
+        eulerAngles[2] = (float) Math.atan2(Rot_matrix[3], Rot_matrix[0]);
+        return eulerAngles;
+    }
+
+    public static float[] Rot2Q(float[] dcm) {
+        float[] _q = new float[4];
+        _q[0] = (float) ((0.5) * (Math.sqrt((1) + dcm[0] + dcm[4] + dcm[8])));
+        _q[1] = ((dcm[7] - dcm[5]) / ((4) * _q[0]));
+        _q[2] = ((dcm[2] - dcm[6]) / ((4) * _q[0]));
+        _q[3] = ((dcm[3] - dcm[1]) / ((4) * _q[0]));
+        return _q.clone();
     }
 }

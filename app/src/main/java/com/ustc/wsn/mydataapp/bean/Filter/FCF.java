@@ -283,14 +283,6 @@ public class FCF {
 
     }
 
-    public float[] NED_WORLD_Trans(float[] p){
-        float[] q = new float[3];
-        q[0] = p[1];
-        q[1] = p[0];
-        q[2] = -p[2];
-        return q;
-    }
-
     public float[] translate_to_NED(float[] q, float[] data) {
 
         float q0q0 = q[0] * q[0];
@@ -311,26 +303,4 @@ public class FCF {
                 data[2] * (q0q0 - q1q1 - q2q2 + q3q3);
         return data_NED;
     }
-
-    public float[] translate_to_BODY(float[] q, float[] data) {
-
-        float q0q0 = q[0] * q[0];
-        float q1q1 = q[1] * q[1];
-        float q2q2 = q[2] * q[2];
-        float q3q3 = q[3] * q[3];
-        float[] data_BODY = new float[3];
-        data_BODY[0] = data[0] * (q0q0 + q1q1 - q2q2 - q3q3) +
-                data[1] * 2.0f * (q[1] * q[2] + q[0] * q[3]) +
-                data[2] * 2.0f * (q[1] * q[3] - q[0] * q[2]);
-
-        data_BODY[1] = data[0] * 2.0f * (q[1] * q[2] - q[0] * q[3]) +
-                data[1] * (q0q0 - q1q1 + q2q2 - q3q3) +
-                data[2] * 2.0f * (q[2] * q[3] + q[0] * q[1]);
-
-        data_BODY[2] = data[0] * 2.0f * (q[1] * q[3] + q[0] * q[2]) +
-                data[1] * 2.0f * (q[2] * q[3] - q[0] * q[1]) +
-                data[2] * (q0q0 - q1q1 - q2q2 + q3q3);
-        return data_BODY;
-    }
-
 }

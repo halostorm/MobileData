@@ -7,17 +7,22 @@ import com.ustc.wsn.mydataapp.bean.math.myMath;
  */
 
 public class GDF {
-// Definitions
+    // Definitions
     private final float betaDef = 0.1f;        // 2 * proportional gain
     // Variable definitions
     public volatile float beta = betaDef;
     public int InitCount = 0;// 2 * proportional gain (Kp)
+    public volatile float[] q = {1, 0, 0, 0};
     public volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;    // quaternion of sensor frame relative to auxiliary frame
-    public volatile float[] Rot_Matrix = {1,0,0,0,1,0,0,0,1};
+    public volatile float[] Rot_Matrix = {1, 0, 0, 0, 1, 0, 0, 0, 1};
 
-    public volatile float[] Euler = {0,0,0};
+    public volatile float[] Euler = {0, 0, 0};
 
-    public void Filter(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz,float dt,boolean gyroIMU) {
+    public void Filter(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float dt, boolean gyroIMU) {
+        q0 = q[0];
+        q1 = q[1];
+        q2 = q[2];
+        q3 = q[3];
         float recipNorm;
         float s0, s1, s2, s3;
         float qDot1, qDot2, qDot3, qDot4;
@@ -26,7 +31,7 @@ public class GDF {
 
         // Use IMU algorithm if magnetometer measurement invalid (avoids NaN in magnetometer normalisation)
         if ((mx == 0.0f) && (my == 0.0f) && (mz == 0.0f)) {
-            MadgwickAHRSupdateIMU(gx, gy, gz, ax, ay, az,dt);
+            MadgwickAHRSupdateIMU(gx, gy, gz, ax, ay, az, dt);
             return;
         }
 
@@ -38,7 +43,7 @@ public class GDF {
 
         // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
         if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
-            if(!gyroIMU) {
+            if (!gyroIMU) {
                 // Normalise accelerometer measurement
                 recipNorm = (float) (1 / Math.sqrt(ax * ax + ay * ay + az * az));
                 ax *= recipNorm;
@@ -107,16 +112,17 @@ public class GDF {
         q3 += qDot4 * dt;
 
         // Normalise quaternion
-        recipNorm = (float)(1/Math.sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3));
+        recipNorm = (float) (1 / Math.sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3));
         q0 *= recipNorm;
         q1 *= recipNorm;
         q2 *= recipNorm;
         q3 *= recipNorm;
 
-        calRotMatrix();
+        calRotMatrix_Euler();
     }
-// IMU algorithm update
-    void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az,float dt) {
+
+    // IMU algorithm update
+    void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az, float dt) {
         float recipNorm;
         float s0, s1, s2, s3;
         float qDot1, qDot2, qDot3, qDot4;
@@ -132,7 +138,7 @@ public class GDF {
         if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
 
             // Normalise accelerometer measurement
-            recipNorm = (float)(1/Math.sqrt(ax * ax + ay * ay + az * az));
+            recipNorm = (float) (1 / Math.sqrt(ax * ax + ay * ay + az * az));
             ax *= recipNorm;
             ay *= recipNorm;
             az *= recipNorm;
@@ -157,7 +163,7 @@ public class GDF {
             s1 = _4q1 * q3q3 - _2q3 * ax + 4.0f * q0q0 * q1 - _2q0 * ay - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * az;
             s2 = 4.0f * q0q0 * q2 + _2q0 * ax + _4q2 * q3q3 - _2q3 * ay - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * az;
             s3 = 4.0f * q1q1 * q3 - _2q1 * ax + 4.0f * q2q2 * q3 - _2q2 * ay;
-            recipNorm = (float)(1/Math.sqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3)); // normalise step magnitude
+            recipNorm = (float) (1 / Math.sqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3)); // normalise step magnitude
             s0 *= recipNorm;
             s1 *= recipNorm;
             s2 *= recipNorm;
@@ -177,32 +183,19 @@ public class GDF {
         q3 += qDot4 * dt;
 
         // Normalise quaternion
-        recipNorm = (float)(1/Math.sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3));
+        recipNorm = (float) (1 / Math.sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3));
         q0 *= recipNorm;
         q1 *= recipNorm;
         q2 *= recipNorm;
         q3 *= recipNorm;
     }
 
-    public void calRotMatrix(){
-
-        float[] matrix = new float[9];
-        float aSq = q0 * q0;
-        float bSq = q1 * q1;
-        float cSq = q2 * q2;
-        float dSq = q3 * q3;
-        matrix[0] = aSq + bSq - cSq - dSq;
-        matrix[1] = -2.0f * (q1 * q2 - q0 * q3);
-        matrix[2] = -2.0f * (q0 * q2 + q1 * q3);
-        matrix[3] = -2.0f * (q1 * q2 + q0 * q3);
-        matrix[4] = aSq - bSq + cSq - dSq;
-        matrix[5] = 2.0f * (q2 * q3 - q0 * q1);
-        matrix[6] = -2.0f * (q1 * q3 - q0 * q2);
-        matrix[7] = 2.0f * (q0 * q1 + q2 * q3);
-        matrix[8] = aSq - bSq - cSq + dSq;
-
-        Rot_Matrix = matrix.clone();
-
+    public void calRotMatrix_Euler() {
+        q[0] = q0;
+        q[1] = q1;
+        q[2] = q2;
+        q[3] = q3;
+        Rot_Matrix = myMath.Q2Rot(q);
         Euler = myMath.Rot2Euler(Rot_Matrix);
     }
 }

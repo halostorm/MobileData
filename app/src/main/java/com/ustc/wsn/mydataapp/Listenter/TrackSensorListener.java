@@ -51,7 +51,7 @@ public class TrackSensorListener implements SensorEventListener {
     private static final int Attitude_EKF = 2;
     private static final int Attitude_FCF = 3;
     private static final int Attitude_GDF = 4;
-    private static int AttitudeMode = Attitude_GDF;
+    private static int AttitudeMode = Attitude_ANDROID;
     //路径参数
 
     private volatile float[] timeSample = new float[windowSize];
@@ -87,7 +87,8 @@ public class TrackSensorListener implements SensorEventListener {
 
     //姿态参数
     private volatile float[] androidDCM = new float[]{1.f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f};
-    private volatile float[] DCM_static = new float[]{1.f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f};
+    private volatile float[] DCM_Static = new float[]{1.f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f};
+    private volatile float[] DCM_Static_Last = new float[]{1.f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f};
     private volatile float[] Euler = {0f, 0f, 0f};
 
     //滤波器参数
@@ -152,6 +153,7 @@ public class TrackSensorListener implements SensorEventListener {
                 long timeOld = System.nanoTime();
                 float dt = sampleIntervalReal / 1000f;
                 float[] DCM = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+                float[] DCMOLD = {1, 0, 0, 0, 1, 0, 0, 0, 1};
                 while (!threadDisable_data_update) {
                     try {
                         Thread.sleep(sampleIntervalReal);
@@ -185,9 +187,19 @@ public class TrackSensorListener implements SensorEventListener {
                             DCM = ekf.Rot_matrix.clone();
                         }
                         if (AttitudeMode == Attitude_ANDROID) {
-                            androidAtt(accOri, magOri);
-                            Euler = myMath.Rot2Euler(androidDCM);
-                            DCM = androidDCM.clone();
+                            if(count++ == 100) {
+                                androidAtt(accOri, magOri);
+                                DCM = androidDCM.clone();
+                                Euler = myMath.Rot2Euler(DCM);
+                                count = 0;
+                            }else {
+                                float[] Matrix_W = new float[]{1f, -gyro[2] * dt, gyro[1] * dt,//
+                                        gyro[2] * dt, 1f, -gyro[0] * dt, //
+                                        -gyro[1] * dt, gyro[0] * dt, 1f};
+                                DCM = myMath.matrixMultiply(DCMOLD, Matrix_W);//获取新DCM
+                                Euler = myMath.Rot2Euler(DCM);
+                            }
+                            DCMOLD = DCM;
                         }
                     }
                     /*
@@ -250,8 +262,8 @@ public class TrackSensorListener implements SensorEventListener {
                         float laccSumMean = myMath.getMean(nlaccSum);
                         float laccSumVar = myMath.getVar(nlaccSum);
 
-                        Log.d(TAG, "laccSumMean:" + laccSumMean);
-                        Log.d(TAG, "laccSumVar:" + laccSumVar);
+                        //Log.d(TAG, "laccSumMean:" + laccSumMean);
+                        //Log.d(TAG, "laccSumVar:" + laccSumVar);
                         if (laccSumMean < ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD && laccSumVar < ACC_VAR_ABSOLUTE_STATIC_THRESHOLD) {//gyroSumMean < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumMean < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroSumVar < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumVar < ACC_ABSOLUTE_STATIC_THRESHOLD) {
                             NOW_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
                         } else if (laccSumMean < ACC_MEAN_STATIC_THRESHOLD && laccSumVar < ACC_VAR_STATIC_THRESHOLD) {//laccSumMean < ACC_STATIC_THRESHOLD && gyroSumVar < GYRO_STATIC_THRESHOLD && laccSumVar < ACC_STATIC_THRESHOLD) {gyroSumMean < GYRO_STATIC_THRESHOLD && laccSumMean < ACC_STATIC_THRESHOLD && gyroSumVar < GYRO_STATIC_THRESHOLD && laccSumVar < ACC_STATIC_THRESHOLD) {
@@ -262,18 +274,15 @@ public class TrackSensorListener implements SensorEventListener {
 
                         //如果静止窗口计算初始DCM
                         if (NOW_STATE == PhoneState.ABSOLUTE_STATIC_STATE || NOW_STATE == PhoneState.USER_STATIC_STATE) {
-                            float[][] DCM_s = new float[accSample.length][9];
-                            for (int i = 0; i < accSample.length; i++) {
-                                androidAtt(accSample[i], magSample[i]);
-                                DCM_s[i] = androidDCM;
-                                //gdfAtt(accOriSample[i], gyroOriSample[i], magOriSample[i], timeSample[i], false);
-                                //DCM_s[i] = gdf.Rot_Matrix.clone();
-                            }
-                            DCM_static = myMath.getMean(DCM_s);
+                            float[] _accOri = myMath.getMean(accSample);
+                            float[] _magOri = myMath.getMean(magSample);
+                            androidAtt(_accOri,_magOri);
+                            DCM_Static = androidDCM.clone();
                         }
 
                         //若进入Path过程：动静切换
-                        if ((LAST_STATE == PhoneState.USER_STATIC_STATE || LAST_STATE == PhoneState.ABSOLUTE_STATIC_STATE) && NOW_STATE == PhoneState.UNKONW_STATE) {
+                        if ((LAST_STATE == PhoneState.USER_STATIC_STATE || LAST_STATE == PhoneState.ABSOLUTE_STATIC_STATE)
+                                && NOW_STATE == PhoneState.UNKONW_STATE) {
                             // 获取静止初始静止DCM和位置，作为轨迹起点，velocityQueue[0] =0
                             float[][] positionQ = new float[DurationWindow * windowSize][3];
                             float[][] velocityQueue = new float[DurationWindow * windowSize][3];
@@ -281,7 +290,7 @@ public class TrackSensorListener implements SensorEventListener {
 
                             int w_count = 2;
                             //判断后续窗口状态;
-                            for (w_count = 3; w_count < DurationWindow; w_count++) {
+                            for (w_count = 2; w_count < DurationWindow; w_count++) {
                                 //暂停1个窗口查是否停止动作
                                 try {
                                     Thread.sleep(windowSize * sampleInterval);
@@ -304,6 +313,7 @@ public class TrackSensorListener implements SensorEventListener {
                                     NOW_STATE = PhoneState.USER_STATIC_STATE;
                                 } else {
                                     NOW_STATE = PhoneState.UNKONW_STATE;
+                                    Log.d(TAG,"begin to move time:\t"+timeStampQueue[(DurationWindow-1)*windowSize]);
                                 }
                                 //添加当前窗口，添加窗口总数为 w+2 = 静+动+(w-1)*动+静；窗口总数最少为3：
                                 if (NOW_STATE == PhoneState.ABSOLUTE_STATIC_STATE || NOW_STATE == PhoneState.USER_STATIC_STATE) {
@@ -312,18 +322,13 @@ public class TrackSensorListener implements SensorEventListener {
                                 }
                             }
 
-                            //从判断开始的位置记录，初始化path参数
-                            float[] _accOri = accQueue[(DurationWindow - w_count) * windowSize];
-                            float[] _magOri = magQueue[(DurationWindow - w_count) * windowSize];
-
-                            androidAtt(_accOri, _magOri);
-                            DCM_static = androidDCM.clone();
-                            DcmQueue[(DurationWindow - w_count) * windowSize] = DCM_static;
+                            DcmQueue[(DurationWindow - w_count) * windowSize] = DCM_Static;
 
                             long[] timeWindow = timeStampQueue.clone();
-                            float[][] gyroWindow = gyroQueue.clone();//;
-                            float[] deltTWindow = deltTQueue.clone();//;
-                            float[][] accWindow = accQueue.clone();//;
+                            float[][] gyroWindow = gyroQueue.clone();
+                            float[] deltTWindow = deltTQueue.clone();
+                            float[][] accWindow = accQueue.clone();
+                            float[][] magWindow = accQueue.clone();
 
                             float[] accNow = myMath.coordinatesTransform(DcmQueue[(DurationWindow - w_count) * windowSize], accWindow[(DurationWindow - w_count) * windowSize]);//得到一次新惯性加速度
                             float[] accLast = accNow.clone();
@@ -333,7 +338,7 @@ public class TrackSensorListener implements SensorEventListener {
                             //申明path文件
                             String pathOut = new String();
 
-                            for (int i = ((DurationWindow - w_count) * windowSize + 1); i < DurationWindow * windowSize; i++) { //when i = 0, velocitySample[i] =0; positionSample[i] =0;
+                            for (int i = ((DurationWindow - w_count) * windowSize + 1); i < (DurationWindow-1) * windowSize; i++) { //when i = 0, velocitySample[i] =0; positionSample[i] =0;
                                 float[] W = gyroWindow[i].clone();
 
                                 float[] Matrix_W = new float[]{1f, -W[2] * deltTWindow[i], W[1] * deltTWindow[i],//
@@ -341,10 +346,9 @@ public class TrackSensorListener implements SensorEventListener {
                                         -W[1] * deltTWindow[i], W[0] * deltTWindow[i], 1f};
 
                                 DcmQueue[i] = myMath.matrixMultiply(DcmQueue[i - 1], Matrix_W);//获取新DCM
+                                myLog.log(TAG, DcmQueue[i], "gyro DCM", 3);
 
-                                //Log.d(TAG, "euler[0]\t" + i +"\t"+ euler[0]/3.1415*180);
-                                //Log.d(TAG, "euler[1]\t" + i +"\t"+ euler[1]/3.1415*180);
-                                //Log.d(TAG, "euler[2]\t" + i +"\t"+ euler[2]/3.1415*180);
+
                                 Log.d(TAG, "accWindow[i][0]:" + String.valueOf(i) + ":\t" + accWindow[i][0]);
                                 Log.d(TAG, "accWindow[i][1]:" + String.valueOf(i) + ":\t" + accWindow[i][1]);
                                 Log.d(TAG, "accWindow[i][2]:" + String.valueOf(i) + ":\t" + accWindow[i][2]);
@@ -382,10 +386,6 @@ public class TrackSensorListener implements SensorEventListener {
                                 Log.d(TAG, "velocityQueue[1]:" + String.valueOf(i) + ":\t" + velocityQueue[i][1]);
                                 Log.d(TAG, "velocityQueue[2]:" + String.valueOf(i) + ":\t" + velocityQueue[i][2]);
 
-                                // free fall: P = P0 + 0.5*G*dt*dt
-                                //freeFallPosition = freeFallPositionLast + 0.5f*G*deltTWindow[i]*deltTWindow[i];
-                                //freeFallPositionLast = freeFallPosition;
-
                                 positionQ[i][0] = positionQ[i - 1][0] + 0.5f * (velocityQueue[i][0] + velocityQueue[i - 1][0]) * deltTWindow[i];
                                 positionQ[i][1] = positionQ[i - 1][1] + 0.5f * (velocityQueue[i][1] + velocityQueue[i - 1][1]) * deltTWindow[i];
                                 positionQ[i][2] = positionQ[i - 1][2] + 0.5f * (velocityQueue[i][2] + velocityQueue[i - 1][2]) * deltTWindow[i]; //- freeFallPosition;
@@ -409,10 +409,12 @@ public class TrackSensorListener implements SensorEventListener {
                                 e.printStackTrace();
                             }
                             positionQueue = positionQ.clone();
-                            position_mark = (DurationWindow - w_count) * windowSize;
-                        }
+                            //position_mark = (DurationWindow - w_count) * windowSize;
+                            //position_mark = (DurationWindow) * windowSize;
+                        }//结束Path
 
                         LAST_STATE = NOW_STATE;
+                        DCM_Static_Last = DCM_Static.clone();
                     }
 
                 }
@@ -506,7 +508,7 @@ public class TrackSensorListener implements SensorEventListener {
                 if (event.values != null) {
                     //Log.d(TAG,System.currentTimeMillis()+"\t"+timeCount++);
                     float[] _rawacc = event.values.clone();
-                    float[] _acc = doAccCalibrate(event.values);
+                    float[] _acc = AccCalibrate(event.values);
                     float[] _gravity = accLPF.filter(event.values);
                     float[] _lacc = myMath.matrixSub(_acc, _gravity);
 
@@ -535,7 +537,7 @@ public class TrackSensorListener implements SensorEventListener {
         }
     }
 
-    private float[] doAccCalibrate(float[] rData) {
+    private float[] AccCalibrate(float[] rData) {
         float[] data = new float[3];
         data[0] = rData[0] - params[9];
         data[1] = rData[1] - params[10];
@@ -547,7 +549,6 @@ public class TrackSensorListener implements SensorEventListener {
                 aData[i] += params[i * 3 + j] * data[j];
             }
         }
-        //乘以比例系数
         return aData;
     }
 
@@ -593,7 +594,7 @@ public class TrackSensorListener implements SensorEventListener {
                 ekfP.r2, // r_mag
                 ekfP.moment_inertia_J, ekf.x_aposteriori, ekf.P_aposteriori, ekf.Rot_matrix, ekf.euler, ekf.debugOutput, ekf.euler_pre);
         ekf.time = System.nanoTime();
-        ekf.Qfrom_DCM(ekf.Rot_matrix);
+        ekf.q = myMath.Rot2Q(ekf.Rot_matrix);
     }
 
     private void gdfAtt(float[] accOri, float[] gyroOri, float[] magOri, float dt, boolean gyroIMU) {

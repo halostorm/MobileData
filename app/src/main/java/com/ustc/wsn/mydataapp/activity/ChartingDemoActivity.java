@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.Window;
 import android.view.animation.RotateAnimation;
 import android.widget.Toast;
@@ -26,6 +27,7 @@ import com.ustc.wsn.mydataapp.service.TrackService;
 
 import detector.wsn.ustc.com.mydataapp.R;
 public class ChartingDemoActivity extends Activity {
+    private final String TAG = ChartingDemoActivity.class.toString();
     NChartView mNChartView;
     TrackService track;
     private boolean threadDisable = false;
@@ -181,5 +183,40 @@ public class ChartingDemoActivity extends Activity {
     protected void onResume() {
         // TODO Auto-generated method stub
         super.onResume();
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                Log.d(TAG,"bengin touch time \t"+System.currentTimeMillis());
+                break;
+            case MotionEvent.ACTION_MOVE:
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+            default:
+                break;
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                Log.d(TAG,"bengin touch time \t"+System.currentTimeMillis());
+                break;
+            case MotionEvent.ACTION_MOVE:
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+
+            default:
+                break;
+        }
+        return super.onTouchEvent(event);
     }
 }
