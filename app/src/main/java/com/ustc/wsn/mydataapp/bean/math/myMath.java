@@ -75,6 +75,21 @@ public class myMath {
         return dAve;
     }
 
+    public static float[] getMean(float[][] x,int start,int stop) {
+        int m = stop - start;
+        float[] sum = new float[x[0].length];
+        for (int i = start; i < stop; i++) {// 求和
+            for (int j = 0; j < x[0].length; j++) {
+                sum[j] += x[i][j];
+            }
+        }
+        float dAve[] = new float[x[0].length];
+        for (int j = 0; j < x[0].length; j++) {
+            dAve[j] = sum[j] / m;// 求平均值
+        }
+        return dAve;
+    }
+
     //矩阵库
     public static float[] coordinatesTransform(float[] DCM, float[] values) {
         float[] valuesEarth = new float[3];
@@ -86,26 +101,40 @@ public class myMath {
         return valuesEarth;
     }
 
-    public static float[] matrixMultiply(float[] A, float[] B) {
-        float[] values = new float[9];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+    public static float[] matrixMultiply(float[] A, float[] B, int N) {
+        float[] values = new float[N*N];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
                 float temp = 0;
-                for (int k = 0; k < 3; k++) {
-                    temp += A[i * 3 + k] * B[3 * k + j];
+                for (int k = 0; k < N; k++) {
+                    temp += A[i * N + k] * B[N * k + j];
                 }
-                values[i * 3 + j] = temp;
+                values[i * N + j] = temp;
             }
         }
         return values;
     }
 
-    public static float[] matrixAdd(float[] A, float[] B) {
-        float[] values = new float[9];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                values[i * 3 + j] = A[i * 3 + j] + B[i * 3 + j];
+    public static float[] matrixMultiply(float[] A, float scale) {
+        float[] values = new float[A.length];
+        for (int i = 0; i < A.length; i++) {
+                values[i] = A[i]*scale;
             }
+        return values;
+    }
+
+    public static float[] matrixDivide(float[] A, float scale) {
+        float[] values = new float[A.length];
+        for (int i = 0; i < A.length; i++) {
+            values[i] = A[i]/scale;
+        }
+        return values;
+    }
+
+    public static float[] matrixAdd(float[] A, float[] B) {
+        float[] values = new float[A.length];
+        for (int i = 0; i < A.length; i++) {
+                values[i] = A[i] + B[i];
         }
         return values;
     }
@@ -195,6 +224,12 @@ public class myMath {
         }
     }
 
+
+    public static void DeleteData2K(float[][] sample, int K) {
+        for (int i = 0; i < sample.length-K; i++) {
+            sample[i] = sample[K+i].clone();
+        }
+    }
 
 
     public static float[] V_android2Ned(float[] data) {

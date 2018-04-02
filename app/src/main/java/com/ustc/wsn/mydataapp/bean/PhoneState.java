@@ -29,6 +29,9 @@ public class PhoneState {
     public static float ACC_STATIC_THRESHOLD = 0.1f;
     public static float GYRO_STATIC_THRESHOLD = 0.1f;
 
+    public static float EULER_ABSOLUTE_STATIC_THRESHOLD = 0.01f;
+    public static float EULER_STATIC_THRESHOLD = 0.1f;
+
     public static float ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD_DEFAULT = 0.01f;
     public static float ACC_VAR_ABSOLUTE_STATIC_THRESHOLD_DEFAULT = 0.01f;
     public static float ACC_MEAN_STATIC_THRESHOLD_DEFAULT = 0.5f;
