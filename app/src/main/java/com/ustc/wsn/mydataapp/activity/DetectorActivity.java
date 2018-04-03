@@ -234,11 +234,6 @@ public class DetectorActivity extends Activity implements OnClickListener {
         switch (view.getId()) {
             case R.id.btnStartService:
                 if (serviceStart == false) {
-                    /*
-                    t = Toast.makeText(this, "开始采集", Toast.LENGTH_SHORT);
-                    t.setGravity(Gravity.CENTER, 0, 0);
-                    t.show();
-                    */
                     loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                     // 判断GPS是否正常启动
                     if (!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER)&& gpsEnabled) {

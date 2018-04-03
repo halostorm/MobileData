@@ -118,6 +118,7 @@ public class SimulationActivity extends Activity {
         magService.setXYMultipleSeriesRenderer(0, 10, -70, 70, "磁力计", "时间 /s", "uT", Color.BLACK, Color.BLACK, Color.BLUE, Color.CYAN, Color.RED, Color.BLACK);
         magView = magService.getGraphicalView();
         //将左右图表添加到布局容器中
+
         accCurveLayout.addView(accView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         rawaccCurveLayout.addView(rawaccView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         gyroCurveLayout.addView(gyroView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));

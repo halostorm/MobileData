@@ -33,13 +33,13 @@ public class PhoneState {
     public static float EULER_STATIC_THRESHOLD = 0.1f;
 
     public static float ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD_DEFAULT = 0.01f;
-    public static float ACC_VAR_ABSOLUTE_STATIC_THRESHOLD_DEFAULT = 0.01f;
-    public static float ACC_MEAN_STATIC_THRESHOLD_DEFAULT = 0.5f;
+    public static float ACC_VAR_ABSOLUTE_STATIC_THRESHOLD_DEFAULT = 0.001f;
+    public static float ACC_MEAN_STATIC_THRESHOLD_DEFAULT = 2f;
     public static float ACC_VAR_STATIC_THRESHOLD_DEFAULT = 1.0f;
 
     public static float ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD = 0.01f;
-    public static float ACC_VAR_ABSOLUTE_STATIC_THRESHOLD = 0.01f;
-    public static float ACC_MEAN_STATIC_THRESHOLD = 0.5f;
+    public static float ACC_VAR_ABSOLUTE_STATIC_THRESHOLD = 0.001f;
+    public static float ACC_MEAN_STATIC_THRESHOLD = 2f;
     public static float ACC_VAR_STATIC_THRESHOLD = 1.0f;
 
     //加速度校准参数

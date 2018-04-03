@@ -13,8 +13,10 @@ import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +24,9 @@ import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
 import com.ustc.wsn.mydataapp.bean.PhoneState;
 import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
 import com.ustc.wsn.mydataapp.bean.outputFile;
+import com.ustc.wsn.mydataapp.service.ChartService;
+
+import org.achartengine.GraphicalView;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -31,6 +36,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.text.DecimalFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -47,22 +53,26 @@ public class CalibrateStateActivity extends Activity {
     private Sensor magnetic;
     private Toast t;
     private String psw;
-    private TextView stateValue;
+    private TextView stateParams;
     private TrackSensorListener sensorListener;
+
+    private LinearLayout valueCurveLayout;//存放左图表的布局容器
+    private GraphicalView valueView;//左右图表
+    private ChartService valueService;
+
+    private float[] stateValue = {0,0};
+
+    private TextView meanAxis;
+    private TextView varAxis;
+
+    private DecimalFormat df;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calibrate_state);
         initSensor();
-        stateValue = (TextView) findViewById(R.id.state_value);
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                handler.sendMessage(handler.obtainMessage());
-            }
-        }, 0, 500);
+        stateParams = (TextView) findViewById(R.id.state_param);
 
         EditText editTextAccMean_Ab = (EditText) findViewById(R.id.accMean_Ab);
 
@@ -94,6 +104,38 @@ public class CalibrateStateActivity extends Activity {
         initParams.setTag(R.id.key4, editTextAccVar_User);
 
         initParams.setOnClickListener(mOnClickListener);
+        //图表
+        valueCurveLayout = (LinearLayout) findViewById(R.id.state_value_curve);
+
+        valueService = new ChartService(this);
+        valueService.setXYMultipleSeriesDataset("Mean", " Variance", "");
+        valueService.setXYMultipleSeriesRenderer(0, 10, 0, 20, "状态值", "时间 /s", "0.0", Color.BLACK, Color.BLACK,Color.RED, Color.BLUE, Color.CYAN,  Color.BLACK);
+        valueView = valueService.getGraphicalView();
+
+        //将左右图表添加到布局容器中
+        valueCurveLayout.addView(valueView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        meanAxis = (TextView) findViewById(R.id.value_accMean_axis);
+        varAxis = (TextView) findViewById(R.id.value_accVar_axis);
+
+        df = new DecimalFormat("0.000");
+
+        Timer timer2 = new Timer();
+        timer2.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler2.sendMessage(handler2.obtainMessage());
+            }
+        }, 0, 20);
+
+        Timer timer3 = new Timer();
+        timer3.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler1.sendMessage(handler1.obtainMessage());
+                handler3.sendMessage(handler3.obtainMessage());
+            }
+        }, 0, 100);
     }
 
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -123,11 +165,6 @@ public class CalibrateStateActivity extends Activity {
             String accVarAbParams = t2.getText().toString().trim();
             String accMeanUserParams = t3.getText().toString().trim();
             String accVarUserParams = t4.getText().toString().trim();
-
-            //Log.d(TAG, "params1:" + accMeanAbParams);
-            //Log.d(TAG, "params2:" + accVarAbParams);
-            //Log.d(TAG, "params3:" + accMeanUserParams);
-            //Log.d(TAG, "params4:" + accVarUserParams);
 
             String out = new String();
             if (accMeanAbParams.length() == 0) {
@@ -170,29 +207,47 @@ public class CalibrateStateActivity extends Activity {
             t3.setText("");
             t4.setText("");
 
-            t1.setHint("请输入绝对静止-加速度均值阈值（当前值：" + PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD + "）");
-            t2.setHint("请输入绝对静止-加速度方差阈值（当前值：" + PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD + ")");
-            t3.setHint("请输入相对静止-加速度均值阈值（当前值：" + PhoneState.ACC_MEAN_STATIC_THRESHOLD + "）");
-            t4.setHint("请输入相对静止-加速度方差阈值(当前值：" + PhoneState.ACC_VAR_STATIC_THRESHOLD + "）");
+            t1.setHint("输入绝对静止-加速度均值阈值（当前值：" + PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD + "）");
+            t2.setHint("输入绝对静止-加速度方差阈值（当前值：" + PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD + ")");
+            t3.setHint("输入相对静止-加速度均值阈值（当前值：" + PhoneState.ACC_MEAN_STATIC_THRESHOLD + "）");
+            t4.setHint("输入相对静止-加速度方差阈值(当前值：" + PhoneState.ACC_VAR_STATIC_THRESHOLD + "）");
 
         }
     };
 
-    private Handler handler = new Handler() {
+    private Handler handler1 = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             int state = sensorListener.getNowState();
             switch (state) {
                 case PhoneState.ABSOLUTE_STATIC_STATE:
-                    stateValue.setText("绝对静止");
+                    stateParams.setText("绝对静止");
                     break;
                 case PhoneState.USER_STATIC_STATE:
-                    stateValue.setText("相对静止");
+                    stateParams.setText("相对静止");
                     break;
                 case PhoneState.UNKONW_STATE:
-                    stateValue.setText("用户运动");
+                    stateParams.setText("用户运动");
                     break;
             }
+        }
+    };
+
+    private Handler handler2 = new Handler() {
+        @Override
+        //定时更新图表
+        public void handleMessage(Message msg) {
+            stateValue = sensorListener.getNowStateValues();
+            valueService.rightUpdateChart(stateValue[0], stateValue[1], PhoneState.ACC_VAR_STATIC_THRESHOLD);
+        }
+    };
+
+    private Handler handler3 = new Handler() {
+        @Override
+        //定时更新图表
+        public void handleMessage(Message msg) {
+            meanAxis.setText(df.format(stateValue[0]));
+            varAxis.setText(df.format(stateValue[1]));
         }
     };
 
@@ -224,8 +279,9 @@ public class CalibrateStateActivity extends Activity {
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+
         sensorListener = new TrackSensorListener(false);
+
         if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME );
         }

@@ -48,9 +48,11 @@ public class ChartingDemoActivity extends Activity {
         setContentView(R.layout.nchart);
         mNChartView = (NChartView) findViewById(R.id.surface);
         initSensor();
-        WindowSize = sensorListener.windowSize*sensorListener.DurationWindow;
-        sampleInterval = sensorListener.sampleInterval;
-        loadView();
+        if(ACCELERATOR_EXIST&&GYROSCROPE_EXIST&&MAGNETIC_EXIST) {
+            WindowSize = sensorListener.windowSize * sensorListener.DurationWindow;
+            sampleInterval = sensorListener.sampleInterval;
+            loadView();
+        }
     }
 
     @Override
