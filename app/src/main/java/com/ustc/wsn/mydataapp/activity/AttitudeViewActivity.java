@@ -1,22 +1,31 @@
 package com.ustc.wsn.mydataapp.activity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.app.Activity;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
+import com.ustc.wsn.mydataapp.R;
+import com.ustc.wsn.mydataapp.bean.PhoneState;
 import com.ustc.wsn.mydataapp.bean.cubeView.MyRender;
 
-public class AttitudeViewActivity extends Activity {
+public class AttitudeViewActivity extends Activity implements View.OnClickListener {
 
     private final String TAG = AttitudeViewActivity.class.toString();
+
+    private LinearLayout attLayout;
+
     private boolean threadDisable_data_update = false;
     private boolean ACCELERATOR_EXIST = false;
     private boolean GYROSCROPE_EXIST = false;
@@ -30,21 +39,38 @@ public class AttitudeViewActivity extends Activity {
 
     MyRender myRender;
 
+    private Button EKF;
+    private Button FCF;
+    private Button GDF;
+    private Button ANDROID;
+    private Button GYRO;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_attitude_view);
-        /*
-        GLSurfaceView glSurfaceView = new GLSurfaceView(this);
-        glSurfaceView.setRenderer(new CubeSurfaceView());
-        setContentView(glSurfaceView);
-        */
+        setContentView(R.layout.activity_attitude_view);
+        attLayout = (LinearLayout) findViewById(R.id.attView);
         initSensor();
         GLSurfaceView glView = new GLSurfaceView(this);
         myRender = new MyRender();
         glView.setRenderer(myRender);
         //glView.setRenderMode(RENDERMODE_WHEN_DIRTY);
-        setContentView(glView);
+        attLayout.addView(glView);
+
+        EKF = (Button) findViewById(R.id.btnEKF);
+        EKF.setOnClickListener(this);
+
+        FCF = (Button) findViewById(R.id.btnFCF);
+        FCF.setOnClickListener(this);
+
+        GDF = (Button) findViewById(R.id.btnGDF);
+        GDF.setOnClickListener(this);
+
+        ANDROID = (Button) findViewById(R.id.btnAndroid);
+        ANDROID.setOnClickListener(this);
+
+        GYRO = (Button) findViewById(R.id.btnGyro);
+        GYRO.setOnClickListener(this);
 
         new Thread(new Runnable() {
             @Override
@@ -101,6 +127,53 @@ public class AttitudeViewActivity extends Activity {
         }
         if (MAGNETIC_EXIST) {
             sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btnEKF:
+                sensorListener.setAttitudeMode(PhoneState.Attitude_EKF);
+                EKF.setTextColor(Color.BLUE);
+                //EKF.setTextColor(Color.GRAY);
+                FCF.setTextColor(Color.GRAY);
+                GDF.setTextColor(Color.GRAY);
+                ANDROID.setTextColor(Color.GRAY);
+                GYRO.setTextColor(Color.GRAY);
+                break;
+            case R.id.btnFCF:
+                sensorListener.setAttitudeMode(PhoneState.Attitude_FCF);
+                FCF.setTextColor(Color.BLUE);
+                EKF.setTextColor(Color.GRAY);
+                GDF.setTextColor(Color.GRAY);
+                ANDROID.setTextColor(Color.GRAY);
+                GYRO.setTextColor(Color.GRAY);
+                break;
+            case R.id.btnGDF:
+                sensorListener.setAttitudeMode(PhoneState.Attitude_GDF);
+                GDF.setTextColor(Color.BLUE);
+                EKF.setTextColor(Color.GRAY);
+                FCF.setTextColor(Color.GRAY);
+                ANDROID.setTextColor(Color.GRAY);
+                GYRO.setTextColor(Color.GRAY);
+                break;
+            case R.id.btnAndroid:
+                sensorListener.setAttitudeMode(PhoneState.Attitude_ANDROID);
+                ANDROID.setTextColor(Color.BLUE);
+                EKF.setTextColor(Color.GRAY);
+                FCF.setTextColor(Color.GRAY);
+                GDF.setTextColor(Color.GRAY);
+                GYRO.setTextColor(Color.GRAY);
+                break;
+            case R.id.btnGyro:
+                sensorListener.setAttitudeMode(PhoneState.Attitude_GYRO);
+                GYRO.setTextColor(Color.BLUE);
+                EKF.setTextColor(Color.GRAY);
+                FCF.setTextColor(Color.GRAY);
+                GDF.setTextColor(Color.GRAY);
+                ANDROID.setTextColor(Color.GRAY);
+                break;
         }
     }
 

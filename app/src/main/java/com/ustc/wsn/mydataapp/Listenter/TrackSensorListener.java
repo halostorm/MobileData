@@ -6,19 +6,16 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
-import com.ustc.wsn.mydataapp.bean.Filter.BPF;
 import com.ustc.wsn.mydataapp.bean.Filter.EKF;
 import com.ustc.wsn.mydataapp.bean.Filter.FCF;
 import com.ustc.wsn.mydataapp.bean.Filter.GDF;
 import com.ustc.wsn.mydataapp.bean.Filter.LPF_I;
-import com.ustc.wsn.mydataapp.bean.Filter.LPF_II;
 import com.ustc.wsn.mydataapp.bean.Filter.MeanFilter;
 import com.ustc.wsn.mydataapp.bean.Filter.ekfParams;
 import com.ustc.wsn.mydataapp.bean.Filter.ekfParamsHandle;
 import com.ustc.wsn.mydataapp.bean.Log.myLog;
 import com.ustc.wsn.mydataapp.bean.PhoneState;
 import com.ustc.wsn.mydataapp.bean.math.myMath;
-import com.ustc.wsn.mydataapp.bean.math.Quaternion;
 import com.ustc.wsn.mydataapp.bean.outputFile;
 
 import java.io.File;
@@ -40,15 +37,11 @@ public class TrackSensorListener implements SensorEventListener {
     public volatile int sampleIntervalReal = 20;//ms
 
     //姿态滤波器选择
-    private static final int Attitude_ANDROID = 1;
-    private static final int Attitude_EKF = 2;
-    private static final int Attitude_FCF = 3;
-    private static final int Attitude_GDF = 4;
-    private static int AttitudeMode = Attitude_EKF;
+    private static int AttitudeMode = PhoneState.Attitude_EKF;
 
     //状态参数
     private int Window_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
-    private int GLOBAL_NOW_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
+    private volatile int GLOBAL_NOW_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
 
     private float[] stateValues = {0,0};
 
@@ -67,7 +60,7 @@ public class TrackSensorListener implements SensorEventListener {
     private volatile float[] deltTQueue = new float[DurationWindow * windowSize];//积分步长
     private volatile long[] timeStampQueue = new long[DurationWindow * windowSize];//积分时间
     private volatile int position_mark = DurationWindow * windowSize;
-    private volatile int start_mark = 0;
+    private volatile int RemainingDataSize = 0;
 
     //传感器参数
     private boolean accOriOriNew = false;
@@ -95,6 +88,8 @@ public class TrackSensorListener implements SensorEventListener {
     private ekfParamsHandle ekfPH;
 
     private GDF gdf;
+
+    private FCF fcf;
 
     //简单滤波器
     private LPF_I accLPF;
@@ -142,6 +137,8 @@ public class TrackSensorListener implements SensorEventListener {
 
         gdf = new GDF();
 
+        fcf = new FCF();
+
         //加速度校准参数提取
         getAccCalibrateParams();
 
@@ -169,26 +166,40 @@ public class TrackSensorListener implements SensorEventListener {
                         float[] gyroOri = gyro;
                         float[] magOri = mag;
 
-                        if (AttitudeMode == Attitude_GDF) {
+                        if (AttitudeMode == PhoneState.Attitude_GDF) {
                             //用EKF初始化GDF
                             if (gdf.InitCount < 100) {
-                                ekfAtt(accOri, gyroOri, magOri);
+                                ekfAtt(accOri, gyroOri, magOri,dt);
                                 Euler = ekf.euler.clone();
                                 DCM = ekf.Rot_matrix.clone();
                                 gdf.InitCount++;
+                                gdf.q = ekf.q.clone();
                             } else {
                                 gdfAtt(accOri, gyroOri, magOri, dt, false);
                                 Euler = gdf.Euler.clone();
                                 DCM = gdf.Rot_Matrix.clone();
                             }
                         }
-                        if (AttitudeMode == Attitude_EKF) {
-                            ekfAtt(accOri, gyroOri, magOri);
+                        if (AttitudeMode == PhoneState.Attitude_EKF) {
+                            ekfAtt(accOri, gyroOri, magOri,dt);
                             Euler = ekf.euler.clone();
                             DCM = ekf.Rot_matrix.clone();
+                            myLog.log(TAG,"ekf q:",ekf.q);
                         }
-                        if (AttitudeMode == Attitude_ANDROID) {
-                            if (count++ == 100) {
+                        if (AttitudeMode == PhoneState.Attitude_FCF) {
+                            fcfAtt(accOri, gyroOri, magOri,dt);
+                            Euler = fcf.euler.clone();
+                            DCM = fcf.Rot_matrix.clone();
+                            myLog.log(TAG,"fcf q:",fcf.q);
+                        }
+
+                        if (AttitudeMode == PhoneState.Attitude_ANDROID) {
+                            androidAtt(accOri, magOri);
+                            DCM = androidDCM.clone();
+                            Euler = myMath.Rot2Euler(DCM);
+                        }
+                        if (AttitudeMode == PhoneState.Attitude_GYRO) {
+                            if (count++ == DurationWindow*windowSize) {
                                 androidAtt(accOri, magOri);
                                 DCM = androidDCM.clone();
                                 Euler = myMath.Rot2Euler(DCM);
@@ -216,8 +227,8 @@ public class TrackSensorListener implements SensorEventListener {
                     ngyro = myMath.coordinatesTransform(DCM, gyro);
                     nmag = myMath.coordinatesTransform(DCM, mag);
 
-                    if(GLOBAL_NOW_STATE == PhoneState.UNKONW_STATE&& start_mark>0) {
-                        start_mark--;
+                    if(GLOBAL_NOW_STATE == PhoneState.UNKONW_STATE&& RemainingDataSize>0) {
+                        RemainingDataSize--;
                     }
 
                     myMath.addData(deltTQueue, dt);
@@ -239,7 +250,6 @@ public class TrackSensorListener implements SensorEventListener {
                 }
             }
         }).start();
-
 
         if (enablePath) {
             new Thread(new Runnable() {
@@ -272,7 +282,6 @@ public class TrackSensorListener implements SensorEventListener {
                         float accSumMean = myMath.getMean(naccSum);
                         float accSumVar = myMath.getVar(naccSum);
                         NOW_STATE = stateRecognizeUseAccel(accSumMean, accSumVar);
-                        GLOBAL_NOW_STATE = NOW_STATE;
                         //进入Path过程（动静切换）
                         if ((LAST_STATE == PhoneState.USER_STATIC_STATE || LAST_STATE == PhoneState.ABSOLUTE_STATIC_STATE)
                                 && NOW_STATE == PhoneState.UNKONW_STATE) {
@@ -285,9 +294,10 @@ public class TrackSensorListener implements SensorEventListener {
                             float[][] positionQ = new float[DurationWindow * windowSize][3];
                             float[][] velocityQueue = new float[DurationWindow * windowSize][3];
                             float[][] DcmQueue = new float[DurationWindow * windowSize][3];
-
+                            GLOBAL_NOW_STATE = NOW_STATE;
+                            RemainingDataSize = (DurationWindow-2)*windowSize;
                             //等待全部5秒数据到达
-                            while (start_mark > 0) {
+                            while (RemainingDataSize > 0) {
                                 try {
                                     Thread.sleep(2);
                                 } catch (InterruptedException e) {
@@ -506,6 +516,9 @@ public class TrackSensorListener implements SensorEventListener {
         }
     }
 
+    public void setAttitudeMode(int mode){
+        AttitudeMode = mode;
+    }
     private void getAccCalibrateParams() {
         PhoneState.initAccCalibrateParams();
         params = PhoneState.getCalibrateParams();
@@ -623,7 +636,7 @@ public class TrackSensorListener implements SensorEventListener {
         return aData;
     }
 
-    private void ekfAtt(float[] accOri, float[] gyroOri, float[] magOri) {
+    private void ekfAtt(float[] accOri, float[] gyroOri, float[] magOri,float dt) {
         ekf.update_vect[0] = 1;
         ekf.update_vect[1] = 1;
         ekf.update_vect[2] = 1;
@@ -654,7 +667,7 @@ public class TrackSensorListener implements SensorEventListener {
         ekf.x_aposteriori_k[11] = ekf.z_k[8];
         //Log.d(TAG, "calculateOrientation");
         ekfP.parameters_update(ekfPH);
-        ekf.dt = (System.nanoTime() - ekf.time) / 1000000000.f;
+        ekf.dt = dt;
         ekf.AttitudeEKF(false, // approx_prediction
                 ekfP.use_moment_inertia, ekf.update_vect, ekf.dt, ekf.z_k, ekfP.q0, // q_rotSpeed,
                 ekfP.q1, // q_rotAcc
@@ -664,7 +677,7 @@ public class TrackSensorListener implements SensorEventListener {
                 ekfP.r1, // r_accel
                 ekfP.r2, // r_mag
                 ekfP.moment_inertia_J, ekf.x_aposteriori, ekf.P_aposteriori, ekf.Rot_matrix, ekf.euler, ekf.debugOutput, ekf.euler_pre);
-        ekf.time = System.nanoTime();
+        //ekf.time = System.nanoTime();
         ekf.q = myMath.Rot2Q(ekf.Rot_matrix);
     }
 
@@ -679,6 +692,21 @@ public class TrackSensorListener implements SensorEventListener {
         float[] aDCM = new float[9];
         SensorManager.getRotationMatrix(aDCM, null, _accOri, _magOri);
         androidDCM = myMath.R_android2Ned(aDCM);
+    }
+
+    private void fcfAtt(float[] accOri, float[] gyroOri, float[] magOri, float dt){
+
+        accOri[0] *= -1;
+        accOri[2] *= -1;
+        gyroOri[0] *= -1;
+        gyroOri[2] *= -1;
+        magOri[0] *= -1;
+        magOri[2] *= -1;
+        fcf.acc = accOri.clone();
+        fcf.gyro = gyroOri.clone();
+        fcf.mag = magOri.clone();
+        fcf.dt = dt;
+        fcf.attitude(dt);
     }
 
     private int stateRecognizeUseAccel(float laccSumMean, float laccSumVar) {

@@ -8,11 +8,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-
 import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
 import com.ustc.wsn.mydataapp.bean.AcceleratorData;
-import com.ustc.wsn.mydataapp.bean.Filter.FCF;
 import com.ustc.wsn.mydataapp.bean.Filter.EKF;
+import com.ustc.wsn.mydataapp.bean.Filter.FCF;
 import com.ustc.wsn.mydataapp.bean.Filter.GDF;
 import com.ustc.wsn.mydataapp.bean.Filter.LPF_II;
 import com.ustc.wsn.mydataapp.bean.Filter.MeanFilter;
@@ -20,6 +19,7 @@ import com.ustc.wsn.mydataapp.bean.Filter.ekfParams;
 import com.ustc.wsn.mydataapp.bean.Filter.ekfParamsHandle;
 import com.ustc.wsn.mydataapp.bean.GyroData;
 import com.ustc.wsn.mydataapp.bean.MagnetData;
+import com.ustc.wsn.mydataapp.bean.PhoneState;
 import com.ustc.wsn.mydataapp.bean.math.myMath;
 
 public class DetectorSensorListener implements SensorEventListener {
@@ -28,11 +28,7 @@ public class DetectorSensorListener implements SensorEventListener {
     private final float GRAVITY = 9.807f;
     private static int windowSize = 256;// 256
     public final int sampleInterval = 20;//ms
-    private static final int Attitude_ANDROID = 1;
-    private static final int Attitude_EKF = 2;
-    private static final int Attitude_FCF = 3;
-    private static final int Attitude_GDF = 4;
-    private static int AttitudeMode = Attitude_GDF;
+    private static int AttitudeMode = PhoneState.Attitude_GDF;
 
     // 传感器数据缓冲池
     private DetectorSensorListener mContext = DetectorSensorListener.this;
@@ -127,19 +123,19 @@ public class DetectorSensorListener implements SensorEventListener {
         DCM = new float[]{1, 0, 0, 0, 1, 0, 0, 0, 1};
         euler = new float[]{0.0f, 0.0f, 0.0f};
 
-        //setAttitudeMode(Attitude_FCF);////////////////////////////////////: attitude estimator is Attitude_ANDROID
+        //setAttitudeMode(PhoneState.Attitude_FCF);////////////////////////////////////: attitude estimator is PhoneState.Attitude_ANDROID
 
-        if (AttitudeMode == Attitude_EKF) {
+        if (AttitudeMode == PhoneState.Attitude_EKF) {
             ekfPH = new ekfParamsHandle();
             ekfP = new ekfParams();
             ekf = new EKF();
             //ekf.AttitudeEKF_initialize();
         }
-        if (AttitudeMode == Attitude_FCF) {
+        if (AttitudeMode == PhoneState.Attitude_FCF) {
             fcf = new FCF();
         }
 
-        if (AttitudeMode == Attitude_GDF) {
+        if (AttitudeMode == PhoneState.Attitude_GDF) {
             gdf = new GDF();
         }
 
@@ -166,7 +162,7 @@ public class DetectorSensorListener implements SensorEventListener {
                     }
 
                     if (accOriOriNew && magOriNew && gyroOriNew) {
-                        if (AttitudeMode == Attitude_EKF) {
+                        if (AttitudeMode == PhoneState.Attitude_EKF) {
                             ekf.update_vect[0] = 1;
                             ekf.update_vect[1] = 1;
                             ekf.update_vect[2] = 1;
@@ -211,11 +207,11 @@ public class DetectorSensorListener implements SensorEventListener {
                             //ekf.Ned2Android();
                             rotNow = ekf.euler[0] + "\t" + ekf.euler[1] + "\t" + ekf.euler[2];
                         }
-                        if (AttitudeMode == Attitude_ANDROID) {
+                        if (AttitudeMode == PhoneState.Attitude_ANDROID) {
                             calBear();
                             rotNow = euler[2] + "\t" + euler[1] + "\t" + euler[0];
                         }
-                        if (AttitudeMode == Attitude_FCF) {
+                        if (AttitudeMode == PhoneState.Attitude_FCF) {
                             fcf.acc[0] = accOri[1];
                             fcf.acc[1] = accOri[0];
                             fcf.acc[2] = -accOri[2];
@@ -231,7 +227,7 @@ public class DetectorSensorListener implements SensorEventListener {
                             fcf.attitude(dt);
                             rotNow = fcf.euler[0] + "\t" + fcf.euler[1] + "\t" + fcf.euler[2];
                         }
-                        if(AttitudeMode ==Attitude_GDF){
+                        if(AttitudeMode ==PhoneState.Attitude_GDF){
                             float[] _accOri = accOri;
                             float[] _gyroOri = gyroOri;
                             float[] _magOri = magnetOri;
@@ -301,18 +297,18 @@ public class DetectorSensorListener implements SensorEventListener {
                     accOriOriNew = true;
 
                     float[] worldData = new float[3];
-                    if (AttitudeMode == Attitude_EKF) {
+                    if (AttitudeMode == PhoneState.Attitude_EKF) {
                         worldData = myMath.coordinatesTransform(ekf.Rot_matrix, event.values);
                     }
-                    if (AttitudeMode == Attitude_GDF) {
+                    if (AttitudeMode == PhoneState.Attitude_GDF) {
                         worldData = myMath.coordinatesTransform(gdf.Rot_Matrix, event.values);
                     }
-                    if (AttitudeMode == Attitude_ANDROID) {
+                    if (AttitudeMode == PhoneState.Attitude_ANDROID) {
                         worldData = myMath.coordinatesTransform(DCM, event.values);
                     }
-                    if (AttitudeMode == Attitude_FCF) {
+                    if (AttitudeMode == PhoneState.Attitude_FCF) {
                         //worldData = myMath.coordinatesTransform(DCM, event.values);
-                        worldData = fcf.translate_to_NED(fcf.q_est, event.values);
+                        worldData = myMath.coordinatesTransform(fcf.Rot_matrix, event.values);
                     }
                     this.accNow = (new AcceleratorData(event.values)).toString();
                 }
@@ -323,17 +319,17 @@ public class DetectorSensorListener implements SensorEventListener {
                     gyroOriNew = true;
                     float[] worldData = new float[3];
 
-                    if (AttitudeMode == Attitude_EKF) {
+                    if (AttitudeMode == PhoneState.Attitude_EKF) {
                         worldData = myMath.coordinatesTransform(ekf.Rot_matrix, event.values);
                     }
-                    if (AttitudeMode == Attitude_GDF) {
+                    if (AttitudeMode == PhoneState.Attitude_GDF) {
                         worldData = myMath.coordinatesTransform(gdf.Rot_Matrix, event.values);
                     }
-                    if (AttitudeMode == Attitude_ANDROID) {
+                    if (AttitudeMode == PhoneState.Attitude_ANDROID) {
                         worldData = myMath.coordinatesTransform(DCM, event.values);
                     }
-                    if (AttitudeMode == Attitude_FCF) {
-                        worldData = fcf.translate_to_NED(fcf.q_est, event.values);
+                    if (AttitudeMode == PhoneState.Attitude_FCF) {
+                        worldData =  myMath.coordinatesTransform(fcf.Rot_matrix, event.values);
                     }
 
                     this.gyroNow = (new GyroData(event.values)).toString();
@@ -345,18 +341,18 @@ public class DetectorSensorListener implements SensorEventListener {
                     magnetOri = magLPF.filter(event.values);
                     magOriNew = true;
                     float[] worldData = new float[3];
-                    if (AttitudeMode == Attitude_EKF) {
+                    if (AttitudeMode == PhoneState.Attitude_EKF) {
                         worldData = myMath.coordinatesTransform(ekf.Rot_matrix, event.values);
                     }
-                    if (AttitudeMode == Attitude_GDF) {
+                    if (AttitudeMode == PhoneState.Attitude_GDF) {
                         worldData = myMath.coordinatesTransform(gdf.Rot_Matrix, event.values);
                     }
-                    if (AttitudeMode == Attitude_ANDROID) {
+                    if (AttitudeMode == PhoneState.Attitude_ANDROID) {
                         worldData = myMath.coordinatesTransform(DCM, event.values);
                     }
-                    if (AttitudeMode == Attitude_FCF) {
+                    if (AttitudeMode == PhoneState.Attitude_FCF) {
                         //worldData = myMath.coordinatesTransform(DCM, event.values);
-                        worldData = fcf.translate_to_NED(fcf.q_est, event.values);
+                        worldData =  myMath.coordinatesTransform(fcf.Rot_matrix, event.values);
                     }
                     //this.magNow = (new MagnetData(temp)).toString();
                     this.magNow = (new MagnetData(event.values)).toString();

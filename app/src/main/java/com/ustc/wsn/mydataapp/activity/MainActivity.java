@@ -19,11 +19,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ustc.wsn.mydataapp.R;
 import com.ustc.wsn.mydataapp.bean.outputFile;
 
 import java.io.File;
-
-import detector.wsn.ustc.com.mydataapp.R;
 
 /**
  * Created by halo on 2017/9/6.

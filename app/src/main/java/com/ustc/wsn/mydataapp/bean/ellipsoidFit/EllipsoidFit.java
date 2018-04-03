@@ -9,16 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * Creates an example of fitting a sphere with center = [0,0,0] and radii =
- * [1,1,1] and an ellipsoid with with center = [2,2,2] and radii = [1.4,1.3,1.2]
- * 
- * Apache License Version 2.0, January 2004.
- * 
- * @author Kaleb
- * @version 1.0
- * 
- */
 public class EllipsoidFit
 {
 	final String TAG = EllipsoidFit.class.toString();

@@ -16,17 +16,14 @@ import android.view.Gravity;
 import android.widget.Toast;
 
 import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
+import com.ustc.wsn.mydataapp.Listenter.DetectorSensorListener;
 import com.ustc.wsn.mydataapp.bean.CellInfo;
 import com.ustc.wsn.mydataapp.bean.StoreData;
-import com.ustc.wsn.mydataapp.Listenter.DetectorSensorListener;
-import com.ustc.wsn.mydataapp.utils.z7Test;
+import com.ustc.wsn.mydataapp.utils.z7Compression;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-
-import com.ustc.wsn.mydataapp.bean.PhoneState;
 
 public class DetectorService extends Service {
     protected final String TAG = DetectorService.this.toString();
@@ -378,7 +375,7 @@ public class DetectorService extends Service {
                         sd.newRawDataFile();//创建新的txt文件供写入
                         rawFileReadFlag = false;
                         try {
-                            z7Test.z7(inputPath, outputPath);
+                            z7Compression.z7(inputPath, outputPath);
                         } catch (IOException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();

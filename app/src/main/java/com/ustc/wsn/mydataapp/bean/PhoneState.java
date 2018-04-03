@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 
 public class PhoneState {
-    private static final String TAG = "PhoneStateClass";
+    private static final String TAG = PhoneState.class.toString();
     public int PHONE_STATE = 0;
     //手机状态
     public static final int ABSOLUTE_STATIC_STATE = 1;
@@ -22,6 +22,13 @@ public class PhoneState {
     public static final int BIKE_STATE = 5;
     public static final int CAR_STATE = 6;
     public static final int UNKONW_STATE = 5;
+
+    //姿态解算模式
+    public static final int Attitude_GYRO = 0;
+    public static final int Attitude_ANDROID = 1;
+    public static final int Attitude_EKF = 2;
+    public static final int Attitude_FCF = 3;
+    public static final int Attitude_GDF = 4;
 
     //状态判定参数
     public static float ACC_ABSOLUTE_STATIC_THRESHOLD = 0.01f;

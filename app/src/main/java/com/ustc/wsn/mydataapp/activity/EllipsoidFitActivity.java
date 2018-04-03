@@ -1,36 +1,27 @@
 package com.ustc.wsn.mydataapp.activity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.app.Activity;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
-import com.ustc.wsn.mydataapp.bean.outputFile;
+import com.ustc.wsn.mydataapp.R;
 import com.ustc.wsn.mydataapp.bean.ellipsoidFit.EllipsoidFit;
 import com.ustc.wsn.mydataapp.bean.ellipsoidFit.ThreeSpacePoint;
-import com.ustc.wsn.mydataapp.service.ChartService;
-
-import org.achartengine.GraphicalView;
+import com.ustc.wsn.mydataapp.bean.outputFile;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Timer;
-
-import detector.wsn.ustc.com.mydataapp.R;
 
 public class EllipsoidFitActivity extends Activity implements View.OnClickListener{
 

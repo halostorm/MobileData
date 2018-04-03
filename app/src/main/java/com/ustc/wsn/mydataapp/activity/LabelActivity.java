@@ -1,37 +1,28 @@
 package com.ustc.wsn.mydataapp.activity;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.app.Activity;
-import android.os.Handler;
-import android.os.SystemClock;
-import android.view.Gravity;
+import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
-import android.widget.Button;
-import android.annotation.SuppressLint;
-import android.content.ComponentName;
-import android.content.ServiceConnection;
-import android.location.LocationManager;
-import android.os.IBinder;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Switch;
 import android.widget.Toast;
 
+import com.ustc.wsn.mydataapp.R;
 import com.ustc.wsn.mydataapp.service.DetectorService;
 
-import java.lang.reflect.Method;
 import java.util.Timer;
-import java.util.TimerTask;
-
-import detector.wsn.ustc.com.mydataapp.R;
 
 public class LabelActivity extends Activity implements OnClickListener {
 

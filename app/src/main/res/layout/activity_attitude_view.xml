@@ -1,9 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.ustc.wsn.mydataapp.activity.AttitudeViewActivity">
+
+    <LinearLayout
+        android:id="@+id/attView"
+        android:layout_width="fill_parent"
+        android:layout_height="400dp"
+        android:layout_marginBottom="1dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TableRow>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnEKF"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@layout/button_round"
+                        android:gravity="center"
+                        android:text="扩展卡尔曼滤波算法"
+                        android:textColor="@color/grey" />
+
+                    <Button
+                        android:id="@+id/btnFCF"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_toRightOf ="@id/btnEKF"
+                        android:background="@layout/button_round"
+                        android:gravity="center"
+                        android:text="快速互补滤波算法"
+                        android:textAlignment="center"
+                        android:textColor="@color/grey" />
+
+                    <Button
+                        android:id="@+id/btnGDF"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_toRightOf ="@id/btnFCF"
+                        android:background="@layout/button_round"
+                        android:gravity="center"
+                        android:text="梯度下降滤波算法"
+                        android:textColor="@color/grey" />
+
+                </LinearLayout>
+            </TableRow>
+
+            <TableRow>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnGyro"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@layout/button_round"
+                        android:gravity="center"
+                        android:text="仅陀螺仪解算(EKF周期标定)"
+                        android:textAlignment="center"
+                        android:textColor="@color/grey" />
+
+                    <Button
+                        android:id="@+id/btnAndroid"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@layout/button_round"
+                        android:layout_marginLeft="10dp"
+                        android:layout_toRightOf ="@id/btnAndroid"
+                        android:gravity="center"
+                        android:text="Android自带-加速度+罗盘解算"
+                        android:textAlignment="center"
+                        android:textColor="@color/grey" />
+                </LinearLayout>
+            </TableRow>
+
+        </TableLayout>
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -17,15 +17,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Window;
-import android.view.animation.RotateAnimation;
 import android.widget.Toast;
 
 import com.nulana.NChart.NChartView;
-import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
 import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
+import com.ustc.wsn.mydataapp.R;
 import com.ustc.wsn.mydataapp.service.TrackService;
 
-import detector.wsn.ustc.com.mydataapp.R;
 public class ChartingDemoActivity extends Activity {
     private final String TAG = ChartingDemoActivity.class.toString();
     NChartView mNChartView;

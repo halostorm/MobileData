@@ -2,6 +2,8 @@ package com.ustc.wsn.mydataapp.bean.Filter;
 
 import android.util.Log;
 
+import com.ustc.wsn.mydataapp.bean.math.myMath;
+
 /**
  * Created by halo on 2018/1/17.
  */
@@ -13,8 +15,10 @@ public class FCF {
     public float[] gyro;
     public float[] mag;
     public float[] euler;
+    public float[] Rot_matrix;
     float[] last_q;
     public float[] q_est;
+    public float[] q;
     float time;//s
     public float dt;
     float gain_a;
@@ -56,14 +60,15 @@ public class FCF {
         last_q[1] = q_est[1];
         last_q[2] = q_est[2];
         last_q[3] = q_est[3];
-        q2Euler();
-        return q_est;
-    }
 
-    public void q2Euler(){
-        euler[0] = (float) Math.atan2(2.0f * (q_est[0] * q_est[1] + q_est[2] * q_est[3]), 1.0f - 2.0f * (q_est[1] * q_est[1] + q_est[2] * q_est[2]));
-        euler[1] = (float)Math.asin(2.0f * (q_est[0] * q_est[2] - q_est[3] * q_est[1]));
-        euler[2] = (float) Math.atan2(2.0f * (q_est[0] * q_est[3] + q_est[1] * q_est[2]), 1.0f - 2.0f * (q_est[2] * q_est[2] + q_est[3] * q_est[3]));
+        q = new float[4];
+        q[0] = -q_est[1];
+        q[1] = q_est[0];
+        q[2] = -q_est[3];
+        q[3] = q_est[2];
+        Rot_matrix = myMath.Q2Rot(q_est);
+        euler = myMath.Rot2Euler(Rot_matrix);
+        return q_est;
     }
 
     public float InSqrt(float x) {
@@ -281,26 +286,5 @@ public class FCF {
 
         return;
 
-    }
-
-    public float[] translate_to_NED(float[] q, float[] data) {
-
-        float q0q0 = q[0] * q[0];
-        float q1q1 = q[1] * q[1];
-        float q2q2 = q[2] * q[2];
-        float q3q3 = q[3] * q[3];
-        float[] data_NED = new float[3];
-        data_NED[0] = data[0] * (q0q0 + q1q1 - q2q2 - q3q3) +
-                data[1] * 2.0f * (q[1] * q[2] - q[0] * q[3]) +
-                data[2] * 2.0f * (q[1] * q[3] + q[0] * q[2]);
-
-        data_NED[1] = data[0] * 2.0f * (q[1] * q[2] + q[0] * q[3]) +
-                data[1] * (q0q0 - q1q1 + q2q2 - q3q3) +
-                data[2] * 2.0f * (q[2] * q[3] - q[0] * q[1]);
-
-        data_NED[2] = data[0] * 2.0f * (q[1] * q[3] - q[0] * q[2]) +
-                data[1] * 2.0f * (q[2] * q[3] + q[0] * q[1]) +
-                data[2] * (q0q0 - q1q1 - q2q2 + q3q3);
-        return data_NED;
     }
 }

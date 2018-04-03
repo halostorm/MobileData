@@ -5,27 +5,25 @@ package com.ustc.wsn.mydataapp.activity;
  */
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.app.Activity;
-import android.os.Environment;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
-import android.view.View.OnClickListener;
 
+import com.ustc.wsn.mydataapp.R;
 import com.ustc.wsn.mydataapp.bean.outputFile;
 import com.ustc.wsn.mydataapp.utils.UploadManagers;
-
-import detector.wsn.ustc.com.mydataapp.R;
 
 public class UploadActivity extends Activity implements OnClickListener {
 

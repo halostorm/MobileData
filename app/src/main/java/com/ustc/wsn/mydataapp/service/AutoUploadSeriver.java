@@ -1,7 +1,6 @@
 package com.ustc.wsn.mydataapp.service;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
@@ -15,7 +14,7 @@ import com.ustc.wsn.mydataapp.dao.SQLOperate;
 import com.ustc.wsn.mydataapp.db.MessageDBHelper;
 import com.ustc.wsn.mydataapp.utils.GsonUtils;
 import com.ustc.wsn.mydataapp.utils.MD5Util;
-import com.ustc.wsn.mydataapp.utils.z7Test;
+import com.ustc.wsn.mydataapp.utils.z7Compression;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -25,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.String;
 import java.util.StringTokenizer;
 
 /**
@@ -169,7 +167,7 @@ public class AutoUploadSeriver extends Service {
                 File z7Raw = new File(z7Name + "_.7z");
                 String outputPath = z7Raw.getPath();
                 try {
-                    z7Test.z7(inputPath, outputPath);
+                    z7Compression.z7(inputPath, outputPath);
                     //Log.d(TAG,"packdone");
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
