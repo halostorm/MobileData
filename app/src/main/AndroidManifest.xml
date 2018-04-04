@@ -17,14 +17,14 @@
         android:required="true" />
 
     <application
-        android:name="com.ustc.wsn.mydataapp.Application.AppResourceApplication"
+        android:name=".Application.AppResourceApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:persistent="true"
         android:theme="@android:style/Theme.DeviceDefault.Light">
         <activity
-            android:name="com.ustc.wsn.mydataapp.activity.MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/app_name">
             <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.MAIN" />
@@ -33,63 +33,68 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.ustc.wsn.mydataapp.activity.DetectorActivity"
+            android:name=".activity.DetectorActivity"
             android:label="@string/app_name" />
 
         <service
-            android:name="com.ustc.wsn.mydataapp.service.DetectorService"
+            android:name=".service.DetectorService"
             android:enabled="true">
             <intent-filter android:priority="1000">
                 <action android:name="com.ustc.wsn.mydataapp.activity.DetectorActivity" />
             </intent-filter>
         </service>
-        <service android:name="com.ustc.wsn.mydataapp.service.AutoUploadSeriver">
+        <service android:name=".service.AutoUploadSeriver">
             <intent-filter android:priority="1000">
                 <action android:name="com.ustc.wsn.mydataapp.service.AutoUploadSeriver" />
             </intent-filter>
         </service>
         <service
-            android:name="com.ustc.wsn.mydataapp.service.GpsService"
+            android:name=".service.GpsService"
             android:enabled="true"
             android:exported="true" />
 
         <activity
-            android:name="com.ustc.wsn.mydataapp.activity.SimulationActivity"
+            android:name=".activity.SimulationActivity"
             android:label="传感器视图" />
 
         <service
-            android:name="com.ustc.wsn.mydataapp.service.ChartService"
+            android:name=".service.ChartService"
             android:enabled="true"
             android:exported="true" />
 
         <activity
-            android:name="com.ustc.wsn.mydataapp.activity.LabelActivity"
+            android:name=".activity.LabelActivity"
             android:label="标签"
             android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.MinWidth" />
         <activity
-            android:name="com.ustc.wsn.mydataapp.activity.UploadActivity"
+            android:name=".activity.UploadActivity"
             android:label="上传数据"
             android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.MinWidth" />
 
         <service
-            android:name="com.ustc.wsn.mydataapp.service.TrackService"
+            android:name=".service.TrackService"
             android:enabled="true"
             android:exported="true" />
 
         <activity
-            android:name="com.ustc.wsn.mydataapp.activity.ChartingDemoActivity"
+            android:name=".activity.ChartingDemoActivity"
             android:enabled="true"
             android:exported="true"
             android:label="轨迹" />
         <activity
-            android:name="com.ustc.wsn.mydataapp.activity.CalibrateStateActivity"
+            android:name=".activity.CalibrateStateActivity"
             android:label="状态调试" />
         <activity
-            android:name="com.ustc.wsn.mydataapp.activity.EllipsoidFitActivity"
+            android:name=".activity.EllipsoidFitActivity"
             android:label="校准加速度计" />
         <activity
-            android:name="com.ustc.wsn.mydataapp.activity.AttitudeViewActivity"
+            android:name=".activity.AttitudeViewActivity"
             android:label="手机姿态" />
+
+        <service
+            android:name=".service.PathService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

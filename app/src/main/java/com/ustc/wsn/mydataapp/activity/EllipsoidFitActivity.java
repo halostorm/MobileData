@@ -3,6 +3,7 @@ package com.ustc.wsn.mydataapp.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -23,8 +24,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class EllipsoidFitActivity extends Activity implements View.OnClickListener{
-
+public class EllipsoidFitActivity extends Activity implements View.OnClickListener {
+    private final String TAG = EllipsoidFitActivity.class.toString();
     private boolean ACCELERATOR_EXIST = false;
     private boolean GYROSCROPE_EXIST = false;
     private boolean MAGNETIC_EXIST = false;
@@ -40,6 +41,10 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
     private boolean ifCollect = false;
     private boolean ifFit = false;
 
+    private Button start;
+    private Button stop;
+    private Button save;
+
     private EllipsoidFit fit;
     private float[] params = new float[12];//系数矩阵-9 + 偏移向量-3 = 12
     private ArrayList<ThreeSpacePoint> sample = new ArrayList<ThreeSpacePoint>();
@@ -48,13 +53,13 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ellipsoid_fit);
-        Button start = (Button) findViewById(R.id.btnStartEllipsoidFit);
+        start = (Button) findViewById(R.id.btnStartEllipsoidFit);
         start.setOnClickListener(this);
 
-        Button stop = (Button) findViewById(R.id.btnStopEllipsoidFit);
+        stop = (Button) findViewById(R.id.btnStopEllipsoidFit);
         stop.setOnClickListener(this);
 
-        Button save = (Button) findViewById(R.id.btnSaveEllipsoidFit);
+        save = (Button) findViewById(R.id.btnSaveEllipsoidFit);
         save.setOnClickListener(this);
     }
 
@@ -62,14 +67,16 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnStartEllipsoidFit:
-                if(!ifCollect) {
+                if (!ifCollect) {
+                    start.setTextColor(Color.BLUE);
                     collectSample();
                     ifCollect = true;
                 }
                 break;
             case R.id.btnStopEllipsoidFit:
-                if(ifCollect){
+                if (ifCollect) {
                     try {
+                        start.setTextColor(Color.BLACK);
                         threadDisable_data_update = true;
                         fit = new EllipsoidFit(sample);
                         ifFit = true;
@@ -79,11 +86,11 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
                 }
                 break;
             case R.id.btnSaveEllipsoidFit:
-                if(ifFit){
+                if (ifFit) {
                     params = fit.getParams();
                     String out = "";
-                    for(int i =0;i<params.length;i++){
-                        out +=params[i]+"\t";
+                    for (int i = 0; i < params.length; i++) {
+                        out += params[i] + "\t";
                     }
                     File accParams = outputFile.getAccParamsFile();
                     try {
@@ -99,7 +106,7 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
         }
     }
 
-    private void collectSample(){
+    private void collectSample() {
         initSensor();
         new Thread(new Runnable() {
             @Override
@@ -111,7 +118,7 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
                         e.printStackTrace();
                     }
                     float[] acc = sensorListener.readRawAccData(0);
-                    ThreeSpacePoint tsp = new ThreeSpacePoint(acc[0],acc[1],acc[2]);
+                    ThreeSpacePoint tsp = new ThreeSpacePoint(acc[0], acc[1], acc[2]);
                     sample.add(tsp);
                 }
             }
@@ -123,6 +130,8 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
         Log.d("Sensor", "InitSensor Over");
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerator = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        float accMax = accelerator.getMaximumRange();
+        Log.d(TAG, "accMaxRange\t" + accMax);
         if (accelerator != null) {
             ACCELERATOR_EXIST = true;
         } else {
@@ -131,6 +140,8 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
             t.show();
         }
         gyroscrope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        float gyroMax = gyroscrope.getMaximumRange();
+        Log.d(TAG, "gyroMaxRange\t" + gyroMax);
         if (gyroscrope != null) {
             GYROSCROPE_EXIST = true;
         } else {
@@ -139,6 +150,8 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
             t.show();
         }
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        float magMax = magnetic.getMaximumRange();
+        Log.d(TAG, "magMaxRange\t" + magMax);
         if (magnetic != null) {
             MAGNETIC_EXIST = true;
         } else {
@@ -146,16 +159,15 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        sensorListener = new TrackSensorListener(false);
+        sensorListener = new TrackSensorListener(accMax, gyroMax, magMax, true);
         if (ACCELERATOR_EXIST) {
-            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME);
         }
         if (GYROSCROPE_EXIST) {
-            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME);
         }
         if (MAGNETIC_EXIST) {
-            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
         }
     }
 
@@ -163,7 +175,7 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
     protected void onDestroy() {
         super.onDestroy();
         threadDisable_data_update = true;
-        if(sensorListener!=null) {
+        if (sensorListener != null) {
             sensorListener.closeSensorThread();
             sm.unregisterListener(sensorListener);
         }

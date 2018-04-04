@@ -1,8 +1,5 @@
 package com.ustc.wsn.mydataapp.bean.math;
 
-import static java.lang.Math.asin;
-import static java.lang.Math.atan2;
-
 /**
  * Created by halo on 2018/3/26.
  */
@@ -11,6 +8,14 @@ public class myMath {
     //统计库
     public static final float PI = 3.1416f;
     public static final float G = 9.807f;
+
+    public static float getMoulding(float[] value){
+        float temp = 0;
+        for(int i=0;i<value.length;i++){
+            temp += value[i]*value[i];
+        }
+        return (float) Math.sqrt(temp);
+    }
 
     public static float getVar(float[] x) {
         int m = x.length;

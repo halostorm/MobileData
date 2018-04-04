@@ -28,6 +28,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import com.ustc.wsn.mydataapp.R;
@@ -35,13 +37,16 @@ import com.ustc.wsn.mydataapp.bean.PhoneState;
 import com.ustc.wsn.mydataapp.bean.outputFile;
 import com.ustc.wsn.mydataapp.service.DetectorService;
 import com.ustc.wsn.mydataapp.service.GpsService;
+import com.ustc.wsn.mydataapp.service.PathService;
 
+import java.io.File;
 import java.lang.reflect.Method;
 
 public class DetectorActivity extends Activity implements OnClickListener {
 
     protected Intent DetectorserviceIntent;
     protected Intent GpsserviceIntent;
+    protected Intent PathserviceIntent;
     protected Intent SimpleActivityIntent;
     protected Intent LabelActivityIntent;
     protected Intent UploadActivityIntent;
@@ -52,10 +57,17 @@ public class DetectorActivity extends Activity implements OnClickListener {
     private LocationManager loc_int;
     private Button btnStartService;
     private Button btnStopService;
+    private CheckBox btnGps;
+    private CheckBox btnPath;
     private String psw;
 
     private boolean gpsEnabled = true;
-    private boolean serviceStart = false;
+    private boolean pathEnabled = true;
+
+    private boolean detectorStart = false;
+    private boolean gpsStart = false;
+    private boolean pathStart = false;
+
     protected final String TAG = DetectorActivity.this.toString();
 
     @Override
@@ -64,12 +76,26 @@ public class DetectorActivity extends Activity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detector);
 
+        File accParams = outputFile.getAccParamsFile();
+        if(!accParams.exists()) {
+            Toast.makeText(DetectorActivity.this, "首次使用，请先校准加速度计！", Toast.LENGTH_LONG).show();
+            Intent intent1 = new Intent(DetectorActivity.this, EllipsoidFitActivity.class);
+            startActivity(intent1);
+        }
+
         loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         btnStartService = (Button) findViewById(R.id.btnStartService);
-        btnStopService = (Button) findViewById(R.id.btnStopService);
         btnStartService.setOnClickListener(this);
+
+        btnStopService = (Button) findViewById(R.id.btnStopService);
         btnStopService.setOnClickListener(this);
+
+        btnGps = (CheckBox) (findViewById(R.id.checkboxEnableGPS));
+        btnGps.setOnCheckedChangeListener(new GpsCheckBoxListener());
+
+        btnPath = (CheckBox) (findViewById(R.id.checkboxEnablePath));
+        btnPath.setOnCheckedChangeListener(new PathCheckBoxListener());
 
         Button ViewData = (Button) findViewById(R.id.btnViewData);
         ViewData.setOnClickListener(this);
@@ -103,6 +129,44 @@ public class DetectorActivity extends Activity implements OnClickListener {
         UploadActivityIntent.putExtra("userId", psw);
         AttitudeViewActivityIntent = new Intent(this, AttitudeViewActivity.class);
         trackActivityIntent = new Intent(this, ChartingDemoActivity.class);
+        PathserviceIntent = new Intent(this, PathService.class);
+    }
+
+    class GpsCheckBoxListener implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    gpsEnabled = true;
+                    if (detectorStart) {
+                        Log.d(TAG,"Gps manual Start--------------------------");
+                        startService(GpsserviceIntent);
+                    }
+                } else {
+                    gpsEnabled = false;
+                    if (gpsStart && detectorStart) {
+                        stopService(GpsserviceIntent);
+                    }
+                }
+        }
+    }
+
+    class PathCheckBoxListener implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+            if (isChecked) {
+                pathEnabled = true;
+                if (detectorStart) {
+                    startService(PathserviceIntent);
+                    Log.d(TAG,"Path manual Start--------------------------");
+                }
+            } else {
+                pathEnabled = false;
+                if (pathStart && detectorStart) {
+                    stopService(PathserviceIntent);
+                }
+            }
+        }
     }
 
     public void openSystemFile() {
@@ -221,27 +285,32 @@ public class DetectorActivity extends Activity implements OnClickListener {
         Toast.makeText(this, "Start", Toast.LENGTH_LONG);
         switch (view.getId()) {
             case R.id.btnStartService:
-                if (serviceStart == false) {
-                    loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                    // 判断GPS是否正常启动
-                    if (!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER)&& gpsEnabled) {
-                        t = Toast.makeText(this, "请开启高精度GPS！", Toast.LENGTH_SHORT);
-                        t.setGravity(Gravity.CENTER, 0, 0);
-                        t.show();
-                        // 返回开启GPS导航设置界面
-                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivityForResult(intent, 0);
-                        if(!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-                            gpsEnabled = false;
+                if (detectorStart == false) {
+
+                    startService(DetectorserviceIntent);
+                    btnStartService.setText("采集中");
+                    btnStartService.setTextColor(Color.BLUE);
+                    detectorStart = true;
+
+                    if (gpsEnabled) {
+                        loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        // 判断GPS是否正常启动
+                        while (!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER) && gpsEnabled) {
+                            t = Toast.makeText(this, "请开启高精度GPS！", Toast.LENGTH_SHORT);
+                            t.setGravity(Gravity.CENTER, 0, 0);
+                            t.show();
+                            // 返回开启GPS导航设置界面
+                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivityForResult(intent, 0);
                         }
-                    } else {
-                        startService(DetectorserviceIntent);
-                        if(gpsEnabled) {
-                            startService(GpsserviceIntent);
-                        }
-                        serviceStart = true;
-                        btnStartService.setText("采集中");
-                        btnStartService.setTextColor(Color.BLUE);
+                        startService(GpsserviceIntent);
+                        Log.d(TAG,"Gps Together Start--------------------------");
+                        gpsStart = true;
+                    }
+                    if (pathEnabled) {
+                        startService(PathserviceIntent);
+                        Log.d(TAG,"Path Together Start--------------------------");
+                        pathStart = true;
                     }
                 }
                 break;
@@ -249,23 +318,31 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 startActivity(SimpleActivityIntent);
                 break;
             case R.id.btnStopService:
-                if (serviceStart == true) {
+                if (detectorStart == true) {
                     // unbindService(conn);
                     stopService(DetectorserviceIntent);
-                    stopService(GpsserviceIntent);
+                    detectorStart = false;
+                    btnStartService.setText("开始采集");
+                    btnStartService.setTextColor(Color.BLACK);
+                    if (gpsStart == true) {
+                        stopService(GpsserviceIntent);
+                        gpsStart = false;
+                    }
+                    if (pathStart == true) {
+                        stopService(PathserviceIntent);
+                        pathStart = false;
+                    }
                     /*
                     t = Toast.makeText(this, "停止采集", Toast.LENGTH_SHORT);
                     t.setGravity(Gravity.CENTER, 0, 0);
                     t.show();
                     */
-                    serviceStart = false;
-                    btnStartService.setText("开始采集");
-                    btnStartService.setTextColor(Color.BLACK);
+
                     break;
                 }
                 break;
             case R.id.btnStartLabel:
-                if (serviceStart == true) {
+                if (detectorStart == true) {
                     startActivity(LabelActivityIntent);
                     break;
                 } else {

@@ -5,80 +5,111 @@
 
     <Button
         android:id="@+id/btnStartService"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@layout/label_round"
-        android:elevation="10dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginTop="10dp"
+        android:background="@layout/label_round"
+        android:elevation="10dp"
         android:text="采集数据" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="10dp">
+
+        <CheckBox
+            android:id="@+id/checkboxEnableGPS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@layout/label_round"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="30dp"
+            android:elevation="10dp"
+            android:checked="true"
+            android:text="启动GPS" />
+
+        <CheckBox
+            android:id="@+id/checkboxEnablePath"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@layout/label_round"
+            android:layout_toRightOf="@id/checkboxEnableGPS"
+            android:checked="true"
+            android:elevation="10dp"
+            android:text="启动轨迹" />
+
+    </RelativeLayout>
 
     <Button
         android:id="@+id/btnStopService"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@layout/label_round"
-        android:elevation="10dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginTop="10dp"
+        android:background="@layout/label_round"
+        android:elevation="10dp"
         android:text="停止采集" />
 
     <Button
         android:id="@+id/btnStartLabel"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@layout/label_round"
-        android:elevation="10dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginTop="10dp"
+        android:background="@layout/label_round"
+        android:elevation="10dp"
         android:text="标记数据" />
 
     <Button
         android:id="@+id/btnViewData"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@layout/label_round"
-        android:elevation="10dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginTop="10dp"
+        android:background="@layout/label_round"
+        android:elevation="10dp"
         android:text="查看数据视图" />
+
     <Button
         android:id="@+id/btnAttView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@layout/label_round"
-        android:elevation="10dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginTop="10dp"
+        android:background="@layout/label_round"
+        android:elevation="10dp"
         android:text="手机实时姿态视图" />
 
     <Button
         android:id="@+id/btnTrack"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@layout/label_round"
-        android:elevation="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:background="@layout/label_round"
+        android:elevation="10dp"
         android:text="轨迹还原" />
 
     <Button
         android:id="@+id/btnBeginUploadActivity"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@layout/label_round"
-        android:elevation="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:background="@layout/label_round"
+        android:elevation="10dp"
         android:text="上传数据" />
 
 </LinearLayout>

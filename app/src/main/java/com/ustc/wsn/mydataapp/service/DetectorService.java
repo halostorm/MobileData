@@ -178,11 +178,8 @@ public class DetectorService extends Service {
                     for (int i_2 = 0; i_2 < windowSize; i_2++) {
                         //outStoreRaw[i_2] = cLabel + "\t" +"q0"+ "\t" +"q1"+ "\t" +"q2"+"\t" +"q3"+ "\t"
                         //       + ROT[i_2]+"\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2]+"\t" + BEAR[i_2];
-                        outStoreRaw[i_2] = "time"+"\t"+"q0"+ "\t" +"q1"+ "\t" +"q2"+"\t" +"q3"+ "\t" + ROT[i_2]+ "\t"+ cLabel + "\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2] + "\t" + BEAR[i_2];
+                        outStoreRaw[i_2] = cLabel + "\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2] + "\t" + BEAR[i_2];
                     }
-
-                    // sensorListener.ifABSOLUTE_STATE();
-
 
                     /*
                     // 均值压缩

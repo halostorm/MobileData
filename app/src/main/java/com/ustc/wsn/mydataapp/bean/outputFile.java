@@ -9,7 +9,6 @@ import android.os.Environment;
 import com.ustc.wsn.mydataapp.utils.TimeUtil;
 
 import java.io.File;
-import java.io.FileReader;
 
 public class outputFile {
 
@@ -82,7 +81,7 @@ public class outputFile {
     }
 
     public static File getPathFile() {
-        pathFile = new File(dir, "path.txt");
+        pathFile = new File(dir, "path"+ "_" + TimeUtil.getTime_name(current_time) + ".txt");
         return pathFile;
     }
 

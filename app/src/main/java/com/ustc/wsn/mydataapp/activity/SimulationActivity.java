@@ -37,7 +37,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class SimulationActivity extends Activity {
-
+    private final String TAG = SimulationActivity.class.toString();
     public int FRAME_TYPE = 0;//0 - phone frame/ 1 - inertial frame
     private boolean ACCELERATOR_EXIST = false;
     private boolean GYROSCROPE_EXIST = false;
@@ -282,6 +282,8 @@ public class SimulationActivity extends Activity {
         Log.d("Sensor", "InitSensor Over");
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerator = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        float accMax = accelerator.getMaximumRange();
+        Log.d(TAG,"accMaxRange\t"+accMax);
         if (accelerator != null) {
             ACCELERATOR_EXIST = true;
         } else {
@@ -290,6 +292,8 @@ public class SimulationActivity extends Activity {
             t.show();
         }
         gyroscrope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        float gyroMax = gyroscrope.getMaximumRange();
+        Log.d(TAG,"gyroMaxRange\t"+gyroMax);
         if (gyroscrope != null) {
             GYROSCROPE_EXIST = true;
         } else {
@@ -298,6 +302,8 @@ public class SimulationActivity extends Activity {
             t.show();
         }
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        float magMax = magnetic.getMaximumRange();
+        Log.d(TAG,"magMaxRange\t"+magMax);
         if (magnetic != null) {
             MAGNETIC_EXIST = true;
         } else {
@@ -305,10 +311,9 @@ public class SimulationActivity extends Activity {
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        sensorListener = new TrackSensorListener(false);
+        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,true);
         if (ACCELERATOR_EXIST) {
-            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
         }
         if (GYROSCROPE_EXIST) {
             sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME );

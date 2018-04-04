@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +24,8 @@ import com.ustc.wsn.mydataapp.R;
 import com.ustc.wsn.mydataapp.bean.outputFile;
 
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by halo on 2017/9/6.
@@ -35,6 +38,7 @@ public class MainActivity extends Activity {
         System.loadLibrary("native-lib");
     }
 */
+    protected Boolean isExit = false;
     @SuppressLint("ResourceAsColor")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -53,9 +57,8 @@ public class MainActivity extends Activity {
         //Calibrate accel if app is firstly used
         File accParams = outputFile.getAccParamsFile();
         if(!accParams.exists()){
-            Toast.makeText(MainActivity.this, "首次使用，请先校准加速度计！", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(MainActivity.this, EllipsoidFitActivity.class);
-            startActivity(intent);
+            Toast.makeText(MainActivity.this, "首次使用，请查看使用说明！", Toast.LENGTH_LONG).show();
+            showHelpDialog();
         }
     }
 
@@ -114,6 +117,34 @@ public class MainActivity extends Activity {
         }
     };
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode==KeyEvent.KEYCODE_BACK){
+            exitByDoubleClick();
+        }
+        if(keyCode==KeyEvent.KEYCODE_HOME){
+            //exitByDoubleClick();
+        }
+        return false;
+    }
+
+    private void exitByDoubleClick() {
+        Timer tExit;
+        if(!isExit){
+            isExit=true;
+            Toast.makeText(this,"再按一次退出 Mobile Data !",Toast.LENGTH_SHORT).show();
+            tExit=new Timer();
+            tExit.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    isExit=false;//取消退出
+                }
+            },1000);// 如果1秒钟内没有按下返回键，则启动定时器取消掉刚才执行的任务
+        }else{
+            finish();
+            System.exit(0);
+        }
+    }
     /*
     public native String stringFromJNI();
     public native String getName();

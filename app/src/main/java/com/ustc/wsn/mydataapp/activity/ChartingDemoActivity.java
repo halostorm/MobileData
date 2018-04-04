@@ -109,11 +109,14 @@ public class ChartingDemoActivity extends Activity {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    position = sensorListener.getPosition();
-                    int mark = sensorListener.getPosition_mark();
-                    if(position!=null) {
-                        track.setPosition(position,mark);
-                        track.updateData(i);
+                    if(sensorListener.ifNewPath()) {
+                        sensorListener.NewPath = false;
+                        position = sensorListener.getPosition();
+                        int mark = sensorListener.getPosition_mark();
+                        if (position != null) {
+                            track.setPosition(position, mark);
+                            track.updateData(i);
+                        }
                     }
                 }
             }
@@ -125,6 +128,8 @@ public class ChartingDemoActivity extends Activity {
         Log.d("Sensor", "InitSensor Over");
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerator = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        float accMax = accelerator.getMaximumRange();
+        Log.d(TAG,"accMaxRange\t"+accMax);
         if (accelerator != null) {
             ACCELERATOR_EXIST = true;
         } else {
@@ -133,6 +138,8 @@ public class ChartingDemoActivity extends Activity {
             t.show();
         }
         gyroscrope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        float gyroMax = gyroscrope.getMaximumRange();
+        Log.d(TAG,"gyroMaxRange\t"+gyroMax);
         if (gyroscrope != null) {
             GYROSCROPE_EXIST = true;
         } else {
@@ -141,6 +148,8 @@ public class ChartingDemoActivity extends Activity {
             t.show();
         }
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        float magMax = magnetic.getMaximumRange();
+        Log.d(TAG,"magMaxRange\t"+magMax);
         if (magnetic != null) {
             MAGNETIC_EXIST = true;
         } else {
@@ -148,8 +157,7 @@ public class ChartingDemoActivity extends Activity {
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-                //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        sensorListener = new TrackSensorListener(true);
+        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,true);
         if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
         }
@@ -190,7 +198,6 @@ public class ChartingDemoActivity extends Activity {
 
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                Log.d(TAG,"bengin touch time \t"+System.currentTimeMillis());
                 break;
             case MotionEvent.ACTION_MOVE:
                 break;
