@@ -4,9 +4,32 @@ package com.ustc.wsn.mydataapp.service;
  * Created by halo on 2018/1/17.
  */
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.IBinder;
+
+import com.nulana.NChart.NChart;
+import com.nulana.NChart.NChartAnimationType;
+import com.nulana.NChart.NChartBrush;
+import com.nulana.NChart.NChartBubbleSeries;
+import com.nulana.NChart.NChartDelegate;
+import com.nulana.NChart.NChartEventPhase;
+import com.nulana.NChart.NChartMargin;
+import com.nulana.NChart.NChartMarker;
+import com.nulana.NChart.NChartMarkerShape;
+import com.nulana.NChart.NChartPoint;
+import com.nulana.NChart.NChartPointState;
+import com.nulana.NChart.NChartSeries;
+import com.nulana.NChart.NChartSeriesDataSource;
+import com.nulana.NChart.NChartShadingModel;
+import com.nulana.NChart.NChartSolidColorBrush;
+import com.nulana.NChart.NChartView;
+
+import java.util.Random;
+
 /**
  * Disclaimer: IMPORTANT:  This Nulana software is supplied to you by Nulana
  * LTD ("Nulana") in consideration of your agreement to the following
@@ -46,37 +69,9 @@ import android.os.IBinder;
  * Copyright (C) 2017 Nulana LTD. All Rights Reserved.
  */
 
-import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.util.Log;
-
-import com.nulana.NChart.NChart;
-import com.nulana.NChart.NChartAnimationType;
-import com.nulana.NChart.NChartBrush;
-import com.nulana.NChart.NChartBrushScale;
-import com.nulana.NChart.NChartBubbleSeries;
-import com.nulana.NChart.NChartDelegate;
-import com.nulana.NChart.NChartEventPhase;
-import com.nulana.NChart.NChartFont;
-import com.nulana.NChart.NChartMargin;
-import com.nulana.NChart.NChartMarker;
-import com.nulana.NChart.NChartMarkerShape;
-import com.nulana.NChart.NChartModel;
-import com.nulana.NChart.NChartPoint;
-import com.nulana.NChart.NChartPointState;
-import com.nulana.NChart.NChartSeries;
-import com.nulana.NChart.NChartSeriesDataSource;
-import com.nulana.NChart.NChartShadingModel;
-import com.nulana.NChart.NChartSolidColorBrush;
-import com.nulana.NChart.NChartValueAxesType;
-import com.nulana.NChart.NChartView;
-
-import java.util.Random;
-
 public class TrackService extends Service implements NChartSeriesDataSource, NChartDelegate {
     private final String TAG = TrackService.this.toString();
-    private NChartView mNChartView;
+    public NChartView mNChartView;
     private static int window_size;
     private boolean drawIn3D;
     private NChartBrush brushes;
@@ -111,11 +106,11 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
         position = new float[this.window_size][3];
 
         //Switch on antialiasing.
-        mNChartView.getChart().setShouldAntialias(true);
         if (drawIn3D) {
             // Switch 3D on.
             //NChartValueAxesType type = new NChartValueAxesType(NChartValueAxesType.Absolute);
             mNChartView.getChart().setDrawIn3D(true);
+            mNChartView.getChart().getCartesianSystem().setBorderVisible(true);
             mNChartView.getChart().getCartesianSystem().setMargin(new NChartMargin(30.0f, 30.0f, 10.0f, 20.0f));
             mNChartView.getChart().getPolarSystem().setMargin(new NChartMargin(30.0f, 30.0f, 10.0f, 20.0f));
         } else {
@@ -148,7 +143,7 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
     public NChartPoint[] points(NChartSeries series) {
         // Create points with some data for the series.
         NChartPoint[] result = new NChartPoint[window_size + 1];
-        for (int i = 0; i <= window_size; i++) {
+        for (int i = 0; i < window_size+1; i++) {
             //Log.d("windowsize","windowsize:\t"+String.valueOf(window_size));
             NChartPointState[] states = new NChartPointState[1];
             if (i != window_size) {

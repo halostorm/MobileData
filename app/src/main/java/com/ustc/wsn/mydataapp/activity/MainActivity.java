@@ -3,19 +3,16 @@ package com.ustc.wsn.mydataapp.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,10 +43,11 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         new outputFile();
-
+        /*
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(outMetrics);
+        */
         EditText editText = (EditText) findViewById(R.id.IdNumber);
         TextView textView = (TextView) findViewById(R.id.btnlogin);
         textView.setTag(editText);
@@ -149,4 +147,10 @@ public class MainActivity extends Activity {
     public native String stringFromJNI();
     public native String getName();
     */
+    @Override
+    public void onStop(){
+        // TODO Auto-generated method stub
+        super.onStop();
+        onDestroy();
+    }
 }

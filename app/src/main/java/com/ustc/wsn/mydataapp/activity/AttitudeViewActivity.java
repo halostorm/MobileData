@@ -193,6 +193,13 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
     }
 
     @Override
+    public void onStop(){
+        // TODO Auto-generated method stub
+        super.onStop();
+        onDestroy();
+    }
+
+    @Override
     protected void onPause() {
         // TODO Auto-generated method stub
         super.onPause();

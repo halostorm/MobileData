@@ -180,4 +180,11 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
             sm.unregisterListener(sensorListener);
         }
     }
+
+    @Override
+    public void onStop(){
+        // TODO Auto-generated method stub
+        super.onStop();
+        onDestroy();
+    }
 }

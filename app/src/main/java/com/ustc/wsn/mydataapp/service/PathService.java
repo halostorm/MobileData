@@ -40,6 +40,7 @@ public class PathService extends Service {
 
     //path文件
     private File pathFile;
+    private File InterPathFile;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -53,6 +54,7 @@ public class PathService extends Service {
         super.onCreate();
 
         pathFile = outputFile.getPathFile();
+        InterPathFile = outputFile.getInterPathFile();
 
         initSensor();
 
@@ -66,6 +68,13 @@ public class PathService extends Service {
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
+                    BufferedWriter Interwriter = null;
+                    try {
+                        Interwriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(InterPathFile, true)));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
                     while (!threadDisable) {
                         try {
                             Thread.sleep(1000);
@@ -73,7 +82,7 @@ public class PathService extends Service {
                             e.printStackTrace();
                         }
                         if(sensorListener.ifNewPath()) {
-                            sensorListener.NewPath = false;
+                            sensorListener.ifNewPath = false;
                             StringBuffer PathBuffer = sensorListener.getPositionString();
                             try {
                                 Log.d(TAG, "Service path write");
@@ -82,6 +91,16 @@ public class PathService extends Service {
                             } catch (IOException e4) {
                                 e4.printStackTrace();
                             }
+
+                            StringBuffer InterPathBuffer = sensorListener.getInterPositionString();
+                            try {
+                                Log.d(TAG, "Service path write");
+                                Interwriter.write(InterPathBuffer.toString());
+                                Interwriter.flush();
+                            } catch (IOException e4) {
+                                e4.printStackTrace();
+                            }
+
                         }
                     }
                 }

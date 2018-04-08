@@ -14,8 +14,12 @@ import com.ustc.wsn.mydataapp.bean.Filter.MeanFilter;
 import com.ustc.wsn.mydataapp.bean.Filter.ekfParams;
 import com.ustc.wsn.mydataapp.bean.Filter.ekfParamsHandle;
 import com.ustc.wsn.mydataapp.bean.Log.myLog;
+import com.ustc.wsn.mydataapp.bean.PathData;
 import com.ustc.wsn.mydataapp.bean.PhoneState;
+import com.ustc.wsn.mydataapp.bean.math.PathIntegration;
 import com.ustc.wsn.mydataapp.bean.math.myMath;
+
+import java.util.ArrayList;
 
 /**
  * Created by halo on 2018/1/28.
@@ -46,9 +50,10 @@ public class TrackSensorListener implements SensorEventListener {
     private float ACC_VAR_STATIC_THRESHOLD;
 
     //路径参数
-    public boolean NewPath = false;
+    public boolean ifNewPath = false;
 
     private StringBuffer positionBuffer;
+    private StringBuffer InterpositionBuffer;
 
     private volatile float[][] gyroQueue = new float[DurationWindow * windowSize][3];//
     private volatile float[][] magQueue = new float[DurationWindow * windowSize][3];//
@@ -111,8 +116,6 @@ public class TrackSensorListener implements SensorEventListener {
 
     //线程参数
     private boolean threadDisable_data_update = false;
-
-
 
     //
     public TrackSensorListener(float accMaxRange, float gyroMaxRange, float magMaxRange, boolean enablePath) {
@@ -417,16 +420,29 @@ public class TrackSensorListener implements SensorEventListener {
                             Log.d(TAG, "accNow[2]:" + ":\t" + (accNow[2]));
                             //path输出数据缓存
                             StringBuffer pathOut = new StringBuffer();
+
+                            //path数据提取
+                            ArrayList<PathData> Path = new ArrayList<PathData>();
+                            PathData pathValue = new PathData(accWindow[beginFlag],gyroWindow[beginFlag],0f);
+                            Path.add(pathValue);
+
+                            float time0 = 0;
+                            int PathLength = 1;
+                            boolean ifInterpolation = false;
                             //开始计算Path
                             for (int i = beginFlag + 1; i < (StopWindow - 2) * windowSize + stopFlag; i++) {
+                                time0 += deltTWindow[i];
                                 //when i = 0, velocitySample[i] =0; positionSample[i] =0;
+                                pathValue = new PathData(accWindow[i],gyroWindow[i],time0);
+                                Path.add(pathValue);
+
                                 pathOut.append(timeWindow[i] + "\t");
 
                                 //角速度插值
                                 float[] W = myMath.matrixDivide(myMath.matrixAdd(gyroWindow[i], gyroWindow[i - 1]), 2);
                                 //float[] W = gyroWindow[i].clone();
 
-                                pathOut.append(W[0]);
+                                pathOut.append(W[0]+ "\t");
                                 pathOut.append(W[1] + "\t");
                                 pathOut.append(W[2] + "\t");
 
@@ -440,11 +456,13 @@ public class TrackSensorListener implements SensorEventListener {
 
                                 myLog.log(TAG, DcmQueue[i], "gyro DCM", 3);
 
-
                                 Log.d(TAG, "accWindow[i][0]:" + String.valueOf(i) + ":\t" + accWindow[i][0]);
                                 Log.d(TAG, "accWindow[i][1]:" + String.valueOf(i) + ":\t" + accWindow[i][1]);
                                 Log.d(TAG, "accWindow[i][2]:" + String.valueOf(i) + ":\t" + accWindow[i][2]);
 
+                                pathOut.append(accWindow[i][0] + "\t");
+                                pathOut.append(accWindow[i][1] + "\t");
+                                pathOut.append(accWindow[i][2] + "\t");
 
                                 ///新惯性加速度
                                 accNow = myMath.coordinatesTransform(DcmQueue[i], accWindow[i]);
@@ -489,12 +507,28 @@ public class TrackSensorListener implements SensorEventListener {
                                 Log.d(TAG, "position[0]" + String.valueOf(i) + ":\t" + positionQ[i][0]);
                                 Log.d(TAG, "position[1]" + String.valueOf(i) + ":\t" + positionQ[i][1]);
                                 Log.d(TAG, "position[2]" + String.valueOf(i) + ":\t" + positionQ[i][2]);
+                                PathLength++;
+
+                                ifInterpolation = true;
                             }
+
                             //输出path数据
                             pathOut.append("\n");
                             positionBuffer = pathOut;
+                            //positionQueue = new float[DurationWindow * windowSize*myMath.N][3];//位置队列
+                            Log.d(TAG,"PathLength\t"+PathLength);
+
+                            if(ifInterpolation) {
+                                PathIntegration pathTest = new PathIntegration(Path, PathLength);
+                                pathTest.setRotMatrix0(DCM_Static);
+                                pathTest.GenerateDataQueue();
+                                pathTest.CalPath(positionQueue);
+                                InterpositionBuffer = pathTest.getPathBuffer();
+                                ifInterpolation = false;
+                            }
+
                             positionQueue = positionQ.clone();
-                            NewPath = true;
+                            ifNewPath = true;
                         }//结束Path
 
                         LAST_STATE = NOW_STATE;
@@ -560,8 +594,12 @@ public class TrackSensorListener implements SensorEventListener {
         return positionBuffer;
     }
 
+    public StringBuffer getInterPositionString(){
+        return InterpositionBuffer;
+    }
+
     public boolean ifNewPath(){
-        return NewPath;
+        return ifNewPath;
     }
 
     public int getPosition_mark() {

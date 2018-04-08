@@ -295,4 +295,10 @@ public class CalibrateStateActivity extends Activity {
         sm.unregisterListener(sensorListener);
     }
 
+    @Override
+    public void onStop(){
+        // TODO Auto-generated method stub
+        super.onStop();
+        onDestroy();
+    }
 }

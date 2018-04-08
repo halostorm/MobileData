@@ -207,4 +207,5 @@ public class LabelActivity extends Activity implements OnClickListener {
         // TODO Auto-generated method stub
         super.onResume();
     }
+
 }

@@ -19,7 +19,7 @@ import com.ustc.wsn.mydataapp.bean.LocationData;
 import java.util.Iterator;
 
 public class DetectorLocationListener {
-    private LocationManager lm;
+    private static LocationManager lm;
     private static int DataSize = 10000;// GPS缓冲池大小为10000
     private static final String TAG = "DetectorService";
     private String[] slocation;

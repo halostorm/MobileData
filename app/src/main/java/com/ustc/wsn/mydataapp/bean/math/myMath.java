@@ -7,7 +7,9 @@ package com.ustc.wsn.mydataapp.bean.math;
 public class myMath {
     //统计库
     public static final float PI = 3.1416f;
-    public static final float G = 9.807f;
+    public static final float G = -9.807f;
+
+    public static final int N = 10;
 
     public static float getMoulding(float[] value){
         float temp = 0;

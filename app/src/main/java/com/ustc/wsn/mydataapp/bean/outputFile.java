@@ -27,6 +27,7 @@ public class outputFile {
     private static File combineFile;
     private static File rawFile;
     private static File pathFile;
+    private static File InterpathFile;
     private static File attitudeFile;
     private static File locFile;
     private static File z7RawFile;
@@ -83,6 +84,11 @@ public class outputFile {
     public static File getPathFile() {
         pathFile = new File(dir, "path"+ "_" + TimeUtil.getTime_name(current_time) + ".txt");
         return pathFile;
+    }
+
+    public static File getInterPathFile() {
+        InterpathFile = new File(dir, "Inter_path"+ "_" + TimeUtil.getTime_name(current_time) + ".txt");
+        return InterpathFile;
     }
 
     public static File getAccParamsFile() {
