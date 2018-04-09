@@ -42,7 +42,7 @@ public class TrackSensorListener implements SensorEventListener {
     private int Window_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
     private volatile int GLOBAL_NOW_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
 
-    private float[] stateValues = {0, 0};
+    private volatile float[] stateValues = {0, 0};
 
     private float ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD;
     private float ACC_MEAN_STATIC_THRESHOLD;
