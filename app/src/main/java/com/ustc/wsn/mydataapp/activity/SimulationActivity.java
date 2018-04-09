@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
 import com.ustc.wsn.mydataapp.R;
+import com.ustc.wsn.mydataapp.bean.PhoneState;
 import com.ustc.wsn.mydataapp.service.ChartService;
 
 import org.achartengine.GraphicalView;
@@ -39,6 +40,7 @@ import java.util.TimerTask;
 public class SimulationActivity extends Activity {
     private final String TAG = SimulationActivity.class.toString();
     public int FRAME_TYPE = 0;//0 - phone frame/ 1 - inertial frame
+    public int AttChoose = 0;
     private boolean ACCELERATOR_EXIST = false;
     private boolean GYROSCROPE_EXIST = false;
     private boolean MAGNETIC_EXIST = false;
@@ -167,7 +169,7 @@ public class SimulationActivity extends Activity {
 
     private String[] items={"手机坐标系","惯性坐标系"};
 
-    class DialogsingleClickListener implements DialogInterface.OnClickListener{
+    class DialogSingleClickListener implements DialogInterface.OnClickListener{
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
@@ -181,10 +183,10 @@ public class SimulationActivity extends Activity {
                     break;
                 case 1:
                     FRAME_TYPE = 1;
-                    aframevalue.setText(items[1]);
-                    rframevalue.setText(items[1]);
-                    mframevalue.setText(items[1]);
-                    gframevalue.setText(items[1]);
+                    aframevalue.setText(items[1]+AttItems[0]);
+                    rframevalue.setText(items[1]+AttItems[0]);
+                    mframevalue.setText(items[1]+AttItems[0]);
+                    gframevalue.setText(items[1]+AttItems[0]);
                     break;
             }
             dialog.dismiss();
@@ -196,10 +198,53 @@ public class SimulationActivity extends Activity {
         builder.setTitle("请选择传感器坐标系");
         builder.setIcon(R.drawable.ic_launcher);
         if(FRAME_TYPE == 0) {
-            builder.setSingleChoiceItems(items, 0, new DialogsingleClickListener());
+            builder.setSingleChoiceItems(items, 0, new DialogSingleClickListener());
         }else if(FRAME_TYPE == 1) {
-            builder.setSingleChoiceItems(items, 1, new DialogsingleClickListener());
+            builder.setSingleChoiceItems(items, 1, new DialogSingleClickListener());
         }
+        AlertDialog dialog=builder.create();
+        dialog.show();
+    }
+
+    private String[] AttItems={"EKF算法","互补滤波算法","梯度下降滤波算法","仅陀螺仪,周期校正","Android自带算法"};
+
+    class AttDialogSingleClickListener implements DialogInterface.OnClickListener{
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            AttChoose = which;
+            aframevalue.setText(AttItems[AttChoose]);
+            rframevalue.setText(AttItems[AttChoose]);
+            mframevalue.setText(AttItems[AttChoose]);
+            gframevalue.setText(AttItems[AttChoose]);
+            switch (which){
+                case 0:
+                    sensorListener.setAttitudeMode(PhoneState.Attitude_EKF);
+                    break;
+                case 1:
+                    sensorListener.setAttitudeMode(PhoneState.Attitude_FCF);
+                    break;
+                case 2:
+                    sensorListener.setAttitudeMode(PhoneState.Attitude_GDF);
+                    break;
+                case 4:
+                    sensorListener.setAttitudeMode(PhoneState.Attitude_ANDROID);
+                    break;
+                case 3:
+                    sensorListener.setAttitudeMode(PhoneState.Attitude_GYRO);
+                    break;
+            }
+            dialog.dismiss();
+        }
+
+    }
+    private void ShowAttChooseDialog(){
+        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+        builder.setTitle("请选择姿态解算算法");
+        builder.setIcon(R.drawable.ic_launcher);
+
+        builder.setSingleChoiceItems(AttItems, AttChoose, new AttDialogSingleClickListener());
+
         AlertDialog dialog=builder.create();
         dialog.show();
     }
@@ -231,8 +276,16 @@ public class SimulationActivity extends Activity {
                 showHelpDialog();
                 return true;
             case R.id.frameType:
-                //chooseFrameType();
                 ShowFrameDialog();
+                return true;
+            case R.id.AttChoose:
+                if(FRAME_TYPE == 0){
+                    t = Toast.makeText(this, "请先选择坐标系为惯性坐标系", Toast.LENGTH_SHORT);
+                    t.setGravity(Gravity.CENTER, 0, 0);
+                    t.show();
+                }else {
+                    ShowAttChooseDialog();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

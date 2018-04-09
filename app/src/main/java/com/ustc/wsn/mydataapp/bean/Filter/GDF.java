@@ -1,5 +1,7 @@
 package com.ustc.wsn.mydataapp.bean.Filter;
 
+import android.util.Log;
+
 import com.ustc.wsn.mydataapp.bean.math.myMath;
 
 /**
@@ -7,6 +9,7 @@ import com.ustc.wsn.mydataapp.bean.math.myMath;
  */
 
 public class GDF {
+    private final String TAG = GDF.class.toString();
     // Definitions
     private final float betaDef = 0.1f;        // 2 * proportional gain
     // Variable definitions
@@ -32,6 +35,7 @@ public class GDF {
         // Use IMU algorithm if magnetometer measurement invalid (avoids NaN in magnetometer normalisation)
         if ((mx == 0.0f) && (my == 0.0f) && (mz == 0.0f)) {
             MadgwickAHRSupdateIMU(gx, gy, gz, ax, ay, az, dt);
+            Log.d(TAG,"GDF:\tmagnetometer measurement invalid");
             return;
         }
 

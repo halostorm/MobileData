@@ -5,6 +5,9 @@
         android:id="@+id/frameType"
         android:title="请选择坐标系" />
     <item
+        android:id="@+id/AttChoose"
+        android:title="请选择姿态解算算法" />
+    <item
         android:id="@+id/menu_settings_help"
         android:title="@string/action_help" />
 
