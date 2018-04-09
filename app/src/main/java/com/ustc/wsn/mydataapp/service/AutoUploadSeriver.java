@@ -34,29 +34,6 @@ import java.util.StringTokenizer;
 public class AutoUploadSeriver extends Service {
     protected final String TAG = AutoUploadSeriver.this.toString();
     private static boolean UploadThreadDisabled = false;
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case MESSAGE_1:
-                    mFileBeans = mSqlOperate.getAll();
-                    checkFolders(mFoldersPath);
-                    checkData();
-                    break;
-                case MESSAGE_2:
-                    checkData();
-                    break;
-                case MESSAGE_3:
-                    checkExists(mFoldersPath);
-                    break;
-                case MESSAGE_0:
-                    //finish();
-                    break;
-            }
-        }
-    };
-
 
     private final String PORT_URL = "http://sdkapi.geotmt.com/upload";
 
@@ -82,6 +59,29 @@ public class AutoUploadSeriver extends Service {
     private Throwable mThrowable;
 
     private int mErrorCount;
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case MESSAGE_1:
+                    mFileBeans = mSqlOperate.getAll();
+                    checkFolders(mFoldersPath);
+                    checkData();
+                    break;
+                case MESSAGE_2:
+                    checkData();
+                    break;
+                case MESSAGE_3:
+                    checkExists(mFoldersPath);
+                    break;
+                case MESSAGE_0:
+                    //finish();
+                    break;
+            }
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -147,14 +147,20 @@ public class AutoUploadSeriver extends Service {
 
         boolean isAdd = false;
         //check if the file has been upload
-        if (mFileBeans != null && mFileBeans.size() != 0) for (FileBean fileBean : mFileBeans) {
-            if (fileBean.getFileName().equals(file.getName())) {
-                isAdd = true;
-                break;
+        if (mFileBeans != null && mFileBeans.size() != 0) {
+            for (FileBean fileBean : mFileBeans) {
+                if (fileBean.getFileName().equals(file.getName())) {
+                    isAdd = true;
+                    break;
+                }
             }
         }
+
         if (isAdd) return;
         //Log.d(TAG,"doing");
+
+        Log.d(TAG,foldersPath);
+
         if (file.getName().contains("raw") && file.getName().contains(".txt")) {
             //判断文件是否是当前正在写入的文件
             long lastModifiedTime = file.lastModified();
@@ -174,6 +180,7 @@ public class AutoUploadSeriver extends Service {
                     e.printStackTrace();
                 }
                 file.delete();
+
                 mUploadBeen.add(new UploadBean(z7Raw.getName(), z7Raw.getPath(), new File(foldersPath).getName(), foldersPath));
             }
             return;
@@ -277,7 +284,9 @@ public class AutoUploadSeriver extends Service {
 
     private void checkData() {
         if (mUploadBeen.size() > 0) {
-            if (mThread == null || !mThread.isAlive()) (mThread = newThread()).start();
+            if (mThread == null || !mThread.isAlive()) {
+                (mThread = newThread()).start();
+            }
         } else {
             if (mHandler != null) {
                 mHandler.sendEmptyMessageDelayed(MESSAGE_1, SCANNING_FILE_CYCLE);
@@ -289,6 +298,7 @@ public class AutoUploadSeriver extends Service {
         return text == null ? "" : text;
     }
 
+    //////////////////////////////////////////////////////////////// UploadJson Class
     public class UploadJson {
 
         /**
@@ -316,6 +326,7 @@ public class AutoUploadSeriver extends Service {
         }
     }
 
+    /////////////////////////////////////////////////////////// UploadBean Class
     class UploadBean {
 
         private String fileName;

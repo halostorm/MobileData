@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
-import com.ustc.wsn.mydataapp.activity.UploadActivity;
 import com.ustc.wsn.mydataapp.service.AutoUploadSeriver;
 
 import java.util.List;
