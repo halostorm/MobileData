@@ -1,7 +1,6 @@
 package com.ustc.wsn.mydataapp.bean.Filter;
 
-import com.ustc.wsn.mydataapp.bean.Log.myLog;
-import com.ustc.wsn.mydataapp.bean.math.Quaternion;
+import com.ustc.wsn.mydataapp.bean.math.myMath;
 
 import static java.lang.Math.asin;
 import static java.lang.Math.atan2;
@@ -128,7 +127,7 @@ public class EKF {
     * function [xa_apo,Pa_apo,Rot_matrix,eulerAngles,debugOutput]...
     *     = AttitudeEKF(approx_prediction,use_inertia_matrix,zFlag,dt,z,q_rotSpeed,q_rotAcc,q_acc,q_mag,r_gyro,r_accel,r_mag,J)
     */
-    public static void AttitudeEKF(boolean approx_prediction, int use_inertia_matrix, final int[] zFlag, float dt, final float[] z, float q_rotSpeed, float q_rotAcc, float q_acc, float q_mag, float r_gyro, float r_accel, float r_mag, final float[] J, float[] xa_apo, float[] Pa_apo, float[] Rot_matrix, float[] eulerAngles, float[] debugOutput, float[] euler_pre) {
+    public void AttitudeEKF(boolean approx_prediction, int use_inertia_matrix, final int[] zFlag, float dt, final float[] z, float q_rotSpeed, float q_rotAcc, float q_acc, float q_mag, float r_gyro, float r_accel, float r_mag, final float[] J, float[] xa_apo, float[] Pa_apo, float[] Rot_matrix, float[] eulerAngles, float[] debugOutput, float[] euler_pre) {
         //unsigned int approx_prediction, unsigned int use_inertia_matrix,
         //final unsigned int zFlag[3], float dt, final float z[9], float q_rotSpeed,
         //float q_rotAcc, float q_acc, float q_mag, float r_gyro, float r_accel,
@@ -1148,6 +1147,8 @@ public class EKF {
         //Log.d((String) TAG, "eulerAngles0：" + eulerAngles[0]);
         eulerAngles[1] = -(float) asin(Rot_matrix[6]);
         eulerAngles[2] = (float) atan2(Rot_matrix[3], Rot_matrix[0]);
+
+        this.q = myMath.Rot2Q(Rot_matrix);
     }
 
     static void b_mrdivide(final float[] A, final float[] B, float[] y) {//static void b_mrdivide(final float[] A[72], final float[] B, float[] y[72]) {

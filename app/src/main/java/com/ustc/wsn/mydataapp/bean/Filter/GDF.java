@@ -21,8 +21,8 @@ public class GDF {
     public void Filter(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float dt, boolean gyroIMU) {
         q0 = q[0];
         q1 = q[1];
-        q2 = q[2];
-        q3 = q[3];
+        q2 = -q[2];
+        q3 = -q[3];
         float recipNorm;
         float s0, s1, s2, s3;
         float qDot1, qDot2, qDot3, qDot4;
@@ -193,9 +193,9 @@ public class GDF {
     public void calRotMatrix_Euler() {
         q[0] = q0;
         q[1] = q1;
-        q[2] = q2;
-        q[3] = q3;
+        q[2] = -q2;
+        q[3] = -q3;
         Rot_Matrix = myMath.Q2Rot(q);
-        Euler = myMath.Rot2Euler(Rot_Matrix);
+        Euler = myMath.Q2Euler(q);
     }
 }

@@ -11,10 +11,10 @@ public class myMath {
 
     public static final int N = 10;
 
-    public static float getMoulding(float[] value){
+    public static float getMoulding(float[] value) {
         float temp = 0;
-        for(int i=0;i<value.length;i++){
-            temp += value[i]*value[i];
+        for (int i = 0; i < value.length; i++) {
+            temp += value[i] * value[i];
         }
         return (float) Math.sqrt(temp);
     }
@@ -82,7 +82,7 @@ public class myMath {
         return dAve;
     }
 
-    public static float[] getMean(float[][] x,int start,int stop) {
+    public static float[] getMean(float[][] x, int start, int stop) {
         int m = stop - start;
         float[] sum = new float[x[0].length];
         for (int i = start; i < stop; i++) {// 求和
@@ -97,19 +97,9 @@ public class myMath {
         return dAve;
     }
 
-    //矩阵库
-    public static float[] coordinatesTransform(float[] DCM, float[] values) {
-        float[] valuesEarth = new float[3];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                valuesEarth[i] += values[j] * DCM[3 * i + j];
-            }
-        }
-        return valuesEarth;
-    }
 
     public static float[] matrixMultiply(float[] A, float[] B, int N) {
-        float[] values = new float[N*N];
+        float[] values = new float[N * N];
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
                 float temp = 0;
@@ -125,15 +115,15 @@ public class myMath {
     public static float[] matrixMultiply(float[] A, float scale) {
         float[] values = new float[A.length];
         for (int i = 0; i < A.length; i++) {
-                values[i] = A[i]*scale;
-            }
+            values[i] = A[i] * scale;
+        }
         return values;
     }
 
     public static float[] matrixDivide(float[] A, float scale) {
         float[] values = new float[A.length];
         for (int i = 0; i < A.length; i++) {
-            values[i] = A[i]/scale;
+            values[i] = A[i] / scale;
         }
         return values;
     }
@@ -141,7 +131,7 @@ public class myMath {
     public static float[] matrixAdd(float[] A, float[] B) {
         float[] values = new float[A.length];
         for (int i = 0; i < A.length; i++) {
-                values[i] = A[i] + B[i];
+            values[i] = A[i] + B[i];
         }
         return values;
     }
@@ -231,14 +221,6 @@ public class myMath {
         }
     }
 
-
-    public static void DeleteData2K(float[][] sample, int K) {
-        for (int i = 0; i < sample.length-K; i++) {
-            sample[i] = sample[K+i].clone();
-        }
-    }
-
-
     public static float[] V_android2Ned(float[] data) {
         float[] nData = new float[data.length];
         nData[0] = data[1];
@@ -261,7 +243,7 @@ public class myMath {
         return nData;
     }
 
-    public static float[] Q2Rot(float q[]){
+    public static float[] Q2Rot(float q[]) {
 
         float[] matrix = new float[9];
         float aSq = q[0] * q[0];
@@ -269,16 +251,25 @@ public class myMath {
         float cSq = q[2] * q[2];
         float dSq = q[3] * q[3];
         matrix[0] = aSq + bSq - cSq - dSq;
-        matrix[1] = -2.0f * (q[1] * q[2] - q[0] * q[3]);
-        matrix[2] = -2.0f * (q[0] * q[2] + q[1] * q[3]);
-        matrix[3] = -2.0f * (q[1] * q[2] + q[0] * q[3]);
+        matrix[1] = 2.0f * (q[1] * q[2] - q[0] * q[3]);
+        matrix[2] = 2.0f * (q[0] * q[2] + q[1] * q[3]);
+        matrix[3] = 2.0f * (q[1] * q[2] + q[0] * q[3]);
         matrix[4] = aSq - bSq + cSq - dSq;
         matrix[5] = 2.0f * (q[2] * q[3] - q[0] * q[1]);
-        matrix[6] = -2.0f * (q[1] * q[3] - q[0] * q[2]);
+        matrix[6] = 2.0f * (q[1] * q[3] - q[0] * q[2]);
         matrix[7] = 2.0f * (q[0] * q[1] + q[2] * q[3]);
         matrix[8] = aSq - bSq - cSq + dSq;
 
         return matrix.clone();
+    }
+
+    public static float[] Q2Euler(float[] q){
+        float[] eulerAngles = {0, 0, 0};
+        eulerAngles[0] = (float) Math.atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), 1.0f - 2.0f * (q[1] * q[1] + q[2] * q[2]));
+        eulerAngles[1] = (float) Math.asin(2.0f * (q[0] * q[2] - q[3] * q[1]));
+        eulerAngles[2] = (float) Math.atan2(2.0f * (q[0] * q[3] + q[1] * q[2]), 1.0f - 2.0f * (q[2] * q[2] + q[3] * q[3]));
+
+        return eulerAngles;
     }
 
     public static float[] Rot2Euler(float[] Rot_matrix) {
@@ -298,4 +289,31 @@ public class myMath {
         _q[3] = ((dcm[3] - dcm[1]) / ((4) * _q[0]));
         return _q.clone();
     }
+
+    //矩阵坐标系变换
+    public static float[] Rot_coordinatesTransform(float[] DCM, float[] values) {
+        float[] valuesEarth = new float[3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                valuesEarth[i] += values[j] * DCM[3 * i + j];
+            }
+        }
+        return valuesEarth;
+    }
+
+    public static float[] Q_coordinatesTransform(float[] Q, float[] values) {
+        float[] valuesEarth = new float[3];
+        float q0q0 = Q[0] * Q[0];
+        float q1q1 = Q[1] * Q[1];
+        float q2q2 = Q[2] * Q[2];
+        float q3q3 = Q[3] * Q[3];
+        
+        valuesEarth[0] = values[0] * (q0q0 + q1q1 - q2q2 - q3q3) + values[1] * 2.0f * (Q[1] * Q[2] - Q[0] * Q[3]) + values[2] * 2.0f * (Q[0] * Q[2] + Q[1] * Q[3]);
+
+        valuesEarth[1] = values[0] * 2.0f * (Q[1] * Q[2] + Q[0] * Q[3]) + values[1] * (q0q0 - q1q1 + q2q2 - q3q3) + values[2] * 2.0f * (Q[2] * Q[3] - Q[0] * Q[1]);
+
+        valuesEarth[2] = values[0] * 2.0f * (Q[1] * Q[3] - Q[0] * Q[2]) + values[1] * 2.0f * (Q[0] * Q[1] + Q[2] * Q[3]) + values[2] * (q0q0 - q1q1 - q2q2 + q3q3);
+        return valuesEarth;
+    }
+    
 }

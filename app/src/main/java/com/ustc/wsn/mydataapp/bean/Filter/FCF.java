@@ -40,6 +40,7 @@ public class FCF {
         euler = new float[3];
         last_q = new float[4];
         q_est = new float[4];
+        q = new float[4];
         time = 0.f;
 
         q_est[0] = 1.0f;
@@ -61,13 +62,13 @@ public class FCF {
         last_q[2] = q_est[2];
         last_q[3] = q_est[3];
 
-        q = new float[4];
-        q[0] = -q_est[1];
-        q[1] = q_est[0];
-        q[2] = -q_est[3];
-        q[3] = q_est[2];
-        Rot_matrix = myMath.Q2Rot(q_est);
-        euler = myMath.Rot2Euler(Rot_matrix);
+        q[0] = q_est[3];
+        q[1] = -q_est[2];
+        q[2] = -q_est[1];
+        q[3] = q_est[0];
+
+        Rot_matrix = myMath.Q2Rot(q);
+        euler = myMath.Q2Euler(q);
         return q_est;
     }
 

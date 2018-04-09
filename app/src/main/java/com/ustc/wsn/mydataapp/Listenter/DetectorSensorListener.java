@@ -298,17 +298,17 @@ public class DetectorSensorListener implements SensorEventListener {
 
                     float[] worldData = new float[3];
                     if (AttitudeMode == PhoneState.Attitude_EKF) {
-                        worldData = myMath.coordinatesTransform(ekf.Rot_matrix, event.values);
+                        worldData = myMath.Rot_coordinatesTransform(ekf.Rot_matrix, event.values);
                     }
                     if (AttitudeMode == PhoneState.Attitude_GDF) {
-                        worldData = myMath.coordinatesTransform(gdf.Rot_Matrix, event.values);
+                        worldData = myMath.Rot_coordinatesTransform(gdf.Rot_Matrix, event.values);
                     }
                     if (AttitudeMode == PhoneState.Attitude_ANDROID) {
-                        worldData = myMath.coordinatesTransform(DCM, event.values);
+                        worldData = myMath.Rot_coordinatesTransform(DCM, event.values);
                     }
                     if (AttitudeMode == PhoneState.Attitude_FCF) {
-                        //worldData = myMath.coordinatesTransform(DCM, event.values);
-                        worldData = myMath.coordinatesTransform(fcf.Rot_matrix, event.values);
+                        //worldData = myMath.Rot_coordinatesTransform(DCM, event.values);
+                        worldData = myMath.Rot_coordinatesTransform(fcf.Rot_matrix, event.values);
                     }
                     this.accNow = (new AcceleratorData(event.values)).toString();
                 }
@@ -320,16 +320,16 @@ public class DetectorSensorListener implements SensorEventListener {
                     float[] worldData = new float[3];
 
                     if (AttitudeMode == PhoneState.Attitude_EKF) {
-                        worldData = myMath.coordinatesTransform(ekf.Rot_matrix, event.values);
+                        worldData = myMath.Rot_coordinatesTransform(ekf.Rot_matrix, event.values);
                     }
                     if (AttitudeMode == PhoneState.Attitude_GDF) {
-                        worldData = myMath.coordinatesTransform(gdf.Rot_Matrix, event.values);
+                        worldData = myMath.Rot_coordinatesTransform(gdf.Rot_Matrix, event.values);
                     }
                     if (AttitudeMode == PhoneState.Attitude_ANDROID) {
-                        worldData = myMath.coordinatesTransform(DCM, event.values);
+                        worldData = myMath.Rot_coordinatesTransform(DCM, event.values);
                     }
                     if (AttitudeMode == PhoneState.Attitude_FCF) {
-                        worldData =  myMath.coordinatesTransform(fcf.Rot_matrix, event.values);
+                        worldData =  myMath.Rot_coordinatesTransform(fcf.Rot_matrix, event.values);
                     }
 
                     this.gyroNow = (new GyroData(event.values)).toString();
@@ -342,17 +342,17 @@ public class DetectorSensorListener implements SensorEventListener {
                     magOriNew = true;
                     float[] worldData = new float[3];
                     if (AttitudeMode == PhoneState.Attitude_EKF) {
-                        worldData = myMath.coordinatesTransform(ekf.Rot_matrix, event.values);
+                        worldData = myMath.Rot_coordinatesTransform(ekf.Rot_matrix, event.values);
                     }
                     if (AttitudeMode == PhoneState.Attitude_GDF) {
-                        worldData = myMath.coordinatesTransform(gdf.Rot_Matrix, event.values);
+                        worldData = myMath.Rot_coordinatesTransform(gdf.Rot_Matrix, event.values);
                     }
                     if (AttitudeMode == PhoneState.Attitude_ANDROID) {
-                        worldData = myMath.coordinatesTransform(DCM, event.values);
+                        worldData = myMath.Rot_coordinatesTransform(DCM, event.values);
                     }
                     if (AttitudeMode == PhoneState.Attitude_FCF) {
-                        //worldData = myMath.coordinatesTransform(DCM, event.values);
-                        worldData =  myMath.coordinatesTransform(fcf.Rot_matrix, event.values);
+                        //worldData = myMath.Rot_coordinatesTransform(DCM, event.values);
+                        worldData =  myMath.Rot_coordinatesTransform(fcf.Rot_matrix, event.values);
                     }
                     //this.magNow = (new MagnetData(temp)).toString();
                     this.magNow = (new MagnetData(event.values)).toString();

@@ -89,7 +89,7 @@ public class PathIntegration {
         float[][] velocityQueue = new float[accQueue.length][3];
         float[][]positionQ = new float[accQueue.length][3];
 
-        float[] accNow = myMath.coordinatesTransform(RotMatrix, accQueue[0]);
+        float[] accNow = myMath.Rot_coordinatesTransform(RotMatrix, accQueue[0]);
 
         float[] accPhone = new float[3];
 
@@ -123,7 +123,7 @@ public class PathIntegration {
             pathOut.append(accPhone[1] + "\t");
             pathOut.append(accPhone[2] + "\t");
 
-            accNow = myMath.coordinatesTransform(RotMatrix, accQueue[i]);
+            accNow = myMath.Rot_coordinatesTransform(RotMatrix, accQueue[i]);
 
             pathOut.append(accNow[0]  + "\t");
             pathOut.append(accNow[1] + "\t");
