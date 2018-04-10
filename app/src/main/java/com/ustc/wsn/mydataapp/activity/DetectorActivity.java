@@ -286,7 +286,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
         switch (view.getId()) {
             case R.id.btnStartService:
                 if (detectorStart == false) {
-
+                    outputFile.updateDir();
                     startService(DetectorserviceIntent);
                     btnStartService.setText("采集中");
                     btnStartService.setTextColor(Color.BLUE);

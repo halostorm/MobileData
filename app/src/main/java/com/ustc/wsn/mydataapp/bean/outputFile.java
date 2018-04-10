@@ -13,81 +13,87 @@ import java.io.File;
 public class outputFile {
 
     private Context context;
-    private File sdCardDir;
+    private static File sdCardDir;
     private static File stateParamsFile;
     private static File accelParamsFile;
-    private static File accFile;
-    private static File magFile;
-    private static File gyroFile;
-
-    private static File accFileTrans;
-    private static File magFileTrans;
-    private static File gyroFileTrans;
-
-    private static File combineFile;
     private static File rawFile;
     private static File pathFile;
     private static File InterpathFile;
-    private static File attitudeFile;
     private static File locFile;
     private static File z7RawFile;
     private static File z7CombineFile;
     static File dir;
-    static File paramsDir;
+    static File userDir;
     static File appDir;
     private static long current_time;
 
+    private static String PSW;
+
     public outputFile(String psw) {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            PSW = psw;
             sdCardDir = Environment.getExternalStorageDirectory();// 获取SDCard目录
-            current_time = System.currentTimeMillis();
-            String dirPath = sdCardDir.getPath() + "/MobileData/" + "/" + psw + "/" + "Data" + TimeUtil.getTime_name(current_time);
-            dir = new File(dirPath);
-            String paramsDirPath = sdCardDir.getPath() + "/MobileData/"+ "/" + psw + "/";
-            String app =  sdCardDir.getPath() + "/MobileData/";
+            String userDirPath = sdCardDir.getPath() + "/MobileData/" + "/" + psw + "/";
+            String app = sdCardDir.getPath() + "/MobileData/";
             appDir = new File(app);
-            paramsDir = new File(paramsDirPath);
-            if (!dir.exists()) dir.mkdirs();
-            // Log.i("创建存储目录", "--------------------");
+            userDir = new File(userDirPath);
         } else {
             File temp = Environment.getDataDirectory();
-            dir = new File(temp + "/MobileData/" + "/" + psw + "/" + "Data" + TimeUtil.getTime_name(current_time));
-            paramsDir = new File(temp + "/MobileData/"+ "/" + psw + "/");
+            userDir = new File(temp + "/MobileData/" + "/" + psw + "/");
             appDir = new File(temp + "/MobileData/");
         }
 
     }
+
     public outputFile() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             sdCardDir = Environment.getExternalStorageDirectory();// 获取SDCard目录
-            String app =  sdCardDir.getPath() + "/MobileData/";
+            String app = sdCardDir.getPath() + "/MobileData/";
             appDir = new File(app);
-        }else {
+        } else {
             File temp = Environment.getDataDirectory();
             appDir = new File(temp + "/MobileData/");
         }
+    }
+
+    public static void updateDir() {
+        current_time = System.currentTimeMillis();
+        dir = new File(userDir, "Data" + TimeUtil.getTime_name(current_time));
+        if (!dir.exists()) dir.mkdirs();
     }
 
     public static File getDir() {
         return dir;
     }
 
-    public static File getAppDir(){
+    public static File getAppDir() {
         return appDir;
     }
 
     public static File getParamsFile() {
-        stateParamsFile = new File(paramsDir, "stateParams.txt");
+        stateParamsFile = new File(appDir, "stateParams.txt");
         return stateParamsFile;
     }
 
     public static File getPathFile() {
-        pathFile = new File(dir, "path"+ "_" + TimeUtil.getTime_name(current_time) + ".txt");
+        File[] files = dir.listFiles();
+        for (File f : files) {
+            if (f.getName().contains("path") && f.getName().contains(".txt")) {
+                return f;
+            }
+        }
+        pathFile = new File(dir, "path" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
         return pathFile;
     }
 
     public static File getInterPathFile() {
-        InterpathFile = new File(dir, "Inter_path"+ "_" + TimeUtil.getTime_name(current_time) + ".txt");
+        File[] files = dir.listFiles();
+        for (File f : files) {
+            if (f.getName().contains("Inter_path") && f.getName().contains(".txt")) {
+                return f;
+            }
+        }
+        InterpathFile = new File(dir, "Inter_path" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
         return InterpathFile;
     }
 
@@ -96,59 +102,16 @@ public class outputFile {
         return accelParamsFile;
     }
 
-    public static File getaccFile() {
-        current_time = System.currentTimeMillis();
-        accFile = new File(dir, "Accel" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
-        return accFile;
-    }
-
-    public static File getmagFile() {
-        current_time = System.currentTimeMillis();
-        magFile = new File(dir, "Magnet" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
-        return magFile;
-    }
-
-    public static File getgyroFile() {
-        current_time = System.currentTimeMillis();
-        gyroFile = new File(dir, "Gyro" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
-        return gyroFile;
-    }
-
-    public static File getaccTransFile() {
-        current_time = System.currentTimeMillis();
-        accFileTrans = new File(dir, "AccelTrans" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
-        return accFileTrans;
-    }
-
-    public static File getmagTransFile() {
-        current_time = System.currentTimeMillis();
-        magFileTrans = new File(dir, "MagnetTrans" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
-        return magFileTrans;
-    }
-
-    public static File getgyroTransFile() {
-        current_time = System.currentTimeMillis();
-        gyroFileTrans = new File(dir, "GyroTrans" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
-        return gyroFileTrans;
-    }
-
-    public static File getCombineFile() {
-        current_time = System.currentTimeMillis();
-        combineFile = new File(dir, "DataCombine" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
-        return combineFile;
-    }
-
     public static File getlocFile() {
-        current_time = System.currentTimeMillis();
+        File[] files = dir.listFiles();
+        for (File f : files) {
+            if (f.getName().contains("Location") && f.getName().contains(".txt")) {
+                return f;
+            }
+        }
         locFile = new File(dir, "Location" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
 
         return locFile;
-    }
-
-    public static File getattitudeFile() {
-        current_time = System.currentTimeMillis();
-        attitudeFile = new File(dir, "Attitude" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
-        return attitudeFile;
     }
 
     public static File getrawFile() {

@@ -14,7 +14,7 @@ import com.ustc.wsn.mydataapp.Listenter.DetectorLocationListener;
 import java.io.IOException;
 
 public class GpsService extends Service {
-    protected static final String TAG = null;
+    protected static final String TAG = GpsService.class.toString();
     private GpsService mContext = GpsService.this;
     private StoreData sd;
     private DetectorLocationListener sgps;
@@ -25,11 +25,11 @@ public class GpsService extends Service {
     public void onCreate() {
         // TODO Auto-generated method stub
         super.onCreate();
-        sd = new StoreData();//create data store class
+        Log.d(TAG,"GPS Service Start");
+        sd = new StoreData(true,false);//create data store class
         location = new String();
         sgps = new DetectorLocationListener(mContext);// start gps
         // GPS thread
-        //Log.d(TAG, "GpsService Begin!");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -39,7 +39,6 @@ public class GpsService extends Service {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    Log.d(TAG, "GpsService Begin!");
                     if (sgps != null) {
                         location = sgps.getLocation();
                         if (location != null) { //

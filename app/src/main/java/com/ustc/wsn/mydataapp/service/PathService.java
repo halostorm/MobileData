@@ -53,9 +53,9 @@ public class PathService extends Service {
         // TODO Auto-generated method stub
         super.onCreate();
 
+        Log.d(TAG,"Path Service Start");
         pathFile = outputFile.getPathFile();
         //InterPathFile = outputFile.getInterPathFile();
-
         initSensor();
 
         if(ACCELERATOR_EXIST&&GYROSCROPE_EXIST&&MAGNETIC_EXIST) {

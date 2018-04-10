@@ -94,8 +94,8 @@ public class DetectorService extends Service {
     public void onCreate() {
         // TODO Auto-generated method stub
         super.onCreate();
-        //stateLabel();//监听标签
-        sd = new StoreData();//create data store class
+        Log.d(TAG,"Sensor Service Start");
+        sd = new StoreData(false,true);//create data store class
         initSensor();// init sensor
         sensorDataHandle();//begin reading sensor data
 
