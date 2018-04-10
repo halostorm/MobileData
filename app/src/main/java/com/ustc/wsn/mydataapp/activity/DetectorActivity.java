@@ -78,7 +78,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
 
         File accParams = outputFile.getAccParamsFile();
         if(!accParams.exists()) {
-            Toast.makeText(DetectorActivity.this, "首次使用，请先校准加速度计！", Toast.LENGTH_LONG).show();
+            Toast.makeText(DetectorActivity.this, "首次使用，请先校准加速度计！", Toast.LENGTH_SHORT).show();
             Intent intent1 = new Intent(DetectorActivity.this, EllipsoidFitActivity.class);
             startActivity(intent1);
         }

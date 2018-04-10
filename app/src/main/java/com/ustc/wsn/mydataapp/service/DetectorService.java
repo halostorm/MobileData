@@ -15,8 +15,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
-import com.ustc.wsn.mydataapp.Application.AppResourceApplication;
-import com.ustc.wsn.mydataapp.Listenter.DetectorSensorListener;
+import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
 import com.ustc.wsn.mydataapp.bean.CellInfo;
 import com.ustc.wsn.mydataapp.bean.StoreData;
 import com.ustc.wsn.mydataapp.utils.z7Compression;
@@ -38,7 +37,7 @@ public class DetectorService extends Service {
     private Sensor accelerator;
     private Sensor gyroscrope;
     private Sensor magnetic;
-    private DetectorSensorListener sensorListener;
+    private TrackSensorListener sensorListener;
     private static int windowSize = 256;// 256
     private static int sampleSize = 150;// 150
     private boolean threadDisable_sensor = false;
@@ -391,6 +390,8 @@ public class DetectorService extends Service {
         Log.d("Sensor", "InitSensor Over");
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerator = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        float accMax = accelerator.getMaximumRange();
+        Log.d(TAG,"accMaxRange\t"+accMax);
         if (accelerator != null) {
             ACCELERATOR_EXIST = true;
         } else {
@@ -399,6 +400,8 @@ public class DetectorService extends Service {
             t.show();
         }
         gyroscrope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        float gyroMax = gyroscrope.getMaximumRange();
+        Log.d(TAG,"gyroMaxRange\t"+gyroMax);
         if (gyroscrope != null) {
             GYROSCROPE_EXIST = true;
         } else {
@@ -407,6 +410,8 @@ public class DetectorService extends Service {
             t.show();
         }
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        float magMax = magnetic.getMaximumRange();
+        Log.d(TAG,"magMaxRange\t"+magMax);
         if (magnetic != null) {
             MAGNETIC_EXIST = true;
         } else {
@@ -414,10 +419,9 @@ public class DetectorService extends Service {
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        //rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        sensorListener = new DetectorSensorListener((AppResourceApplication) getApplicationContext());
+        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,true,true);
         if (ACCELERATOR_EXIST) {
-            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
         }
         if (GYROSCROPE_EXIST) {
             sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME );
@@ -425,7 +429,6 @@ public class DetectorService extends Service {
         if (MAGNETIC_EXIST) {
             sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME );
         }
-        //sm.registerListener(sensorListener,rotation,SensorManager.SENSOR_DELAY_GAME);
     }
 
     public float[] dataRandom(float[] rawData) {

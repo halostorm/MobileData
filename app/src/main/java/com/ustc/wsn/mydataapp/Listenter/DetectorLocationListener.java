@@ -21,7 +21,7 @@ import java.util.Iterator;
 public class DetectorLocationListener {
     private static LocationManager lm;
     private static int DataSize = 10000;// GPS缓冲池大小为10000
-    private static final String TAG = "DetectorService";
+    private static final String TAG = DetectorLocationListener.class.toString();
     private String[] slocation;
     private static String bear;
     private int loc_cur;
