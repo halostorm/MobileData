@@ -40,7 +40,7 @@
             android:layout_toRightOf="@id/checkboxEnableGPS"
             android:checked="true"
             android:elevation="10dp"
-            android:text="启动轨迹" />
+            android:text="是否在车内？(启动轨迹)" />
 
     </RelativeLayout>
 

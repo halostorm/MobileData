@@ -32,26 +32,23 @@ import org.apache.commons.math3.linear.SingularValueDecomposition;
  * @see http://www.mathworks.com/matlabcentral/fileexchange/24693-ellipsoid-fit
  * 
  */
-public class FitPoints
-{
+public class FitPoints {
 	public RealVector center;
 	public RealVector radii;
-	public RealVector evecs;
+	public RealVector evecs0;
 	public RealVector evecs1;
 	public RealVector evecs2;
 
 	public double[] evals;
-	
+
 	/**
 	 * Fit points to the polynomial expression Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz
 	 * + 2Fyz + 2Gx + 2Hy + 2Iz = 1 and determine the center and radii of the
 	 * fit ellipsoid.
-	 * 
-	 * @param points
-	 *            the points to be fit to the ellipsoid.
+	 *
+	 * @param points the points to be fit to the ellipsoid.
 	 */
-	public void fitEllipsoid(ArrayList<ThreeSpacePoint> points)
-	{
+	public void fitEllipsoid(ArrayList<ThreeSpacePoint> points) {
 		// Fit the points to Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz
 		// + 2Fyz + 2Gx + 2Hy + 2Iz = 1 and solve the system.
 		// v = (( d' * d )^-1) * ( d' * ones.mapAddToSelf(1));
@@ -71,10 +68,8 @@ public class FitPoints
 
 		// subr[i][j] = subr[i][j] / -r[3][3]).
 		float divr = (float) -r.getEntry(3, 3);
-		for (int i = 0; i < subr.getRowDimension(); i++)
-		{
-			for (int j = 0; j < subr.getRowDimension(); j++)
-			{
+		for (int i = 0; i < subr.getRowDimension(); i++) {
+			for (int j = 0; j < subr.getRowDimension(); j++) {
 				subr.setEntry(i, j, subr.getEntry(i, j) / divr);
 			}
 		}
@@ -82,7 +77,7 @@ public class FitPoints
 		// Get the eigenvalues and eigenvectors.
 		EigenDecomposition ed = new EigenDecomposition(subr, 0);
 		evals = ed.getRealEigenvalues();
-		evecs = ed.getEigenvector(0);
+		evecs0 = ed.getEigenvector(0);
 		evecs1 = ed.getEigenvector(1);
 		evecs2 = ed.getEigenvector(2);
 
@@ -93,13 +88,11 @@ public class FitPoints
 	/**
 	 * Solve the polynomial expression Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz + 2Fyz +
 	 * 2Gx + 2Hy + 2Iz from the provided points.
-	 * 
-	 * @param points
-	 *            the points that will be fit to the polynomial expression.
+	 *
+	 * @param points the points that will be fit to the polynomial expression.
 	 * @return the solution vector to the polynomial expression.
 	 */
-	private RealVector solveSystem(ArrayList<ThreeSpacePoint> points)
-	{
+	private RealVector solveSystem(ArrayList<ThreeSpacePoint> points) {
 		// determine the number of points
 		int numPoints = points.size();
 
@@ -109,11 +102,10 @@ public class FitPoints
 
 		// Fit the ellipsoid in the form of
 		// Ax^2 + By^2 + Cz^2 + 2Dxy + 2Exz + 2Fyz + 2Gx + 2Hy + 2Iz
-		for (int i = 0; i < d.getRowDimension(); i++)
-		{
-			float xx = (float)Math.pow(points.get(i).x, 2);
-			float yy = (float)Math.pow(points.get(i).y, 2);
-			float zz = (float)Math.pow(points.get(i).z, 2);
+		for (int i = 0; i < d.getRowDimension(); i++) {
+			float xx = (float) Math.pow(points.get(i).x, 2);
+			float yy = (float) Math.pow(points.get(i).y, 2);
+			float zz = (float) Math.pow(points.get(i).z, 2);
 			float xy = 2 * (points.get(i).x * points.get(i).y);
 			float xz = 2 * (points.get(i).x * points.get(i).z);
 			float yz = 2 * (points.get(i).y * points.get(i).z);
@@ -146,8 +138,7 @@ public class FitPoints
 		RealVector dtOnes = d.transpose().operate(ones);
 
 		// Find ( d' * d )^-1
-		DecompositionSolver solver = new SingularValueDecomposition(dtd)
-				.getSolver();
+		DecompositionSolver solver = new SingularValueDecomposition(dtd).getSolver();
 		RealMatrix dtdi = solver.getInverse();
 
 		// v = (( d' * d )^-1) * ( d' * ones.mapAddToSelf(1));
@@ -159,13 +150,11 @@ public class FitPoints
 	/**
 	 * Create a matrix in the algebraic form of the polynomial Ax^2 + By^2 +
 	 * Cz^2 + 2Dxy + 2Exz + 2Fyz + 2Gx + 2Hy + 2Iz = 1.
-	 * 
-	 * @param v
-	 *            the vector polynomial.
+	 *
+	 * @param v the vector polynomial.
 	 * @return the matrix of the algebraic form of the polynomial.
 	 */
-	private RealMatrix formAlgebraicMatrix(RealVector v)
-	{
+	private RealMatrix formAlgebraicMatrix(RealVector v) {
 		// a =
 		// [ Ax^2 2Dxy 2Exz 2Gx ]
 		// [ 2Dxy By^2 2Fyz 2Hy ]
@@ -195,19 +184,15 @@ public class FitPoints
 
 	/**
 	 * Find the center of the ellipsoid.
-	 * 
-	 * @param a
-	 *            the algebraic from of the polynomial.
+	 *
+	 * @param a the algebraic from of the polynomial.
 	 * @return a vector containing the center of the ellipsoid.
 	 */
-	private RealVector findCenter(RealMatrix a)
-	{
+	private RealVector findCenter(RealMatrix a) {
 		RealMatrix subA = a.getSubMatrix(0, 2, 0, 2);
 
-		for (int q = 0; q < subA.getRowDimension(); q++)
-		{
-			for (int s = 0; s < subA.getColumnDimension(); s++)
-			{
+		for (int q = 0; q < subA.getRowDimension(); q++) {
+			for (int s = 0; s < subA.getColumnDimension(); s++) {
 				subA.multiplyEntry(q, s, -1.0);
 			}
 		}
@@ -215,8 +200,7 @@ public class FitPoints
 		RealVector subV = a.getRowVector(3).getSubVector(0, 3);
 
 		// inv (dtd)
-		DecompositionSolver solver = new SingularValueDecomposition(subA)
-				.getSolver();
+		DecompositionSolver solver = new SingularValueDecomposition(subA).getSolver();
 		RealMatrix subAi = solver.getInverse();
 
 		return subAi.operate(subV);
@@ -224,15 +208,12 @@ public class FitPoints
 
 	/**
 	 * Translate the algebraic form of the ellipsoid to the center.
-	 * 
-	 * @param center
-	 *            vector containing the center of the ellipsoid.
-	 * @param a
-	 *            the algebraic form of the polynomial.
+	 *
+	 * @param center vector containing the center of the ellipsoid.
+	 * @param a      the algebraic form of the polynomial.
 	 * @return the center translated form of the algebraic ellipsoid.
 	 */
-	private RealMatrix translateToCenter(RealVector center, RealMatrix a)
-	{
+	private RealMatrix translateToCenter(RealVector center, RealMatrix a) {
 		// Form the corresponding translation matrix.
 		RealMatrix t = MatrixUtils.createRealIdentityMatrix(4);
 
@@ -249,38 +230,20 @@ public class FitPoints
 	}
 
 
-	
 	/**
 	 * Find the radii of the ellipsoid in ascending order.
+	 *
 	 * @param evals2 the eigenvalues of the ellipsoid.
 	 * @return the radii of the ellipsoid.
 	 */
-	private RealVector findRadii(double[] evals2)
-	{
+	private RealVector findRadii(double[] evals2) {
 		RealVector radii = new ArrayRealVector(evals2.length);
 
 		// radii[i] = sqrt(1/eval[i]);
-		for (int i = 0; i < evals2.length; i++)
-		{
-			radii.setEntry(i, (float)Math.sqrt(1 / evals2[i]));
+		for (int i = 0; i < evals2.length; i++) {
+			radii.setEntry(i, (float) Math.sqrt(1 / evals2[i]));
 		}
-		
+
 		return radii;
-	}
-
-	public void printLog()
-	{
-		System.out.println("");
-	
-		for (int i = 0; i < evals.length; i++)
-		{
-			System.out.println(Arrays.toString(evals));
-		}
-		System.out.println(evecs.toString());
-		System.out.println(evecs1.toString());
-		System.out.println(evecs2.toString());
-
-		System.out.print("Center: " + center.toString());
-		System.out.println(" Radii: " + radii.toString());
 	}
 }

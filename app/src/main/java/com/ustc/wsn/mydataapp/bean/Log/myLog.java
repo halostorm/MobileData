@@ -25,6 +25,18 @@ public class myLog {
         Log.d(TAG, l);
     }
 
+    public static void log(String TAG, String label, double[][] s) {
+        String l = new String();
+        l += label+"\t--\n";
+        for (int i = 0; i < s.length; i++) {
+            for(int j = 0;j<s[0].length;j++) {
+                l += s[i][j] + "\t";
+            }
+            l += "\n";
+        }
+        Log.d(TAG, l);
+    }
+
     public static void log(String TAG, float[] s, String label, int N) {
         String l = new String();
         l += label+"\t--\n";

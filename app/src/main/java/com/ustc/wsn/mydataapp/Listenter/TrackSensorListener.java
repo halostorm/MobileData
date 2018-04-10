@@ -38,7 +38,8 @@ public class TrackSensorListener implements SensorEventListener {
     private static int AttitudeMode = PhoneState.Attitude_EKF;
 
     //状态参数
-    private float Gain = 0.2f;//Path首尾窗口内部，滑动窗口状态判断，附加增强比例Gain，比普通窗口要求更为严格
+    private float GainStart = 0.1f;//Path首尾窗口内部，滑动窗口状态判断，附加增强比例Gain，比普通窗口要求更为严格
+    private float GainStop = 0.1f;//Path首尾窗口内部，滑动窗口状态判断，附加增强比例Gain，比普通窗口要求更为严格
     private int Window_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
     private volatile int GLOBAL_NOW_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
 
@@ -268,11 +269,12 @@ public class TrackSensorListener implements SensorEventListener {
 
                     float[] naccSum = new float[windowSize];
                     for (int i = (DurationWindow - 1) * windowSize; i < DurationWindow * windowSize; i++) {
-                        naccSum[i - (DurationWindow - 1) * windowSize] = naccQueue[i][0] * naccQueue[i][0] + naccQueue[i][1] * naccQueue[i][1];
+                        naccSum[i - (DurationWindow - 1) * windowSize] = (naccQueue[i][0] * naccQueue[i][0] + naccQueue[i][1] * naccQueue[i][1]);
                     }
                     stateValues[0] = myMath.getMean(naccSum);
                     stateValues[1] = myMath.getVar(naccSum);
 
+                    //Window_STATE = stateRecognizeUseAccelVar(stateValues[1]);
                     Window_STATE = stateRecognizeUseAccel(stateValues[0], stateValues[1]);
                 }
             }
@@ -366,7 +368,7 @@ public class TrackSensorListener implements SensorEventListener {
                                 Log.d(TAG, "laccSumMean:" + accSumMean);
                                 Log.d(TAG, "laccSumVar:" + accSumVar);
 
-                                NOW_STATE = stateRecognizeUseAccel(accSumMean, accSumVar,Gain);
+                                NOW_STATE = stateRecognizeUseAccel(accSumMean, accSumVar,GainStart);
                                 if (NOW_STATE == PhoneState.UNKONW_STATE) {
                                     beginFlag = i;
                                     break;
@@ -414,7 +416,7 @@ public class TrackSensorListener implements SensorEventListener {
                                 Log.d(TAG, "laccSumMean:" + accSumMean);
                                 Log.d(TAG, "laccSumVar:" + accSumVar);
 
-                                NOW_STATE = stateRecognizeUseAccel(accSumMean, accSumVar,Gain);
+                                NOW_STATE = stateRecognizeUseAccel(accSumMean, accSumVar,GainStop);
                                 if (NOW_STATE == PhoneState.USER_STATIC_STATE || NOW_STATE == PhoneState.ABSOLUTE_STATIC_STATE) {
                                     stopFlag = i;
                                     break;
@@ -432,6 +434,10 @@ public class TrackSensorListener implements SensorEventListener {
                                 InitialSize = beginFlag;
                             }
                             //初始姿态
+                            for(int i = 0;i<InitialSize;i++){
+                                Log.d(TAG,"acc Static\t"+String.valueOf(i)+"\t"+accWindow[i][0]+"\t"+accWindow[i][1]+"\t"+accWindow[i][2]);
+                                Log.d(TAG,"mag Static\t"+String.valueOf(i)+"\t"+magWindow[i][0]+"\t"+magWindow[i][1]+"\t"+magWindow[i][2]);
+                            }
                             float[] _accOri = myMath.getMean(accWindow, 0, InitialSize);
                             float[] _magOri = myMath.getMean(magWindow, 0, InitialSize);
 
@@ -672,9 +678,9 @@ public class TrackSensorListener implements SensorEventListener {
                 if (event.values != null) {
                     if (myMath.getMoulding(event.values) < RangeK * AccRange) {
                         float[] _rawacc = event.values.clone();
-                        float[] _acc = AccCalibrate(event.values);
                         rawacc = myMath.V_android2Ned(_rawacc);
-                        acc = myMath.V_android2Ned(_acc);
+                        float[] _acc = AccCalibrate(rawacc);
+                        acc = _acc.clone();
                         AccOriOriNew = true;
                     }
                 }
@@ -713,7 +719,7 @@ public class TrackSensorListener implements SensorEventListener {
                 aData[i] += params[i * 3 + j] * data[j];
             }
         }
-        return aData;
+        return aData.clone();
     }
 
     private void ekfAtt(float[] accOri, float[] gyroOri, float[] magOri, float dt) {
@@ -805,6 +811,26 @@ public class TrackSensorListener implements SensorEventListener {
         if (laccSumMean < ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD && laccSumVar < ACC_VAR_ABSOLUTE_STATIC_THRESHOLD) {//gyroSumMean < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumMean < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroSumVar < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumVar < ACC_ABSOLUTE_STATIC_THRESHOLD) {
             return PhoneState.ABSOLUTE_STATIC_STATE;
         } else if (laccSumMean < ACC_MEAN_STATIC_THRESHOLD && laccSumVar < ACC_VAR_STATIC_THRESHOLD) {//laccSumMean < ACC_STATIC_THRESHOLD && gyroSumVar < GYRO_STATIC_THRESHOLD && laccSumVar < ACC_STATIC_THRESHOLD) {gyroSumMean < GYRO_STATIC_THRESHOLD && laccSumMean < ACC_STATIC_THRESHOLD && gyroSumVar < GYRO_STATIC_THRESHOLD && laccSumVar < ACC_STATIC_THRESHOLD) {
+            return PhoneState.USER_STATIC_STATE;
+        } else {
+            return PhoneState.UNKONW_STATE;
+        }
+    }
+
+    private int stateRecognizeUseAccelVar( float laccSumVar) {
+        if (laccSumVar < ACC_VAR_ABSOLUTE_STATIC_THRESHOLD) {//gyroSumMean < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumMean < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroSumVar < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumVar < ACC_ABSOLUTE_STATIC_THRESHOLD) {
+            return PhoneState.ABSOLUTE_STATIC_STATE;
+        } else if (laccSumVar < ACC_VAR_STATIC_THRESHOLD) {//laccSumMean < ACC_STATIC_THRESHOLD && gyroSumVar < GYRO_STATIC_THRESHOLD && laccSumVar < ACC_STATIC_THRESHOLD) {gyroSumMean < GYRO_STATIC_THRESHOLD && laccSumMean < ACC_STATIC_THRESHOLD && gyroSumVar < GYRO_STATIC_THRESHOLD && laccSumVar < ACC_STATIC_THRESHOLD) {
+            return PhoneState.USER_STATIC_STATE;
+        } else {
+            return PhoneState.UNKONW_STATE;
+        }
+    }
+
+    private int stateRecognizeUseAccelVar( float laccSumVar, float gain) {
+        if (laccSumVar < gain*ACC_VAR_ABSOLUTE_STATIC_THRESHOLD) {//gyroSumMean < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumMean < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroSumVar < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumVar < ACC_ABSOLUTE_STATIC_THRESHOLD) {
+            return PhoneState.ABSOLUTE_STATIC_STATE;
+        } else if (laccSumVar < gain*ACC_VAR_STATIC_THRESHOLD) {//laccSumMean < ACC_STATIC_THRESHOLD && gyroSumVar < GYRO_STATIC_THRESHOLD && laccSumVar < ACC_STATIC_THRESHOLD) {gyroSumMean < GYRO_STATIC_THRESHOLD && laccSumMean < ACC_STATIC_THRESHOLD && gyroSumVar < GYRO_STATIC_THRESHOLD && laccSumVar < ACC_STATIC_THRESHOLD) {
             return PhoneState.USER_STATIC_STATE;
         } else {
             return PhoneState.UNKONW_STATE;

@@ -8,6 +8,7 @@ public class myMath {
     //统计库
     public static final float PI = 3.1416f;
     public static final float G = -9.807f;
+    public static final float G_A = 9.807f;
 
     public static final int N = 10;
 
@@ -226,7 +227,7 @@ public class myMath {
         nData[0] = data[1];
         nData[1] = data[0];
         nData[2] = -data[2];
-        return nData;
+        return nData.clone();
     }
 
     public static float[] R_android2Ned(float[] data) {
@@ -240,7 +241,7 @@ public class myMath {
         nData[6] = -data[7];
         nData[7] = -data[6];
         nData[8] = data[8];
-        return nData;
+        return nData.clone();
     }
 
     public static float[] Q2Rot(float q[]) {

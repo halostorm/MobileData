@@ -2,6 +2,9 @@ package com.ustc.wsn.mydataapp.bean.ellipsoidFit;
 
 import android.util.Log;
 
+import com.ustc.wsn.mydataapp.bean.Log.myLog;
+import com.ustc.wsn.mydataapp.bean.math.myMath;
+
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
@@ -14,7 +17,6 @@ public class EllipsoidFit
 	final String TAG = EllipsoidFit.class.toString();
 	ArrayList<ThreeSpacePoint> p;
 	float[] params = new float[12];//系数矩阵-9 + 偏移向量-3 = 12
-	final float G = 9.806f;
 	/*
 	static ArrayList<ThreeSpacePoint> CONTROL_SPHERE_POINTS;
 	static ArrayList<ThreeSpacePoint> CONTROL_ELLIPSOID_POINTS;
@@ -108,6 +110,9 @@ public class EllipsoidFit
 		p = sample;
 		FitPoints gravityFit = new FitPoints();
 		gravityFit.fitEllipsoid(p);
+		Log.d(TAG,"center look\t"+gravityFit.center.toArray()[0]);
+		Log.d(TAG,"center look\t"+gravityFit.center.toArray()[1]);
+		Log.d(TAG,"center look\t"+gravityFit.center.toArray()[2]);
 		calParams(gravityFit);
 		log(gravityFit, "Gravity");
 	}
@@ -122,27 +127,18 @@ public class EllipsoidFit
 		Log.d(TAG,points.center.toString());
 		Log.d(TAG,points.radii.toString());
 		Log.d(TAG,Arrays.toString(points.evals));
-		Log.d(TAG,points.evecs.toString());
+		Log.d(TAG,points.evecs0.toString());
 		Log.d(TAG,points.evecs1.toString());
 		Log.d(TAG,points.evecs2.toString());
 	}
 
 	private void calParams(FitPoints points){
-		/*
-		double[] scale = points.radii.toArray().clone();
-		params[0] = (float)(G/scale[0]);
-		params[1] = (float)(G/scale[1]);
-		params[2] = (float)(G/scale[2]);
-		double[] shilft = points.center.toArray().clone();
-		params[3] = (float) shilft[0];
-		params[4] = (float) shilft[1];
-		params[5] = (float) shilft[2];
-		*/
-		double[][] K = new double[3][3];
-		double [] m = points.radii.toArray();
-		double[] l = new double[]{G/m[0],G/m[1],G/m[2]};
 
-		K[0] = points.evecs.toArray();
+		double[][] K = new double[3][3];
+		double [] m = points.evals;
+		double[] l = new double[]{m[0],m[1],m[2]};
+
+		K[0] = points.evecs0.toArray();
 		K[1] = points.evecs1.toArray();
 		K[2] = points.evecs2.toArray();
 		//特征矩阵
@@ -170,9 +166,22 @@ public class EllipsoidFit
 		L.setEntry(2, 2, l[2]);
 
 		RealMatrix Cal;
-		//计算校准系数矩阵
+		//计算椭圆参数矩阵
 		Cal = (_A.multiply(L)).multiply(A);
+		Cal = Cal.scalarMultiply(myMath.G*myMath.G);
+
 		double[][] P = Cal.getData();
+
+		myLog.log(TAG,"Ellipsoid param",P);
+
+		//Cholesky分解计算校准参数矩阵（3角阵）
+
+		Jama.Matrix param = CholeskyDecomposition.resolve(P);
+
+		P = param.transpose().getArrayCopy();
+
+		myLog.log(TAG,"Cholesky param",P);
+
 		//计算偏移向量
 		double[] C = points.center.toArray();
 
