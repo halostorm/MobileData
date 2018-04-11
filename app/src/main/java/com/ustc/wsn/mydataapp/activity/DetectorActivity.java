@@ -103,6 +103,8 @@ public class DetectorActivity extends Activity implements OnClickListener {
         btnPath = (CheckBox) (findViewById(R.id.checkboxEnablePath));
         btnPath.setOnCheckedChangeListener(new PathCheckBoxListener());
 
+        btnPath.setChecked(false);
+
         Button ViewData = (Button) findViewById(R.id.btnViewData);
         ViewData.setOnClickListener(this);
 
