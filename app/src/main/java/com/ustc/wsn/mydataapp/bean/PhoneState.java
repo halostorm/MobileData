@@ -53,7 +53,8 @@ public class PhoneState {
     private static float[] params = {1,0,0, 0,1,0, 0,0,1, 0,0,0};
 
     //
-    public static float[] Euler = {1.0f,0f,0f};
+    public static float[] Euler = {0.0f,0f,0f};
+    public static float[] Quarternion = {1.0f,0f,0f,0f};
 
     public static void initAccCalibrateParams(){
 

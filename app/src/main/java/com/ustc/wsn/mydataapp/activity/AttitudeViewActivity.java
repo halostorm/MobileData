@@ -15,7 +15,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
+import com.ustc.wsn.mydataapp.Listenter.AttitudeListener;
 import com.ustc.wsn.mydataapp.R;
 import com.ustc.wsn.mydataapp.bean.PhoneState;
 import com.ustc.wsn.mydataapp.bean.cubeView.MyRender;
@@ -35,7 +35,7 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
     private Sensor accelerator;
     private Sensor gyroscrope;
     private Sensor magnetic;
-    private TrackSensorListener sensorListener;
+    private AttitudeListener sensorListener;
 
     MyRender myRender;
 
@@ -124,7 +124,7 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,false,false);
+        sensorListener = new AttitudeListener(accMax,gyroMax,magMax,false);
         if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
         }
@@ -190,13 +190,6 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
         threadDisable_data_update = true;
         sensorListener.closeSensorThread();
         sm.unregisterListener(sensorListener);
-    }
-
-    @Override
-    public void onStop(){
-        // TODO Auto-generated method stub
-        super.onStop();
-        onDestroy();
     }
 
     @Override

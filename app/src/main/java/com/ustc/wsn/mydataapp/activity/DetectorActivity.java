@@ -19,6 +19,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -27,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -75,6 +77,10 @@ public class DetectorActivity extends Activity implements OnClickListener {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detector);
+
+        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(outMetrics);
 
         File accParams = outputFile.getAccParamsFile();
         if(!accParams.exists()) {
@@ -172,7 +178,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
     public void openSystemFile() {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         //系统调用Action属性
-        intent.setDataAndType(Uri.fromFile(store.getDir()), "*/*");
+        intent.setDataAndType(Uri.fromFile(store.getUserDir()), "*/*");
         //设置文件类型
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

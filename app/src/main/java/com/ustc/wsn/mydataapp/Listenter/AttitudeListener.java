@@ -22,11 +22,11 @@ import com.ustc.wsn.mydataapp.bean.math.myMath;
 import java.util.ArrayList;
 
 /**
- * Created by halo on 2018/1/28.
+ * Created by halo on 2018/4/11.
  */
 
-public class TrackSensorListener implements SensorEventListener {
-    private final String TAG = TrackSensorListener.this.toString();
+public class AttitudeListener implements SensorEventListener{
+    private final String TAG = AttitudeListener.this.toString();
 
     //数据窗口参数
     public final int windowSize = 25;//20*windowSize ms - 500ms
@@ -125,7 +125,7 @@ public class TrackSensorListener implements SensorEventListener {
     //线程参数
     private boolean threadDisable_data_update = false;
     //
-    public TrackSensorListener(float accMaxRange, float gyroMaxRange, float magMaxRange, final boolean enablePath) {
+    public AttitudeListener(float accMaxRange, float gyroMaxRange, float magMaxRange, final boolean enablePath) {
         // TODO Auto-generated constructor stub
         super();
         ///store Task
@@ -853,3 +853,4 @@ public class TrackSensorListener implements SensorEventListener {
     }
 
 }
+

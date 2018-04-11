@@ -33,9 +33,9 @@ public class outputFile {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             PSW = psw;
             sdCardDir = Environment.getExternalStorageDirectory();// 获取SDCard目录
-            String userDirPath = sdCardDir.getPath() + "/MobileData/" + "/" + psw + "/";
             String app = sdCardDir.getPath() + "/MobileData/";
             appDir = new File(app);
+            String userDirPath = sdCardDir.getPath() + "/MobileData/" + "/" + psw + "/";
             userDir = new File(userDirPath);
         } else {
             File temp = Environment.getDataDirectory();
@@ -62,8 +62,8 @@ public class outputFile {
         if (!dir.exists()) dir.mkdirs();
     }
 
-    public static File getDir() {
-        return dir;
+    public static File getUserDir() {
+        return userDir;
     }
 
     public static File getAppDir() {

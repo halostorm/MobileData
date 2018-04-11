@@ -15,7 +15,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
-import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
+import com.ustc.wsn.mydataapp.Listenter.LogSensorListener;
 import com.ustc.wsn.mydataapp.bean.CellInfo;
 import com.ustc.wsn.mydataapp.bean.StoreData;
 import com.ustc.wsn.mydataapp.utils.z7Compression;
@@ -37,7 +37,8 @@ public class DetectorService extends Service {
     private Sensor accelerator;
     private Sensor gyroscrope;
     private Sensor magnetic;
-    private TrackSensorListener sensorListener;
+    private Sensor rotation;
+    private LogSensorListener sensorListener;
     private static int windowSize = 256;// 256
     private static int sampleSize = 150;// 150
     private boolean threadDisable_sensor = false;
@@ -419,7 +420,7 @@ public class DetectorService extends Service {
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,true,true);
+        sensorListener = new LogSensorListener(accMax,gyroMax,magMax);
         if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
         }
@@ -428,6 +429,10 @@ public class DetectorService extends Service {
         }
         if (MAGNETIC_EXIST) {
             sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME );
+        }
+        if(ACCELERATOR_EXIST&&GYROSCROPE_EXIST&&MAGNETIC_EXIST){
+            rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            sm.registerListener(sensorListener, rotation, SensorManager.SENSOR_DELAY_GAME );
         }
     }
 
@@ -495,7 +500,6 @@ public class DetectorService extends Service {
     public void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
-        sensorListener.closeSensorThread();
         sm.unregisterListener(sensorListener);
         threadDisable_sensor = true;
         threadDisable_sensorPackage = true;

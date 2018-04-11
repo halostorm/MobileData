@@ -3,8 +3,6 @@ package com.ustc.wsn.mydataapp.bean;
  * Created by halo on 2017/7/1.
  */
 
-import com.ustc.wsn.mydataapp.utils.TimeUtil;
-
 public class RotationData {
 
 	private float x;
@@ -14,10 +12,10 @@ public class RotationData {
 	//private long time;
 
 	public RotationData(float[] values) {
-		x = values[0];
-		y = values[1];
-		z = values[2];
-		w = values[3];
+		w = values[0];
+		x = values[1];
+		y = values[2];
+		z = values[3];
 	}
 
 	public float getX() {
@@ -62,7 +60,7 @@ public class RotationData {
 		// return "AcceleratorData [x=" + x + ", y=" + y + ", z=" + z +
 		// ", time="
 		// + time + "]";
-		return x + "\t" + y + "\t" + z + "\t" + w;
+		return w+"\t"+ x + "\t" + y + "\t" + z ;
 	}
 
 }

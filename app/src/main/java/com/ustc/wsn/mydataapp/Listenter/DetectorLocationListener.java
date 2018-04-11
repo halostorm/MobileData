@@ -211,17 +211,19 @@ public class DetectorLocationListener {
                 case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
                     // Log.i(TAG, "卫星状态改变");
                     // 获取当前状态
-                    GpsStatus gpsStatus = lm.getGpsStatus(null);
-                    // 获取卫星颗数的默认最大值
-                    int maxSatellites = gpsStatus.getMaxSatellites();
-                    // 创建一个迭代器保存所有卫星
-                    Iterator<GpsSatellite> iters = gpsStatus.getSatellites().iterator();
-                    int count = 0;
-                    while (iters.hasNext() && count <= maxSatellites) {
-                        GpsSatellite s = iters.next();
-                        count++;
+                    if(lm!=null) {
+                        GpsStatus gpsStatus = lm.getGpsStatus(null);
+                        // 获取卫星颗数的默认最大值
+                        int maxSatellites = gpsStatus.getMaxSatellites();
+                        // 创建一个迭代器保存所有卫星
+                        Iterator<GpsSatellite> iters = gpsStatus.getSatellites().iterator();
+                        int count = 0;
+                        while (iters.hasNext() && count <= maxSatellites) {
+                            GpsSatellite s = iters.next();
+                            count++;
+                        }
+                        // System.out.println("搜索到：" + count + "颗卫星");
                     }
-                    // System.out.println("搜索到：" + count + "颗卫星");
                     break;
                 // 定位启动
                 case GpsStatus.GPS_EVENT_STARTED:
