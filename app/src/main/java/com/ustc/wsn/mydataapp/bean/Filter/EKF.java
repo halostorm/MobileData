@@ -2,22 +2,19 @@ package com.ustc.wsn.mydataapp.bean.Filter;
 
 import com.ustc.wsn.mydataapp.bean.math.myMath;
 
-import static java.lang.Math.asin;
-import static java.lang.Math.atan2;
-
 /**
  * Created by halo on 2018/1/15.
  */
 
 public class EKF {
 
-    private static final String TAG = null;
-    public static float[] Ji;
-    public static boolean Ji_not_empty;
-    public static float[] x_apo;
-    public static float[] P_apo;
-    public static float[] Q;
-    public static boolean Q_not_empty;
+    private  final String TAG = null;
+    public  float[] Ji;
+    public  boolean Ji_not_empty;
+    public  float[] x_apo;
+    public  float[] P_apo;
+    public  float[] Q;
+    public  boolean Q_not_empty;
 
     /* state vector x has the following entries [ax,ay,az||mx,my,mz||wox,woy,woz||wx,wy,wz]' */
     public float[] z_k;
@@ -1143,15 +1140,15 @@ public class EKF {
 	/* 'AttitudeEKF:296' psi=atan2(Rot_matrix(1,2),Rot_matrix(1,1)); */
 	/* 'AttitudeEKF:297' eulerAngles=[phi;theta;psi]; */
 
-        eulerAngles[0] = (float) atan2(Rot_matrix[7], Rot_matrix[8]);
+        eulerAngles[0] = (float) Math.atan2(Rot_matrix[7], Rot_matrix[8]);
         //Log.d((String) TAG, "eulerAngles0：" + eulerAngles[0]);
-        eulerAngles[1] = -(float) asin(Rot_matrix[6]);
-        eulerAngles[2] = (float) atan2(Rot_matrix[3], Rot_matrix[0]);
+        eulerAngles[1] = -(float) Math.asin(Rot_matrix[6]);
+        eulerAngles[2] = (float) Math.atan2(Rot_matrix[3], Rot_matrix[0]);
 
         this.q = myMath.Rot2Q(Rot_matrix);
     }
 
-    static void b_mrdivide(final float[] A, final float[] B, float[] y) {//static void b_mrdivide(final float[] A[72], final float[] B, float[] y[72]) {
+     void b_mrdivide(final float[] A, final float[] B, float[] y) {// void b_mrdivide(final float[] A[72], final float[] B, float[] y[72]) {
 
         float[] b_A = new float[36];
         int[] ipiv = new int[6];
@@ -1277,7 +1274,7 @@ public class EKF {
     /*
      *
      */
-    static void inv(final float[] x, float[] y) {//float[] x[9], float y[9]
+     void inv(final float[] x, float[] y) {//float[] x[9], float y[9]
         float[] b_x = new float[9];
         int p1;
         int p2;
@@ -1360,7 +1357,7 @@ public class EKF {
         y[p3 + 2] = absx11;
     }
 
-    static void mrdivide(final float[] A, final float[] B, float[] y) {//float A[108], final float B[81], float y[108]
+     void mrdivide(final float[] A, final float[] B, float[] y) {//float A[108], final float B[81], float y[108]
         float[] b_A = new float[81];
         int[] ipiv = new int[9];
         int i0;
@@ -1482,7 +1479,7 @@ public class EKF {
         }
     }
 
-    static float norm(final float[] x) {//float x[3]
+     float norm(final float[] x) {//float x[3]
         float y;
         float scale;
         int k;

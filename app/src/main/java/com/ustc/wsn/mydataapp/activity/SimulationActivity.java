@@ -26,7 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ustc.wsn.mydataapp.Listenter.SimulationListener;
+import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
 import com.ustc.wsn.mydataapp.R;
 import com.ustc.wsn.mydataapp.bean.PhoneState;
 import com.ustc.wsn.mydataapp.service.ChartService;
@@ -59,7 +59,7 @@ public class SimulationActivity extends Activity {
     private Sensor gyroscrope;
     private Sensor magnetic;
 
-    private SimulationListener sensorListener;
+    private TrackSensorListener sensorListener;
     private float[] RawAccData;
     private float[] AccData;
     private float[] GyroData;
@@ -364,7 +364,7 @@ public class SimulationActivity extends Activity {
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        sensorListener = new SimulationListener(accMax,gyroMax,magMax,false);
+        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,false);
         if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
         }

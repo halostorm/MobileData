@@ -35,7 +35,7 @@ public class TrackSensorListener implements SensorEventListener {
     public volatile int sampleIntervalReal = sampleInterval;//ms
 
     //姿态滤波器选择
-    private static int AttitudeMode = PhoneState.Attitude_EKF;
+    private int AttitudeMode = PhoneState.Attitude_EKF;
 
     //状态参数
     private float GainStart = 0.1f;//Path首尾窗口内部，滑动窗口状态判断，附加增强比例Gain，比普通窗口要求更为严格
