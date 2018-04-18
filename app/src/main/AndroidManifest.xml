@@ -94,7 +94,14 @@
         <service
             android:name=".service.PathService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity
+            android:name=".activity.DataUploadActivity"
+            android:label="@string/title_activity_data_upload" />
+        <activity
+            android:name=".activity.LoginActivity"
+            android:label="@string/title_activity_login"></activity>
     </application>
 
 </manifest>

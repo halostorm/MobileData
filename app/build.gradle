@@ -6,11 +6,13 @@ android {
     defaultConfig {
         applicationId "com.ustc.wsn.mydataapp"
         minSdkVersion 15
-        targetSdkVersion 22
+        targetSdkVersion 19
         versionCode 2
         versionName "2.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    useLibrary 'org.apache.http.legacy'
 
     buildTypes {
         release {
@@ -38,4 +40,7 @@ dependencies {
     compile files('libs/achartengine-0.7.0.jar')
     compile files('libs/jmathplot.jar')
     compile files('libs/NChart3D.jar')
+
+    compile files('libs/httpmime-4.0.1.jar')
+    compile files('libs/apache-mime4j-0.6.jar')
 }

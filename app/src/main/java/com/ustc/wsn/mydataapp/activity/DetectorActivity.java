@@ -54,7 +54,6 @@ public class DetectorActivity extends Activity implements OnClickListener {
     protected Intent UploadActivityIntent;
     protected Intent AttitudeViewActivityIntent;
     protected Intent trackActivityIntent;
-    private outputFile store;
     private Toast t;
     private LocationManager loc_int;
     private Button btnStartService;
@@ -124,11 +123,10 @@ public class DetectorActivity extends Activity implements OnClickListener {
 
         Intent intent = this.getIntent();
         psw = intent.getStringExtra("userId");
-        Log.d(TAG, "userID1:" + psw);
-        store = new outputFile(psw);//create data path
+        Log.d(TAG, "userID:" + psw);
 
         PhoneState.initStateParams();
-        //Log.d(TAG,"path:"+store.getDir().getPath()+"\t"+store.getDir().getName());
+
         DetectorserviceIntent = new Intent(this, DetectorService.class);
         GpsserviceIntent = new Intent(this, GpsService.class);
         SimpleActivityIntent = new Intent(this, SimulationActivity.class);
@@ -180,7 +178,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
     public void openSystemFile() {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         //系统调用Action属性
-        intent.setDataAndType(Uri.fromFile(store.getUserDir()), "*/*");
+        intent.setDataAndType(Uri.fromFile(outputFile.getUserDir()), "*/*");
         //设置文件类型
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

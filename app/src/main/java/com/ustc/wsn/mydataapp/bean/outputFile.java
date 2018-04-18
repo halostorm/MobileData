@@ -22,6 +22,7 @@ public class outputFile {
     private static File locFile;
     private static File z7RawFile;
     private static File z7CombineFile;
+    private static File userInfoFile;
     static File dir;
     static File userDir;
     static File appDir;
@@ -66,12 +67,17 @@ public class outputFile {
         return userDir;
     }
 
+    public static File getUserInfoFile(){
+        userInfoFile = new File(appDir,"Info.bat");
+        return userInfoFile;
+    }
+
     public static File getAppDir() {
         return appDir;
     }
 
     public static File getParamsFile() {
-        stateParamsFile = new File(appDir, "stateParams.txt");
+        stateParamsFile = new File(appDir, "stateParams.bat");
         return stateParamsFile;
     }
 
@@ -98,7 +104,7 @@ public class outputFile {
     }
 
     public static File getAccParamsFile() {
-        accelParamsFile = new File(appDir, "accParams.txt");
+        accelParamsFile = new File(appDir, "accParams.bat");
         return accelParamsFile;
     }
 

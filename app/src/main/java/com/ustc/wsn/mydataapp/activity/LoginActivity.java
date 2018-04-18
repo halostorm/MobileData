@@ -1,3 +1,5 @@
+
+
 package com.ustc.wsn.mydataapp.activity;
 
 import android.annotation.SuppressLint;
@@ -16,6 +18,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,10 +28,17 @@ import com.ustc.wsn.mydataapp.R;
 import com.ustc.wsn.mydataapp.bean.outputFile;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends Activity {
+/**
+ * Created by halo on 2017/9/6.
+ */
+
+public class LoginActivity extends Activity {
+    private String gender = "";
     protected Boolean isExit = false;
 
     @SuppressLint("ResourceAsColor")
@@ -34,28 +46,46 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.activity_login);
         new outputFile();
 
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(outMetrics);
+
+        EditText userID = (EditText) findViewById(R.id.userID);
+        EditText age = (EditText) findViewById(R.id.age);
+        TextView textView = (TextView) findViewById(R.id.btnlogin);
+
+        RadioGroup genders = (RadioGroup) findViewById(R.id.gender);
+
+        textView.setTag(R.id.userID, userID);
+        textView.setTag(R.id.age, age);
+
+        textView.setOnClickListener(mOnClickListener);
+
+        genders.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup genders, int checkedId) {
+                RadioButton _genders = (RadioButton) findViewById(checkedId);
+                switch (checkedId) {
+                    case R.id.btnMale:
+                        gender = "male";
+                        break;
+                    case R.id.btnFemale:
+                        gender = "female";
+                        break;
+                }
+
+            }
+        });
+
         //Calibrate accel if app is firstly used
         File accParams = outputFile.getAccParamsFile();
         if (!accParams.exists()) {
-            Toast.makeText(MainActivity.this, "首次使用，请查看使用说明！", Toast.LENGTH_LONG).show();
+            Toast.makeText(LoginActivity.this, "首次使用，请查看使用说明！", Toast.LENGTH_LONG).show();
             showHelpDialog();
         }
-
-        File userInfo = outputFile.getUserInfoFile();
-        if (!userInfo.exists()) {
-            Toast.makeText(MainActivity.this, "请登陆！", Toast.LENGTH_LONG).show();
-            Intent intent1 = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent1);
-        }
-
-        TextView Pass = (TextView) findViewById(R.id.btnPass);
-        Pass.setOnClickListener(mOnClickListener);
     }
 
     private void showHelpDialog() {
@@ -86,11 +116,8 @@ public class MainActivity extends Activity {
                 return true;
             case R.id.calibrate_accel:
                 //Intent intent = new Intent(LoginActivity.this, AccCalibrateActivity.class);
-                Intent intent = new Intent(MainActivity.this, EllipsoidFitActivity.class);
+                Intent intent = new Intent(LoginActivity.this, EllipsoidFitActivity.class);
                 startActivity(intent);
-            case R.id.ReLogin:
-                Intent intent1 = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent1);
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -99,8 +126,33 @@ public class MainActivity extends Activity {
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            String psw = ((EditText) view.getTag(R.id.userID)).getText().toString().trim();
+            String age = ((EditText) view.getTag(R.id.age)).getText().toString().trim();
 
-            Intent intent = new Intent(MainActivity.this, DetectorActivity.class);
+            if (psw.length() == 0) {
+                Toast.makeText(LoginActivity.this, "请输入手机号", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (psw.length() != 11) {
+                Toast.makeText(LoginActivity.this, "手机号码只能为11位", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            //Intent intent=new Intent(LoginActivity.this,DetectorActivity.class);
+            Intent intent = new Intent(LoginActivity.this, DetectorActivity.class);
+            intent.putExtra("userId", psw);
+
+            new outputFile(psw);
+
+            File Info = outputFile.getUserInfoFile();
+            String out = psw + "\t" + age + "\t" + gender;
+            try {
+                FileWriter writer = new FileWriter(Info);
+                writer.write(out);
+                writer.flush();
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             startActivity(intent);
             finish();
@@ -136,11 +188,14 @@ public class MainActivity extends Activity {
         }
     }
 
+    /*
+    public native String stringFromJNI();
+    public native String getName();
+    */
     @Override
     public void onStop() {
         // TODO Auto-generated method stub
         super.onStop();
         onDestroy();
     }
-
 }
