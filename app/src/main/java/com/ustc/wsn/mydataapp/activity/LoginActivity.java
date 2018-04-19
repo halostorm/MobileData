@@ -47,7 +47,6 @@ public class LoginActivity extends Activity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        new outputFile();
 
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
@@ -103,7 +102,7 @@ public class LoginActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main_setting, menu);
+        getMenuInflater().inflate(R.menu.login_setting, menu);
         //setIconEnable(menu,true);
         return true;
     }
@@ -115,9 +114,8 @@ public class LoginActivity extends Activity {
                 showHelpDialog();
                 return true;
             case R.id.calibrate_accel:
-                //Intent intent = new Intent(LoginActivity.this, AccCalibrateActivity.class);
-                Intent intent = new Intent(LoginActivity.this, EllipsoidFitActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(this, EllipsoidFitActivity.class));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -137,9 +135,14 @@ public class LoginActivity extends Activity {
                 Toast.makeText(LoginActivity.this, "手机号码只能为11位", Toast.LENGTH_SHORT).show();
                 return;
             }
-            //Intent intent=new Intent(LoginActivity.this,DetectorActivity.class);
-            Intent intent = new Intent(LoginActivity.this, DetectorActivity.class);
-            intent.putExtra("userId", psw);
+            if(age.length()==0){
+                Toast.makeText(LoginActivity.this, "请输入年龄", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(gender.length() ==0){
+                Toast.makeText(LoginActivity.this, "请选择性别", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             new outputFile(psw);
 
@@ -154,6 +157,8 @@ public class LoginActivity extends Activity {
                 e.printStackTrace();
             }
 
+            Intent intent = new Intent(LoginActivity.this, DetectorActivity.class);
+            intent.putExtra("userId", psw);
             startActivity(intent);
             finish();
         }
@@ -188,10 +193,6 @@ public class LoginActivity extends Activity {
         }
     }
 
-    /*
-    public native String stringFromJNI();
-    public native String getName();
-    */
     @Override
     public void onStop() {
         // TODO Auto-generated method stub

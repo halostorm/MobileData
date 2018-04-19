@@ -26,6 +26,7 @@ public class outputFile {
     static File dir;
     static File userDir;
     static File appDir;
+    static File INIDir;
     private static long current_time;
 
     private static String PSW;
@@ -51,9 +52,11 @@ public class outputFile {
             sdCardDir = Environment.getExternalStorageDirectory();// 获取SDCard目录
             String app = sdCardDir.getPath() + "/MobileData/";
             appDir = new File(app);
+            INIDir = new File(app+"/INI/");
         } else {
             File temp = Environment.getDataDirectory();
             appDir = new File(temp + "/MobileData/");
+            INIDir = new File(temp + "/MobileData/"+"/INI/");
         }
     }
 
@@ -68,7 +71,7 @@ public class outputFile {
     }
 
     public static File getUserInfoFile(){
-        userInfoFile = new File(appDir,"Info.bat");
+        userInfoFile = new File(INIDir,"Info.bat");
         return userInfoFile;
     }
 
@@ -77,7 +80,7 @@ public class outputFile {
     }
 
     public static File getParamsFile() {
-        stateParamsFile = new File(appDir, "stateParams.bat");
+        stateParamsFile = new File(INIDir, "stateParams.bat");
         return stateParamsFile;
     }
 
@@ -104,7 +107,7 @@ public class outputFile {
     }
 
     public static File getAccParamsFile() {
-        accelParamsFile = new File(appDir, "accParams.bat");
+        accelParamsFile = new File(INIDir, "accParams.bat");
         return accelParamsFile;
     }
 

@@ -22,12 +22,16 @@ import android.widget.Toast;
 import com.ustc.wsn.mydataapp.R;
 import com.ustc.wsn.mydataapp.bean.outputFile;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends Activity {
     protected Boolean isExit = false;
+    private String userID = "";
 
     @SuppressLint("ResourceAsColor")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
@@ -40,22 +44,31 @@ public class MainActivity extends Activity {
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(outMetrics);
-        //Calibrate accel if app is firstly used
-        File accParams = outputFile.getAccParamsFile();
-        if (!accParams.exists()) {
-            Toast.makeText(MainActivity.this, "首次使用，请查看使用说明！", Toast.LENGTH_LONG).show();
-            showHelpDialog();
-        }
-
-        File userInfo = outputFile.getUserInfoFile();
-        if (!userInfo.exists()) {
-            Toast.makeText(MainActivity.this, "请登陆！", Toast.LENGTH_LONG).show();
-            Intent intent1 = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent1);
-        }
 
         TextView Pass = (TextView) findViewById(R.id.btnPass);
         Pass.setOnClickListener(mOnClickListener);
+
+        //Login if app is firstly used
+
+        File userInfo = outputFile.getUserInfoFile();
+        if (!userInfo.exists()) {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        }
+        else{
+            try {
+                BufferedReader bf = new BufferedReader(new FileReader(userInfo));
+                String values = new String();
+                values = bf.readLine();
+                if (values.length() != 0) {
+                    String[] v = new String[10];
+                    v = values.split("\t");
+                    userID = v[0];
+                    new outputFile(userID);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void showHelpDialog() {
@@ -85,12 +98,11 @@ public class MainActivity extends Activity {
                 showHelpDialog();
                 return true;
             case R.id.calibrate_accel:
-                //Intent intent = new Intent(LoginActivity.this, AccCalibrateActivity.class);
-                Intent intent = new Intent(MainActivity.this, EllipsoidFitActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(this, EllipsoidFitActivity.class));
+                return true;
             case R.id.ReLogin:
-                Intent intent1 = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent1);
+                startActivity(new Intent(this, LoginActivity.class));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -143,4 +155,16 @@ public class MainActivity extends Activity {
         onDestroy();
     }
 
+    @Override
+    protected void onPause() {
+        // TODO Auto-generated method stub
+        super.onPause();
+        onDestroy();
+    }
+
+    @Override
+    public void onDestroy() {
+        // TODO Auto-generated method stub
+        super.onDestroy();
+    }
 }

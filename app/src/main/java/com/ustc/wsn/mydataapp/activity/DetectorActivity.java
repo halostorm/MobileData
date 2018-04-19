@@ -234,9 +234,20 @@ public class DetectorActivity extends Activity implements OnClickListener {
             case R.id.open_path:
                 openSystemFile();
                 return true;
+            case R.id.calibrate_accel:
+                startActivity(new Intent(this, EllipsoidFitActivity.class));
+                return true;
+            case R.id.ReLogin:
+                startActivity(new Intent(this, LoginActivity.class));
+                return true;
             case R.id.exitSystem:
+                Intent startMain = new Intent(Intent.ACTION_MAIN);
+                startMain.addCategory(Intent.CATEGORY_HOME);
+                startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                this.startActivity(startMain);
                 finish();
                 System.exit(0);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
