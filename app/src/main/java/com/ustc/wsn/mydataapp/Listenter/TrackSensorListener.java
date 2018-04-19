@@ -62,6 +62,7 @@ public class TrackSensorListener implements SensorEventListener {
     private volatile float[][] naccQueue = new float[DurationWindow * windowSize][3];
     private volatile float[][] positionQueue = new float[DurationWindow * windowSize][3];//位置队列
     private volatile float[] deltTQueue = new float[DurationWindow * windowSize];//积分步长
+    private volatile float[][] qQueue = new float[DurationWindow * windowSize][4];//姿态队列
     private volatile long[] timeStampQueue = new long[DurationWindow * windowSize];//积分时间
     private volatile int position_mark = DurationWindow * windowSize;
     private volatile int RemainingDataSize = 0;
@@ -271,6 +272,7 @@ public class TrackSensorListener implements SensorEventListener {
                     myMath.addData(naccQueue, nacc);
                     myMath.addData(magQueue, mag);
                     myMath.addData(gyroQueue, gyro);
+                    myMath.addData(qQueue,Quarternion);
 
                     float[] naccSum = new float[windowSize];
                     for (int i = (DurationWindow - 1) * windowSize; i < DurationWindow * windowSize; i++) {
@@ -350,6 +352,7 @@ public class TrackSensorListener implements SensorEventListener {
                             float[][] accWindow = accQueue.clone();
                             float[][] naccWindow = naccQueue.clone();
                             float[][] magWindow = magQueue.clone();
+                            float[][] qWindow = qQueue.clone();
 
                             //申明首末窗口，大小为 2*windowSize
                             float[] accStartWindow = new float[2 * windowSize];//开始窗口
@@ -445,15 +448,22 @@ public class TrackSensorListener implements SensorEventListener {
                             }
                             float[] _accOri = myMath.getMean(accWindow, 0, InitialSize);
                             float[] _magOri = myMath.getMean(magWindow, 0, InitialSize);
+                            float[] _quarternion = myMath.getMean(qWindow,0,InitialSize);
+                            /*
+                            for(int i = 0;i<InitialSize;i++){
+                                _quarternion[i] = qWindow[i];
+                                myLog.log(TAG,"_qStatic\t"+String.valueOf(i),_quarternion[i]);
+                            }
+                            */
 
                             DCM_Static = androidAtt(_accOri, _magOri);
                             Q_Static = myMath.Rot2Q(DCM_Static);
-
-                            gyroAttPath = new GyroAtt(Q_Static);
+                            myLog.log(TAG,"_qStatic\t",_quarternion);
+                            gyroAttPath = new GyroAtt(_quarternion);
 
                             myLog.log(TAG, "Q_Static:", Q_Static);
                             //初始加速度
-                            float[] accNow = myMath.Q_coordinatesTransform(Q_Static, accWindow[beginFlag]);
+                            float[] accNow = myMath.Q_coordinatesTransform(_quarternion, accWindow[beginFlag]);
                             float[] accLast = accNow.clone();
                             Log.d(TAG, "accNow[0]:" + ":\t" + accNow[0]);
                             Log.d(TAG, "accNow[1]:" + ":\t" + accNow[1]);
@@ -502,19 +512,6 @@ public class TrackSensorListener implements SensorEventListener {
 
                                 myLog.log(TAG, "gyroAttPath Euler:", eu);
 
-                                /*
-                                //旋转矩阵导数
-                                float[] Matrix_W = new float[]{1f, -W[2] * deltTWindow[i], W[1] * deltTWindow[i],//
-                                        W[2] * deltTWindow[i], 1f, -W[0] * deltTWindow[i], //
-                                        -W[1] * deltTWindow[i], W[0] * deltTWindow[i], 1f};
-
-                                //新时刻旋转矩阵
-                                DcmQueue[i] = myMath.matrixMultiply(DcmQueue[i - 1], Matrix_W, 3);
-
-                                myLog.log(TAG, "android DCM Path q:", myMath.Rot2Q(DcmQueue[i]));
-                                ///新惯性加速度
-                                accNow = myMath.Rot_coordinatesTransform(DcmQueue[i], accWindow[i]);
-                                */
                                 accNow = myMath.Q_coordinatesTransform(gyroAttPath.q, accWindow[i]);
 
                                 Log.d(TAG, "accNow[0]:" + String.valueOf(i) + ":\t" + accNow[0]);

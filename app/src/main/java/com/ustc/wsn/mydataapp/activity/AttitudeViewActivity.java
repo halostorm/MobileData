@@ -24,8 +24,6 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
 
     private final String TAG = AttitudeViewActivity.class.toString();
 
-    private LinearLayout attLayout;
-
     private boolean threadDisable_data_update = false;
     private boolean ACCELERATOR_EXIST = false;
     private boolean GYROSCROPE_EXIST = false;
@@ -37,6 +35,7 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
     private Sensor magnetic;
     private TrackSensorListener sensorListener;
 
+    private LinearLayout attLayout;
     MyRender myRender;
 
     private Button EKF;
@@ -54,7 +53,6 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
         GLSurfaceView glView = new GLSurfaceView(this);
         myRender = new MyRender();
         glView.setRenderer(myRender);
-        //glView.setRenderMode(RENDERMODE_WHEN_DIRTY);
         attLayout.addView(glView);
 
         EKF = (Button) findViewById(R.id.btnEKF);

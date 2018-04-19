@@ -10,23 +10,42 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Window;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nulana.NChart.NChartView;
 import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
 import com.ustc.wsn.mydataapp.R;
+import com.ustc.wsn.mydataapp.bean.cubeView.MyRender;
 import com.ustc.wsn.mydataapp.service.TrackService;
+
+import java.text.DecimalFormat;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ChartingDemoActivity extends Activity {
     private final String TAG = ChartingDemoActivity.class.toString();
     NChartView mNChartView;
+    private RelativeLayout attLayout;
+    MyRender myRender;
+
+    TextView EulerxAxis;
+    TextView EuleryAxis;
+    TextView EulerzAxis;
+
+    private float[] Euler = {0,0,0};
+
     TrackService track;
     private boolean threadDisable = false;
     private TrackSensorListener sensorListener;
@@ -41,19 +60,66 @@ public class ChartingDemoActivity extends Activity {
     private Sensor magnetic;
     private Toast t;
 
+    private DecimalFormat df= new DecimalFormat("000");
+
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.nchart);
         mNChartView = (NChartView) findViewById(R.id.surface);
         mNChartView.getChart().setShouldAntialias(true);
         mNChartView.getChart().setShowFPS(true);
+
+        attLayout = (RelativeLayout) findViewById(R.id.ncattView);
         initSensor();
-        if(ACCELERATOR_EXIST&&GYROSCROPE_EXIST&&MAGNETIC_EXIST) {
+        GLSurfaceView glView = new GLSurfaceView(this);
+        myRender = new MyRender();
+        glView.setRenderer(myRender);
+        attLayout.addView(glView);
+
+        EulerxAxis = (TextView) findViewById(R.id.value_x);
+        EuleryAxis = (TextView) findViewById(R.id.value_y);
+        EulerzAxis = (TextView) findViewById(R.id.value_z);
+
+        initSensor();
+        if (ACCELERATOR_EXIST && GYROSCROPE_EXIST && MAGNETIC_EXIST) {
             WindowSize = sensorListener.windowSize * sensorListener.DurationWindow;
             sampleInterval = sensorListener.sampleInterval;
             loadView();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (!threadDisable) {
+                        try {
+                            Thread.sleep(20);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        // do
+                        Euler = sensorListener.readEuler();
+                        myRender.updateEuler(Euler);
+                    }
+                }
+            }).start();
+
+            Timer timer1 = new Timer();
+            timer1.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    handler.sendMessage(handler.obtainMessage());
+                }
+            }, 0, 50);
         }
     }
+
+    private Handler handler = new Handler() {
+        @Override
+        //定时更新图表
+        public void handleMessage(Message msg) {
+            EulerxAxis.setText(df.format(Euler[0]/Math.PI*180));
+            EuleryAxis.setText(df.format(Euler[1]/Math.PI*180));
+            EulerzAxis.setText(df.format(Euler[2]/Math.PI*180));
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -75,10 +141,11 @@ public class ChartingDemoActivity extends Activity {
         helpDialog.show();
     }
 
-    private void calibrate_state(){
-        Intent intent = new Intent(this,CalibrateStateActivity.class);
+    private void calibrate_state() {
+        Intent intent = new Intent(this, CalibrateStateActivity.class);
         startActivity(intent);
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -106,11 +173,11 @@ public class ChartingDemoActivity extends Activity {
                 int i = 1;
                 while (!threadDisable) {
                     try {
-                        Thread.sleep(WindowSize*sampleInterval);
+                        Thread.sleep(WindowSize * sampleInterval);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    if(sensorListener.ifNewPath()) {
+                    if (sensorListener.ifNewPath()) {
                         sensorListener.ifNewPath = false;
                         position = sensorListener.getPosition();
                         int mark = sensorListener.getPosition_mark();
@@ -130,7 +197,7 @@ public class ChartingDemoActivity extends Activity {
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerator = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         float accMax = accelerator.getMaximumRange();
-        Log.d(TAG,"accMaxRange\t"+accMax);
+        Log.d(TAG, "accMaxRange\t" + accMax);
         if (accelerator != null) {
             ACCELERATOR_EXIST = true;
         } else {
@@ -140,7 +207,7 @@ public class ChartingDemoActivity extends Activity {
         }
         gyroscrope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         float gyroMax = gyroscrope.getMaximumRange();
-        Log.d(TAG,"gyroMaxRange\t"+gyroMax);
+        Log.d(TAG, "gyroMaxRange\t" + gyroMax);
         if (gyroscrope != null) {
             GYROSCROPE_EXIST = true;
         } else {
@@ -150,7 +217,7 @@ public class ChartingDemoActivity extends Activity {
         }
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         float magMax = magnetic.getMaximumRange();
-        Log.d(TAG,"magMaxRange\t"+magMax);
+        Log.d(TAG, "magMaxRange\t" + magMax);
         if (magnetic != null) {
             MAGNETIC_EXIST = true;
         } else {
@@ -158,15 +225,15 @@ public class ChartingDemoActivity extends Activity {
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,true);
+        sensorListener = new TrackSensorListener(accMax, gyroMax, magMax, true);
         if (ACCELERATOR_EXIST) {
-            sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME);
         }
         if (GYROSCROPE_EXIST) {
-            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME);
         }
         if (MAGNETIC_EXIST) {
-            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
         }
     }
 
@@ -175,7 +242,7 @@ public class ChartingDemoActivity extends Activity {
         // TODO Auto-generated method stub
         super.onDestroy();
         threadDisable = true;
-        if(track!=null){
+        if (track != null) {
             track.stopSelf();
         }
         sensorListener.closeSensorThread();
@@ -215,7 +282,7 @@ public class ChartingDemoActivity extends Activity {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                Log.d(TAG,"bengin touch time \t"+System.currentTimeMillis());
+                Log.d(TAG, "bengin touch time \t" + System.currentTimeMillis());
                 break;
             case MotionEvent.ACTION_MOVE:
                 break;

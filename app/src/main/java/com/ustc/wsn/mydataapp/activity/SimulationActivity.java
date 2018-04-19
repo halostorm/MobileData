@@ -86,7 +86,6 @@ public class SimulationActivity extends Activity {
     private TextView gframevalue;
     private TextView mframevalue;
 
-
     private DecimalFormat df;
 
     @Override
