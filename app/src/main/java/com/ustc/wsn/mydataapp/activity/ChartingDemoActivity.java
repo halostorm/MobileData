@@ -30,7 +30,6 @@ import com.ustc.wsn.mydataapp.R;
 import com.ustc.wsn.mydataapp.bean.cubeView.MyRender;
 import com.ustc.wsn.mydataapp.service.TrackService;
 
-import java.text.DecimalFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -59,8 +58,6 @@ public class ChartingDemoActivity extends Activity {
     private Sensor gyroscrope;
     private Sensor magnetic;
     private Toast t;
-
-    private DecimalFormat df= new DecimalFormat("000");
 
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -115,9 +112,9 @@ public class ChartingDemoActivity extends Activity {
         @Override
         //定时更新图表
         public void handleMessage(Message msg) {
-            EulerxAxis.setText(df.format(Euler[0]/Math.PI*180));
-            EuleryAxis.setText(df.format(Euler[1]/Math.PI*180));
-            EulerzAxis.setText(df.format(Euler[2]/Math.PI*180));
+            EulerxAxis.setText(String.valueOf((int)(Euler[0]/Math.PI*180)));
+            EuleryAxis.setText(String.valueOf((int)(Euler[1]/Math.PI*180)));
+            EulerzAxis.setText(String.valueOf((int)(Euler[2]/Math.PI*180)));
         }
     };
 
@@ -162,7 +159,7 @@ public class ChartingDemoActivity extends Activity {
 
     private void loadView() {
         // Paste your license key here.
-        mNChartView.getChart().setLicenseKey("");
+        mNChartView.getChart().setLicenseKey("BLZHEYklLSsef/cFzOar6FI2jJyTFUPCZtg+WwSIMHH+AVD3JFv22uK8YebZfPWm10IZvA59H5H/sQOWiGUbfnSrdS7Oofs+gwe1gGY0ScOr0RutFoil1vbib42bA37rIeXovoJvTZqZtt1gjEFgVU2WpnuwiZrs4huwjXP0S+9ITRbblPJPd3DM4L8ruon8OMYpt5JW9C+9sfJMaeDtzEBT6wXoBPVbbcKy2qNPwtuy1BwMwmvlxhy2CjVgPVpyKcgaRo4V51Swqk19pdJ+yin/vQP2zXz02Vq9BhCHCXZEVYiURx4+0c5luJWVJLRd7WlQtyqZ1PBRI5HsI39weHoam/80qjBNUkPBLAg9Eh2EXuHYOCPj66ruJl9pkhQJ4UsxTRe5O0hnsJu1Mes9yG+AKL8ovwcDQhsCZNBJG/6OzmHlEF68IBAnPQPSraHqBBH3Xw0a5dIJq3KS/sgpTJ5IhuViFTQ/eBvYTSiJDi/yjJvKsrJn/3RDE6FdzvuYwkbWzWOj9N6HBUyGyp7NprDDl84R/KbInLYeELf0aX1KNJju5nSHyNw6QDi2dwZU9yJlhtz5sLmS7DFaspN+vonMcGp8MIoNww1ja2HfIr8HMICTf0XsZ/YlKZukmY+EJbInWUmR+talhQHdZBGU2hUYmBGfGhMrH4hSiKBAi38=");
         track = new TrackService(true, mNChartView, this, WindowSize);
         track.initView(0);
         track.updateData(0);

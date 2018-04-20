@@ -6,13 +6,234 @@
     tools:context="com.ustc.wsn.mydataapp.activity.AttitudeViewActivity">
 
     <LinearLayout
-        android:id="@+id/attView"
-        android:layout_width="fill_parent"
-        android:layout_height="400dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/attView"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:gravity="center_vertical"
+                android:orientation="vertical"></RelativeLayout>
+
+            <ImageView
+                android:id="@+id/FrameView"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:contentDescription="login image"
+                android:gravity="center_horizontal"
+                android:src="@drawable/ic_launcher3"
+                android:visibility="visible" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/attView"
+                android:layout_alignStart="@+id/attView"
+                android:layout_below="@+id/FrameView"
+                android:layout_marginLeft="15dp"
+                android:layout_marginStart="15dp"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/EulerX"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Euler_X:  "
+                        android:textColor="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/value_x"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/EulerX"
+                        android:text="0"
+                        android:textColor="@color/grey" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/value_x"
+                        android:text=" °"
+                        android:textColor="@color/grey" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/EulerY"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Euler_Y:  "
+                        android:textColor="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/value_y"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/EulerY"
+                        android:text="0"
+                        android:textColor="@color/grey" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/value_y"
+                        android:text=" °"
+                        android:textColor="@color/grey" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/EulerZ"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Euler_Z:  "
+                        android:textColor="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/value_z"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/EulerZ"
+                        android:text="0"
+                        android:textColor="@color/grey" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/value_z"
+                        android:text=" °"
+                        android:textColor="@color/grey" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/Q0"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Q[0]:  "
+                        android:textColor="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/Q0Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/Q0"
+                        android:text="0"
+                        android:textColor="@color/grey" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/Q1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Q[1]:  "
+                        android:textColor="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/Q1Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/Q1"
+                        android:text="0"
+                        android:textColor="@color/grey" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/Q2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Q[2]:  "
+                        android:textColor="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/Q2Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/Q2"
+                        android:text="0"
+                        android:textColor="@color/grey" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/Q3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Q[3]:  "
+                        android:textColor="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/Q3Value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/Q3"
+                        android:text="0"
+                        android:textColor="@color/grey" />
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
         <TableLayout
             android:layout_width="wrap_content"
@@ -44,7 +265,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
-                        android:layout_toRightOf ="@id/btnEKF"
+                        android:layout_toRightOf="@id/btnEKF"
                         android:background="@layout/button_round"
                         android:gravity="center"
                         android:text="快速互补滤波算法"
@@ -56,7 +277,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
-                        android:layout_toRightOf ="@id/btnFCF"
+                        android:layout_toRightOf="@id/btnFCF"
                         android:background="@layout/button_round"
                         android:gravity="center"
                         android:text="梯度下降滤波算法"
@@ -91,9 +312,9 @@
                         android:id="@+id/btnAndroid"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@layout/button_round"
                         android:layout_marginLeft="10dp"
-                        android:layout_toRightOf ="@id/btnAndroid"
+                        android:layout_toRightOf="@id/btnAndroid"
+                        android:background="@layout/button_round"
                         android:gravity="center"
                         android:text="Android自带-加速度+罗盘解算"
                         android:textAlignment="center"
@@ -102,6 +323,7 @@
             </TableRow>
 
         </TableLayout>
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

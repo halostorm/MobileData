@@ -8,17 +8,24 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ustc.wsn.mydataapp.Listenter.TrackSensorListener;
 import com.ustc.wsn.mydataapp.R;
 import com.ustc.wsn.mydataapp.bean.PhoneState;
 import com.ustc.wsn.mydataapp.bean.cubeView.MyRender;
+
+import java.text.DecimalFormat;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class AttitudeViewActivity extends Activity implements View.OnClickListener {
 
@@ -35,7 +42,7 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
     private Sensor magnetic;
     private TrackSensorListener sensorListener;
 
-    private LinearLayout attLayout;
+    private RelativeLayout attLayout;
     MyRender myRender;
 
     private Button EKF;
@@ -44,11 +51,26 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
     private Button ANDROID;
     private Button GYRO;
 
+    TextView EulerxAxis;
+    TextView EuleryAxis;
+    TextView EulerzAxis;
+
+    TextView Q0Axis;
+    TextView Q1yAxis;
+    TextView Q2Axis;
+    TextView Q3Axis;
+
+    private float[] Euler = {0, 0, 0};
+
+    private float[] Q = {0, 0, 0,0};
+
+    private DecimalFormat df = new DecimalFormat("0.00");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attitude_view);
-        attLayout = (LinearLayout) findViewById(R.id.attView);
+        attLayout = (RelativeLayout) findViewById(R.id.attView);
         initSensor();
         GLSurfaceView glView = new GLSurfaceView(this);
         myRender = new MyRender();
@@ -71,6 +93,15 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
         GYRO = (Button) findViewById(R.id.btnGyro);
         GYRO.setOnClickListener(this);
 
+        EulerxAxis = (TextView) findViewById(R.id.value_x);
+        EuleryAxis = (TextView) findViewById(R.id.value_y);
+        EulerzAxis = (TextView) findViewById(R.id.value_z);
+
+        Q0Axis = (TextView) findViewById(R.id.Q0Value);
+        Q1yAxis = (TextView) findViewById(R.id.Q1Value);
+        Q2Axis = (TextView) findViewById(R.id.Q2Value);
+        Q3Axis = (TextView) findViewById(R.id.Q3Value);
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -81,12 +112,37 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
                         e.printStackTrace();
                     }
                     // do
-                    myRender.updateEuler(sensorListener.readEuler());
+                    Euler = sensorListener.readEuler();
+                    Q = sensorListener.readQ();
+                    myRender.updateEuler(Euler);
                 }
             }
         }).start();
 
+        Timer timer1 = new Timer();
+        timer1.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler.sendMessage(handler.obtainMessage());
+            }
+        }, 0, 50);
+
     }
+
+    private Handler handler = new Handler() {
+        @Override
+        //定时更新图表
+        public void handleMessage(Message msg) {
+            EulerxAxis.setText(String.valueOf((int) (Euler[0] / Math.PI * 180)));
+            EuleryAxis.setText(String.valueOf((int) (Euler[1] / Math.PI * 180)));
+            EulerzAxis.setText(String.valueOf((int) (Euler[2] / Math.PI * 180)));
+
+            Q0Axis.setText(df.format(Q[0]));
+            Q1yAxis.setText(df.format(Q[1]));
+            Q2Axis.setText(df.format(Q[2]));
+            Q3Axis.setText(df.format(Q[3]));
+        }
+    };
 
     @SuppressLint("InlinedApi")
     public void initSensor() {
@@ -94,7 +150,7 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerator = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         float accMax = accelerator.getMaximumRange();
-        Log.d(TAG,"accMaxRange\t"+accMax);
+        Log.d(TAG, "accMaxRange\t" + accMax);
         if (accelerator != null) {
             ACCELERATOR_EXIST = true;
         } else {
@@ -104,7 +160,7 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
         }
         gyroscrope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         float gyroMax = gyroscrope.getMaximumRange();
-        Log.d(TAG,"gyroMaxRange\t"+gyroMax);
+        Log.d(TAG, "gyroMaxRange\t" + gyroMax);
         if (gyroscrope != null) {
             GYROSCROPE_EXIST = true;
         } else {
@@ -114,7 +170,7 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
         }
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         float magMax = magnetic.getMaximumRange();
-        Log.d(TAG,"magMaxRange\t"+magMax);
+        Log.d(TAG, "magMaxRange\t" + magMax);
         if (magnetic != null) {
             MAGNETIC_EXIST = true;
         } else {
@@ -122,15 +178,15 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,false);
+        sensorListener = new TrackSensorListener(accMax, gyroMax, magMax, false);
         if (ACCELERATOR_EXIST) {
-            sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME);
         }
         if (GYROSCROPE_EXIST) {
-            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME);
         }
         if (MAGNETIC_EXIST) {
-            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
         }
     }
 

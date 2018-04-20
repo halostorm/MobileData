@@ -634,6 +634,10 @@ public class TrackSensorListener implements SensorEventListener {
         return this.Euler;
     }
 
+    public float[] readQ() {
+        return this.Quarternion;
+    }
+
     public float[][] getPosition() {
 
         return positionQueue;
