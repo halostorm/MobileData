@@ -6,6 +6,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+import com.ustc.wsn.mydataapp.PathCal;
 import com.ustc.wsn.mydataapp.bean.Filter.EKF;
 import com.ustc.wsn.mydataapp.bean.Filter.FCF;
 import com.ustc.wsn.mydataapp.bean.Filter.GDF;
@@ -15,7 +16,7 @@ import com.ustc.wsn.mydataapp.bean.Filter.MeanFilter;
 import com.ustc.wsn.mydataapp.bean.Filter.ekfParams;
 import com.ustc.wsn.mydataapp.bean.Filter.ekfParamsHandle;
 import com.ustc.wsn.mydataapp.bean.Log.myLog;
-import com.ustc.wsn.mydataapp.bean.PathData;
+import com.ustc.wsn.mydataapp.bean.PathBasicData;
 import com.ustc.wsn.mydataapp.bean.PhoneState;
 import com.ustc.wsn.mydataapp.bean.math.myMath;
 
@@ -443,8 +444,8 @@ public class TrackSensorListener implements SensorEventListener {
                             }
                             //初始姿态
                             for (int i = 0; i < InitialSize; i++) {
-                                Log.d(TAG, "acc Static\t" + String.valueOf(i) + "\t" + accWindow[i][0] + "\t" + accWindow[i][1] + "\t" + accWindow[i][2]);
-                                Log.d(TAG, "mag Static\t" + String.valueOf(i) + "\t" + magWindow[i][0] + "\t" + magWindow[i][1] + "\t" + magWindow[i][2]);
+                                //Log.d(TAG, "acc Static\t" + String.valueOf(i) + "\t" + accWindow[i][0] + "\t" + accWindow[i][1] + "\t" + accWindow[i][2]);
+                                //Log.d(TAG, "mag Static\t" + String.valueOf(i) + "\t" + magWindow[i][0] + "\t" + magWindow[i][1] + "\t" + magWindow[i][2]);
                             }
                             float[] _accOri = myMath.getMean(accWindow, 0, InitialSize);
                             float[] _magOri = myMath.getMean(magWindow, 0, InitialSize);
@@ -472,8 +473,8 @@ public class TrackSensorListener implements SensorEventListener {
                             StringBuffer pathOut = new StringBuffer();
 
                             //path数据提取
-                            ArrayList<PathData> Path = new ArrayList<PathData>();
-                            PathData pathValue = new PathData(accWindow[beginFlag], gyroWindow[beginFlag], 0f);
+                            ArrayList<PathBasicData> Path = new ArrayList<PathBasicData>();
+                            PathBasicData pathValue = new PathBasicData(accWindow[beginFlag], 0f);
                             Path.add(pathValue);
 
                             float time0 = 0;
@@ -483,8 +484,6 @@ public class TrackSensorListener implements SensorEventListener {
                             for (int i = beginFlag + 1; i < (StopWindow - 2) * windowSize + stopFlag; i++) {
                                 time0 += deltTWindow[i];
                                 //when i = 0, velocitySample[i] =0; positionSample[i] =0;
-                                pathValue = new PathData(accWindow[i], gyroWindow[i], time0);
-                                Path.add(pathValue);
 
                                 pathOut.append(timeWindow[i] + "\t");
 
@@ -558,6 +557,8 @@ public class TrackSensorListener implements SensorEventListener {
                                 PathLength++;
 
                                 ifInterpolation = true;
+                                pathValue = new PathBasicData(accNow, time0);
+                                Path.add(pathValue);
                             }
 
                             //输出path数据
@@ -566,16 +567,14 @@ public class TrackSensorListener implements SensorEventListener {
                             //positionQueue = new float[DurationWindow * windowSize*myMath.N][3];//位置队列
                             Log.d(TAG, "PathLength\t" + PathLength);
 
-                            /*
                             if(ifInterpolation) {
-                                PathIntegration pathTest = new PathIntegration(Path, PathLength);
-                                pathTest.setRotMatrix0(DCM_Static);
-                                pathTest.GenerateDataQueue();
+                                PathCal pathTest = new PathCal(Path,PathLength);
+
                                 pathTest.CalPath(positionQueue);
                                 InterpositionBuffer = pathTest.getPathBuffer();
                                 ifInterpolation = false;
                             }
-                            */
+
                             positionQueue = positionQ.clone();
                             ifNewPath = true;
                         }//结束Path
