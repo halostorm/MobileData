@@ -58,6 +58,7 @@ public class TrackSensorListener implements SensorEventListener {
     private StringBuffer positionBuffer;
     private StringBuffer InterpositionBuffer;
     private float[][] InterpositionQueue = null;
+    private float[][] InterPosition = null;
 
     private volatile float[][] gyroQueue = new float[DurationWindow * windowSize][3];//
     private volatile float[][] magQueue = new float[DurationWindow * windowSize][3];//
@@ -323,15 +324,20 @@ public class TrackSensorListener implements SensorEventListener {
                         float[] naccSum = new float[windowSize];
                         for (int i = (DurationWindow - 1) * windowSize; i < DurationWindow * windowSize; i++) {
                             naccSum[i - (DurationWindow - 1) * windowSize] = naccQueue[i][0] * naccQueue[i][0] + naccQueue[i][1] * naccQueue[i][1];
+                            //Log.d(TAG,"naccSum[i]\t"+String.valueOf(i)+"\t"+String.valueOf(naccSum[i - (DurationWindow - 1) * windowSize]));
                         }
                         float accSumMean = myMath.getMean(naccSum);
                         float accSumVar = myMath.getVar(naccSum);
                         NOW_STATE = stateRecognizeUseAccel(accSumMean, accSumVar);
                         //进入Path过程（动静切换）
                         if ((LAST_STATE == PhoneState.USER_STATIC_STATE || LAST_STATE == PhoneState.ABSOLUTE_STATIC_STATE) && NOW_STATE == PhoneState.UNKONW_STATE) {
-
-                            Log.d(TAG, "laccSumMean:" + accSumMean);
-                            Log.d(TAG, "laccSumVar:" + accSumVar);
+                            for (int i = 0; i < windowSize; i++) {
+                                Log.d(TAG,"naccSum[i]\t"+String.valueOf(i)+"\t"+String.valueOf(naccSum[i]));
+                                myLog.log(TAG,"quarternion[i]\t"+String.valueOf(i)+"\t",qQueue[i+(DurationWindow - 1) * windowSize]);
+                            }
+                            Log.d(TAG,"naccSum.length\t"+String.valueOf(naccSum.length));
+                            Log.d(TAG, "laccSumMean:" + String.valueOf(accSumMean));
+                            Log.d(TAG, "laccSumVar:" + String.valueOf(accSumVar));
 
                             LAST_STATE = NOW_STATE;
                             //定义path参数缓存
@@ -575,12 +581,14 @@ public class TrackSensorListener implements SensorEventListener {
                                 pathTest.CalPath();
                                 InterpositionBuffer = pathTest.getPathBuffer();
                                 InterpositionQueue = pathTest.getPathQueue();
-                                positionQueue = new float[DurationWindow*windowSize][3];
+                                InterPosition = new float[DurationWindow*windowSize][3];
                                 for(int i = 0;i<InterpositionQueue.length;i++){
                                     if(i%myMath.N ==0){
-                                        positionQueue[i/myMath.N] = InterpositionQueue[i];
+                                        InterPosition[i/myMath.N] = InterpositionQueue[i];
                                     }
                                 }
+                            }else {
+                                InterPosition = new float[DurationWindow*windowSize][3];
                             }
                             ifNewPath = true;
                         }//结束Path
@@ -644,8 +652,11 @@ public class TrackSensorListener implements SensorEventListener {
     }
 
     public float[][] getPosition() {
-
         return positionQueue;
+    }
+
+    public float[][] getInterPosition() {
+        return InterPosition;
     }
 
     public StringBuffer getPositionString() {

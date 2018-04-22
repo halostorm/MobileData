@@ -6,13 +6,13 @@ package com.ustc.wsn.mydataapp.bean.math;
 
 public class myMath {
     //统计库
-    public static final float PI = 3.1416f;
-    public static final float G = -9.807f;
-    public static final float G_A = 9.807f;
+    public  static final float PI = 3.1416f;
+    public  static final float G = -9.807f;
+    public  static final float G_A = 9.807f;
 
-    public static final int N = 10;
+    public  static final int N = 10;
 
-    public static float getMoulding(float[] value) {
+    public synchronized static float getMoulding(float[] value) {
         float temp = 0;
         for (int i = 0; i < value.length; i++) {
             temp += value[i] * value[i];
@@ -20,7 +20,7 @@ public class myMath {
         return (float) Math.sqrt(temp);
     }
 
-    public static float getVar(float[] x) {
+    public synchronized static float getVar(float[] x) {
         int m = x.length;
         float sum = 0;
         for (int i = 0; i < m; i++) {// 求和
@@ -34,7 +34,7 @@ public class myMath {
         return dVar / m;
     }
 
-    public static float[] getVar(float[][] x) {
+    public synchronized static float[] getVar(float[][] x) {
         int m = x.length;
         float[] sum = new float[3];
         for (int i = 0; i < m; i++) {// 求和
@@ -55,10 +55,10 @@ public class myMath {
         dVar[0] = dVar[0] / m;
         dVar[1] = dVar[1] / m;
         dVar[2] = dVar[2] / m;
-        return dVar;
+        return dVar.clone();
     }
 
-    public static float getMean(float[] x) {
+    public synchronized static float getMean(float[] x) {
         int m = x.length;
         float sum = 0;
         for (int i = 0; i < m; i++) {// 求和
@@ -68,7 +68,7 @@ public class myMath {
         return dAve;
     }
 
-    public static float[] getMean(float[][] x) {
+    public synchronized static float[] getMean(float[][] x) {
         int m = x.length;
         float[] sum = new float[x[0].length];
         for (int i = 0; i < m; i++) {// 求和
@@ -80,10 +80,10 @@ public class myMath {
         for (int j = 0; j < x[0].length; j++) {
             dAve[j] = sum[j] / m;// 求平均值
         }
-        return dAve;
+        return dAve.clone();
     }
 
-    public static float[] getMean(float[][] x, int start, int stop) {
+    public synchronized static float[] getMean(float[][] x, int start, int stop) {
         int m = stop - start;
         float[] sum = new float[x[0].length];
         for (int i = start; i < stop; i++) {// 求和
@@ -95,11 +95,11 @@ public class myMath {
         for (int j = 0; j < x[0].length; j++) {
             dAve[j] = sum[j] / m;// 求平均值
         }
-        return dAve;
+        return dAve.clone();
     }
 
 
-    public static float[] matrixMultiply(float[] A, float[] B, int N) {
+    public synchronized static float[] matrixMultiply(float[] A, float[] B, int N) {
         float[] values = new float[N * N];
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
@@ -110,62 +110,62 @@ public class myMath {
                 values[i * N + j] = temp;
             }
         }
-        return values;
+        return values.clone();
     }
 
-    public static float[] matrixMultiply(float[] A, float scale) {
+    public synchronized static float[] matrixMultiply(float[] A, float scale) {
         float[] values = new float[A.length];
         for (int i = 0; i < A.length; i++) {
             values[i] = A[i] * scale;
         }
-        return values;
+        return values.clone();
     }
 
-    public static float[] matrixDivide(float[] A, float scale) {
+    public synchronized static float[] matrixDivide(float[] A, float scale) {
         float[] values = new float[A.length];
         for (int i = 0; i < A.length; i++) {
             values[i] = A[i] / scale;
         }
-        return values;
+        return values.clone();
     }
 
-    public static float[] matrixAdd(float[] A, float[] B) {
+    public synchronized static float[] matrixAdd(float[] A, float[] B) {
         float[] values = new float[A.length];
         for (int i = 0; i < A.length; i++) {
             values[i] = A[i] + B[i];
         }
-        return values;
+        return values.clone();
     }
 
-    public static float[] matrixSub(float[] A, float[] B) {
+    public synchronized static float[] matrixSub(float[] A, float[] B) {
         float[] values = new float[A.length];
         for (int i = 0; i < A.length; i++) {
             values[i] = A[i] - B[i];
         }
-        return values;
+        return values.clone();
     }
 
-    public static float[] matrixTranspose(float[] A) {
+    public synchronized static float[] matrixTranspose(float[] A) {
         float[] values = new float[9];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 values[i * 3 + j] = A[j * 3 + i];
             }
         }
-        return values;
+        return values.clone();
     }
 
 //队列库
      /*
     //前入栈
-    public static void addData(float[][] sample, float[] values) {
+    public synchronized static void addData(float[][] sample, float[] values) {
         for (int i = windowSize - 1; i > 0; i--) {
             sample[i] = sample[i - 1].clone();
         }
         sample[0] = values.clone();
     }
 
-    public static void addData(float[] sample, float values) {
+    public synchronized static void addData(float[] sample, float values) {
         for (int i = windowSize - 1; i > 0; i--) {
             sample[i] = sample[i - 1];
         }
@@ -174,14 +174,14 @@ public class myMath {
     */
 
     //后入栈
-    public static void addData(float[][] sample, float[] values) {
+    public synchronized static void addData(float[][] sample, float[] values) {
         for (int i = 0; i < sample.length - 1; i++) {
             sample[i] = sample[i + 1].clone();
         }
         sample[sample.length - 1] = values.clone();
     }
 
-    public static void addData(float[][] sample, float[][] values) {
+    public synchronized static void addData(float[][] sample, float[][] values) {
         for (int k = 0; k < values.length; k++) {
             for (int i = 0; i < sample.length - 1; i++) {
                 sample[i] = sample[i + 1].clone();
@@ -190,21 +190,21 @@ public class myMath {
         }
     }
 
-    public static void addData(float[] sample, float values) {
+    public synchronized static void addData(float[] sample, float values) {
         for (int i = 0; i < sample.length - 1; i++) {
             sample[i] = sample[i + 1];
         }
         sample[sample.length - 1] = values;
     }
 
-    public static void addData(long[] sample, long values) {
+    public synchronized static void addData(long[] sample, long values) {
         for (int i = 0; i < sample.length - 1; i++) {
             sample[i] = sample[i + 1];
         }
         sample[sample.length - 1] = values;
     }
 
-    public static void addData(long[] sample, long[] values) {
+    public synchronized static void addData(long[] sample, long[] values) {
         for (int k = 0; k < values.length; k++) {
             for (int i = 0; i < sample.length - 1; i++) {
                 sample[i] = sample[i + 1];
@@ -213,7 +213,7 @@ public class myMath {
         }
     }
 
-    public static void addData(float[] sample, float[] values) {
+    public synchronized static void addData(float[] sample, float[] values) {
         for (int k = 0; k < values.length; k++) {
             for (int i = 0; i < sample.length - 1; i++) {
                 sample[i] = sample[i + 1];
@@ -222,7 +222,7 @@ public class myMath {
         }
     }
 
-    public static float[] V_android2Ned(float[] data) {
+    public synchronized static float[] V_android2Ned(float[] data) {
         float[] nData = new float[data.length];
         nData[0] = data[1];
         nData[1] = data[0];
@@ -230,7 +230,7 @@ public class myMath {
         return nData.clone();
     }
 
-    public static float[] R_android2Ned(float[] data) {
+    public synchronized static float[] R_android2Ned(float[] data) {
         float[] nData = new float[data.length];
         nData[0] = data[4];
         nData[1] = data[3];
@@ -244,7 +244,7 @@ public class myMath {
         return nData.clone();
     }
 
-    public static float[] Q2Rot(float q[]) {
+    public synchronized static float[] Q2Rot(float q[]) {
 
         float[] matrix = new float[9];
         float aSq = q[0] * q[0];
@@ -264,45 +264,76 @@ public class myMath {
         return matrix.clone();
     }
 
-    public static float[] Q2Euler(float[] q){
+    public synchronized static float[] Q2Euler(float[] q){
         float[] eulerAngles = {0, 0, 0};
         eulerAngles[0] = (float) Math.atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), 1.0f - 2.0f * (q[1] * q[1] + q[2] * q[2]));
         eulerAngles[1] = (float) Math.asin(2.0f * (q[0] * q[2] - q[3] * q[1]));
         eulerAngles[2] = (float) Math.atan2(2.0f * (q[0] * q[3] + q[1] * q[2]), 1.0f - 2.0f * (q[2] * q[2] + q[3] * q[3]));
 
-        return eulerAngles;
+        return eulerAngles.clone();
     }
 
-    public static float[] Rot2Euler(float[] Rot_matrix) {
+    public synchronized static float[] Rot2Euler(float[] Rot_matrix) {
         float[] eulerAngles = {0, 0, 0};
         eulerAngles[0] = (float) Math.atan2(Rot_matrix[7], Rot_matrix[8]);
         //Log.d((String) TAG, "eulerAngles0：" + eulerAngles[0]);
         eulerAngles[1] = -(float) Math.asin(Rot_matrix[6]);
         eulerAngles[2] = (float) Math.atan2(Rot_matrix[3], Rot_matrix[0]);
-        return eulerAngles;
+        return eulerAngles.clone();
     }
-
-    public static float[] Rot2Q(float[] dcm) {
+    /*
+    public synchronized static float[] Rot2Q(float[] dcm) {
         float[] _q = new float[4];
-        _q[0] = (float) ((0.5) * (Math.sqrt((1) + dcm[0] + dcm[4] + dcm[8])));
+        _q[0] = (float) ((0.5) * (Math.sqrt(Math.abs(1 + dcm[0] + dcm[4] + dcm[8]))));
         _q[1] = ((dcm[7] - dcm[5]) / ((4) * _q[0]));
         _q[2] = ((dcm[2] - dcm[6]) / ((4) * _q[0]));
         _q[3] = ((dcm[3] - dcm[1]) / ((4) * _q[0]));
         return _q.clone();
     }
-
+    */
+    public synchronized static float[] Rot2Q(float[] dcm){
+        float[] _q = new float[4];
+        float tr = dcm[0] + dcm[4] + dcm[8];
+        if (tr > 0.0f) {
+            float s = (float) Math.sqrt(tr + 1.0f);
+            _q[0] = s * 0.5f;
+            s = 0.5f / s;
+            _q[1] = (dcm[7] - dcm[5]) * s;
+            _q[2] = (dcm[2] - dcm[6]) * s;
+            _q[3] = (dcm[3] - dcm[1]) * s;
+        } else {
+			/* Find maximum diagonal element in dcm
+			* store index in dcm_i */
+            int dcm_i = 0;
+            for (int i = 1; i < 3; i++) {
+                if (dcm[i*3+i] > dcm[dcm_i*3+dcm_i]) {
+                    dcm_i = i;
+                }
+            }
+            int dcm_j = (dcm_i + 1) % 3;
+            int dcm_k = (dcm_i + 2) % 3;
+            float s = (float) Math.sqrt((dcm[dcm_i*3+dcm_i] - dcm[dcm_j*3+dcm_j] -
+                    dcm[dcm_k*3+dcm_k]) + 1.0f);
+            _q[dcm_i + 1] = s * 0.5f;
+            s = 0.5f / s;
+            _q[dcm_j + 1] = (dcm[dcm_i*3+dcm_j] + dcm[dcm_j*3+dcm_i]) * s;
+            _q[dcm_k + 1] = (dcm[dcm_k*3+dcm_i] + dcm[dcm_i*3+dcm_k]) * s;
+            _q[0] = (dcm[dcm_k*3+dcm_j] - dcm[dcm_j*3+dcm_k]) * s;
+        }
+        return _q.clone();
+    }
     //矩阵坐标系变换
-    public static float[] Rot_coordinatesTransform(float[] DCM, float[] values) {
+    public synchronized static float[] Rot_coordinatesTransform(float[] DCM, float[] values) {
         float[] valuesEarth = new float[3];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 valuesEarth[i] += values[j] * DCM[3 * i + j];
             }
         }
-        return valuesEarth;
+        return valuesEarth.clone();
     }
 
-    public static float[] Q_coordinatesTransform(float[] Q, float[] values) {
+    public synchronized static float[] Q_coordinatesTransform(float[] Q, float[] values) {
         float[] valuesEarth = new float[3];
         float q0q0 = Q[0] * Q[0];
         float q1q1 = Q[1] * Q[1];
@@ -314,7 +345,7 @@ public class myMath {
         valuesEarth[1] = values[0] * 2.0f * (Q[1] * Q[2] + Q[0] * Q[3]) + values[1] * (q0q0 - q1q1 + q2q2 - q3q3) + values[2] * 2.0f * (Q[2] * Q[3] - Q[0] * Q[1]);
 
         valuesEarth[2] = values[0] * 2.0f * (Q[1] * Q[3] - Q[0] * Q[2]) + values[1] * 2.0f * (Q[0] * Q[1] + Q[2] * Q[3]) + values[2] * (q0q0 - q1q1 - q2q2 + q3q3);
-        return valuesEarth;
+        return valuesEarth.clone();
     }
     
 }

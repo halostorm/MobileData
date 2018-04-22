@@ -154,14 +154,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
+                android:textColor="@color/mid_blue"
                 android:layout_marginBottom="20dp"
-                android:text="未插值" />
+                android:text="不显示插值" />
 
             <RadioButton
                 android:id="@+id/InterYes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="插值" />
+                android:textColor="@color/mid_orange"
+                android:text="显示插值" />
 
         </RadioGroup>
     </RelativeLayout>

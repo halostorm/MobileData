@@ -116,7 +116,7 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
         markerP.setSize(1);
 
         markerUse = marker;
-        position = new float[this.window_size][3];
+        position = new float[this.window_size*2][3];
 
         //Switch on antialiasing.
         if (drawIn3D) {
@@ -132,10 +132,13 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
         }
     }
 
-    public void setPosition(float[][] p) {
-        //position = p.clone();
-        for(int i = 0;i<position.length;i++){
-            position[i] = p[i];
+    public void setPosition(float[][] p,float[][] interP) {
+        for(int i =0;i<position.length;i++){
+            if(i<p.length){
+                position[i] = p[i].clone();
+            }else {
+                position[i] = interP[i-p.length].clone();
+            }
         }
     }
 
@@ -158,11 +161,11 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
     @Override
     public NChartPoint[] points(NChartSeries series) {
         // Create points with some data for the series.
-        NChartPoint[] result = new NChartPoint[window_size + 1];
-        for (int i = 0; i < window_size+1; i++) {
+        NChartPoint[] result = new NChartPoint[2*window_size + 1];
+        for (int i = 0; i < window_size*2+1; i++) {
             //Log.d("windowsize","windowsize:\t"+String.valueOf(window_size));
-            NChartPointState[] states = new NChartPointState[1];
-            if (i != window_size) {
+            NChartPointState[] states = new NChartPointState[2];
+            if (i != 2*window_size) {
                 if (POSITION_ENABLED) {
                     //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 0, 0, 205));
                     states[0] = NChartPointState.PointStateWithXYZ(position[i][0] * 100, position[i][2] * 100, position[i][1] * 100);//position[j][2]
@@ -172,17 +175,23 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
                     states[0] = NChartPointState.PointStateWithXYZ(random.nextInt(10), random.nextInt(10), random.nextInt(10));
                 }
                 mNChartView.getChart().setPointSelectionEnabled(true);
-                states[0].setMarker(markerUse);
+                if(i<window_size) {
+                    states[0].setMarker(marker);
+                }else{
+                    states[0].setMarker(markerInter);
+                }
             } else {
                 if (POSITION_ENABLED) {
                     //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 0, 0, 205));
                     states[0] = NChartPointState.PointStateWithXYZ(100, 100, 100);//position[j][2]
+                    states[1] = NChartPointState.PointStateWithXYZ(100, 100, 100);//position[j][2]
                 } else {
                     //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 205, 0, 0));
                     states[0] = NChartPointState.PointStateWithXYZ(random.nextInt(10), random.nextInt(10), random.nextInt(10));
                 }
                 mNChartView.getChart().setPointSelectionEnabled(true);
                 states[0].setMarker(markerP);
+                states[1].setMarker(markerP);
             }
 
             result[i] = new NChartPoint(states, series);

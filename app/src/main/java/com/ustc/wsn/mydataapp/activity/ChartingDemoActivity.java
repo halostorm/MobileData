@@ -189,6 +189,7 @@ public class ChartingDemoActivity extends Activity {
             @Override
             public void run() {
                 float[][] position;
+                float[][] interPosition;
                 int i = 1;
                 while (!threadDisable) {
                     try {
@@ -199,8 +200,9 @@ public class ChartingDemoActivity extends Activity {
                     if (sensorListener.ifNewPath()) {
                         sensorListener.ifNewPath = false;
                         position = sensorListener.getPosition();
-                        if (position != null) {
-                            track.setPosition(position);
+                        interPosition =  sensorListener.getInterPosition();
+                        if (position != null && interPosition!=null) {
+                            track.setPosition(position,interPosition);
                             track.updateData(i);
                         }
                     }

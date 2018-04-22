@@ -56,7 +56,7 @@ public class PhoneState {
     public static float[] Euler = {0.0f,0f,0f};
     public static float[] Quarternion = {1.0f,0f,0f,0f};
 
-    public static void initAccCalibrateParams(){
+    public synchronized static void initAccCalibrateParams(){
 
         File accparams = outputFile.getAccParamsFile();
         if (accparams.exists()) {
@@ -79,7 +79,7 @@ public class PhoneState {
         }
     }
 
-    public static void initStateParams() {
+    public synchronized static void initStateParams() {
         File params = outputFile.getParamsFile();
         if (params.exists()) {
             try {
@@ -106,7 +106,7 @@ public class PhoneState {
 
     }
 
-    public static float[] getCalibrateParams() {
+    public synchronized static float[] getCalibrateParams() {
         return params;
     }
 

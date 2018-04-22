@@ -30,7 +30,7 @@ public class PathCal {
         for (int i = 1; i < RawLength; i++) {
             accQueue[i][0] = inter.ValueX[i][1];
             accQueue[i][1] = inter.ValueY[i][1];
-            accQueue[i][2] = inter.ValueY[i][1];
+            accQueue[i][2] = inter.ValueZ[i][1]-myMath.G;
 
             timeQueue[i] = inter.ValueX[i][0];
         }
