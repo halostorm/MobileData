@@ -75,7 +75,12 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
     private static int window_size;
     private boolean drawIn3D;
     private NChartBrush brushes;
-    private NChartMarker marker;
+    public NChartMarker marker;
+    private NChartBrush brushesInter;
+    public NChartMarker markerInter;
+
+    public NChartMarker markerUse;
+
     private NChartBrush brushesP;
     private NChartMarker markerP;
     private Random random = new Random();
@@ -96,6 +101,13 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
         marker.setShape(NChartMarkerShape.Circle);
         marker.setSize(2);
 
+        brushesInter = new NChartSolidColorBrush(Color.argb(255, 205,104,57));
+        brushesInter.setShadingModel(NChartShadingModel.Phong);
+        markerInter = new NChartMarker();
+        markerInter.setBrush(brushesInter);
+        markerInter.setShape(NChartMarkerShape.Circle);
+        markerInter.setSize(2);
+
         brushesP = new NChartSolidColorBrush(Color.argb(255, 205, 0, 0));
         brushesP.setShadingModel(NChartShadingModel.Phong);
         markerP = new NChartMarker();
@@ -103,6 +115,7 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
         markerP.setShape(NChartMarkerShape.Circle);
         markerP.setSize(1);
 
+        markerUse = marker;
         position = new float[this.window_size][3];
 
         //Switch on antialiasing.
@@ -119,8 +132,11 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
         }
     }
 
-    public void setPosition(float[][] p,int mark) {
-        position = p.clone();
+    public void setPosition(float[][] p) {
+        //position = p.clone();
+        for(int i = 0;i<position.length;i++){
+            position[i] = p[i];
+        }
     }
 
     public void initView(int i ) {
@@ -156,7 +172,7 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
                     states[0] = NChartPointState.PointStateWithXYZ(random.nextInt(10), random.nextInt(10), random.nextInt(10));
                 }
                 mNChartView.getChart().setPointSelectionEnabled(true);
-                states[0].setMarker(marker);
+                states[0].setMarker(markerUse);
             } else {
                 if (POSITION_ENABLED) {
                     //brushes[i][j] = new NChartSolidColorBrush(Color.argb(255, 0, 0, 205));

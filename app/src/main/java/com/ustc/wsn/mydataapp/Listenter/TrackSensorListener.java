@@ -6,7 +6,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
-import com.ustc.wsn.mydataapp.PathCal;
+import com.ustc.wsn.mydataapp.bean.PathCal;
 import com.ustc.wsn.mydataapp.bean.Filter.EKF;
 import com.ustc.wsn.mydataapp.bean.Filter.FCF;
 import com.ustc.wsn.mydataapp.bean.Filter.GDF;
@@ -53,9 +53,11 @@ public class TrackSensorListener implements SensorEventListener {
 
     //路径参数
     public boolean ifNewPath = false;
+    public boolean ifInterpolation = false;
 
     private StringBuffer positionBuffer;
     private StringBuffer InterpositionBuffer;
+    private float[][] InterpositionQueue = null;
 
     private volatile float[][] gyroQueue = new float[DurationWindow * windowSize][3];//
     private volatile float[][] magQueue = new float[DurationWindow * windowSize][3];//
@@ -479,7 +481,7 @@ public class TrackSensorListener implements SensorEventListener {
 
                             float time0 = 0;
                             int PathLength = 1;
-                            boolean ifInterpolation = false;
+
                             //开始计算Path
                             for (int i = beginFlag + 1; i < (StopWindow - 2) * windowSize + stopFlag; i++) {
                                 time0 += deltTWindow[i];
@@ -495,9 +497,9 @@ public class TrackSensorListener implements SensorEventListener {
                                 pathOut.append(W[1] + "\t");
                                 pathOut.append(W[2] + "\t");
 
-                                Log.d(TAG, "accWindow[i][0]:" + String.valueOf(i) + ":\t" + accWindow[i][0]);
-                                Log.d(TAG, "accWindow[i][1]:" + String.valueOf(i) + ":\t" + accWindow[i][1]);
-                                Log.d(TAG, "accWindow[i][2]:" + String.valueOf(i) + ":\t" + accWindow[i][2]);
+                                //Log.d(TAG, "accWindow[i][0]:" + String.valueOf(i) + ":\t" + accWindow[i][0]);
+                                //Log.d(TAG, "accWindow[i][1]:" + String.valueOf(i) + ":\t" + accWindow[i][1]);
+                                //Log.d(TAG, "accWindow[i][2]:" + String.valueOf(i) + ":\t" + accWindow[i][2]);
 
                                 pathOut.append(accWindow[i][0] + "\t");
                                 pathOut.append(accWindow[i][1] + "\t");
@@ -505,21 +507,21 @@ public class TrackSensorListener implements SensorEventListener {
 
                                 gyroAttPath.Filter(W, deltTWindow[i]);
 
-                                myLog.log(TAG, "gyroAttPath q:", gyroAttPath.q);
+                                //myLog.log(TAG, "gyroAttPath q:", gyroAttPath.q);
 
                                 float[] eu = gyroAttPath.Euler.clone();
 
-                                myLog.log(TAG, "gyroAttPath Euler:", eu);
+                                //myLog.log(TAG, "gyroAttPath Euler:", eu);
 
                                 accNow = myMath.Q_coordinatesTransform(gyroAttPath.q, accWindow[i]);
 
-                                Log.d(TAG, "accNow[0]:" + String.valueOf(i) + ":\t" + accNow[0]);
-                                Log.d(TAG, "accNow[1]:" + String.valueOf(i) + ":\t" + accNow[1]);
-                                Log.d(TAG, "accNow[2]:" + String.valueOf(i) + ":\t" + (accNow[2] - myMath.G));
+                                //Log.d(TAG, "accNow[0]:" + String.valueOf(i) + ":\t" + accNow[0]);
+                                //Log.d(TAG, "accNow[1]:" + String.valueOf(i) + ":\t" + accNow[1]);
+                                //Log.d(TAG, "accNow[2]:" + String.valueOf(i) + ":\t" + (accNow[2] - myMath.G));
 
-                                Log.d(TAG, "accLast[0]:" + String.valueOf(i) + ":\t" + accLast[0]);
-                                Log.d(TAG, "accLast[1]:" + String.valueOf(i) + ":\t" + accLast[1]);
-                                Log.d(TAG, "accLast[2]:" + String.valueOf(i) + ":\t" + (accLast[2] - myMath.G));
+                                //Log.d(TAG, "accLast[0]:" + String.valueOf(i) + ":\t" + accLast[0]);
+                                //Log.d(TAG, "accLast[1]:" + String.valueOf(i) + ":\t" + accLast[1]);
+                                //Log.d(TAG, "accLast[2]:" + String.valueOf(i) + ":\t" + (accLast[2] - myMath.G));
 
                                 pathOut.append((accNow[0] + accLast[0]) / 2 + "\t");
                                 pathOut.append((accNow[1] + accLast[1]) / 2 + "\t");
@@ -537,9 +539,9 @@ public class TrackSensorListener implements SensorEventListener {
                                 pathOut.append(velocityQueue[i][1] + "\t");
                                 pathOut.append(velocityQueue[i][2] + "\t");
 
-                                Log.d(TAG, "velocityQueue[0]:" + String.valueOf(i) + ":\t" + velocityQueue[i][0]);
-                                Log.d(TAG, "velocityQueue[1]:" + String.valueOf(i) + ":\t" + velocityQueue[i][1]);
-                                Log.d(TAG, "velocityQueue[2]:" + String.valueOf(i) + ":\t" + velocityQueue[i][2]);
+                                //Log.d(TAG, "velocityQueue[0]:" + String.valueOf(i) + ":\t" + velocityQueue[i][0]);
+                                //Log.d(TAG, "velocityQueue[1]:" + String.valueOf(i) + ":\t" + velocityQueue[i][1]);
+                                //Log.d(TAG, "velocityQueue[2]:" + String.valueOf(i) + ":\t" + velocityQueue[i][2]);
 
                                 //新位置
                                 positionQ[i][0] = positionQ[i - 1][0] + 0.5f * (velocityQueue[i][0] + velocityQueue[i - 1][0]) * deltTWindow[i];
@@ -550,32 +552,36 @@ public class TrackSensorListener implements SensorEventListener {
                                 pathOut.append(positionQ[i][1] + "\t");
                                 pathOut.append(positionQ[i][2] + "\n");
 
-                                Log.d(TAG, "position[0]" + String.valueOf(i) + ":\t" + positionQ[i][0]);
-                                Log.d(TAG, "position[1]" + String.valueOf(i) + ":\t" + positionQ[i][1]);
-                                Log.d(TAG, "position[2]" + String.valueOf(i) + ":\t" + positionQ[i][2]);
+                                //Log.d(TAG, "position[0]" + String.valueOf(i) + ":\t" + positionQ[i][0]);
+                                //Log.d(TAG, "position[1]" + String.valueOf(i) + ":\t" + positionQ[i][1]);
+                                //Log.d(TAG, "position[2]" + String.valueOf(i) + ":\t" + positionQ[i][2]);
 
-                                PathLength++;
-
-                                ifInterpolation = true;
                                 pathValue = new PathBasicData(accNow, time0);
                                 Path.add(pathValue);
+
+                                PathLength++;
                             }
 
                             //输出path数据
                             pathOut.append("\n");
                             positionBuffer = pathOut;
-                            //positionQueue = new float[DurationWindow * windowSize*myMath.N][3];//位置队列
                             Log.d(TAG, "PathLength\t" + PathLength);
+
+                            positionQueue = positionQ.clone();
 
                             if(ifInterpolation) {
                                 PathCal pathTest = new PathCal(Path,PathLength);
 
-                                pathTest.CalPath(positionQueue);
+                                pathTest.CalPath();
                                 InterpositionBuffer = pathTest.getPathBuffer();
-                                ifInterpolation = false;
+                                InterpositionQueue = pathTest.getPathQueue();
+                                positionQueue = new float[DurationWindow*windowSize][3];
+                                for(int i = 0;i<InterpositionQueue.length;i++){
+                                    if(i%myMath.N ==0){
+                                        positionQueue[i/myMath.N] = InterpositionQueue[i];
+                                    }
+                                }
                             }
-
-                            positionQueue = positionQ.clone();
                             ifNewPath = true;
                         }//结束Path
 

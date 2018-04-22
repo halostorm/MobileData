@@ -7,18 +7,18 @@
 
     <com.nulana.NChart.NChartView
         android:id="@+id/surface"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="500dp"
         android:orientation="vertical" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
         <RelativeLayout
             android:id="@+id/ncattView"
-            android:layout_width="wrap_content"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
@@ -137,7 +137,33 @@
                     android:text=" °"
                     android:textColor="@color/grey" />
             </RelativeLayout>
+
         </LinearLayout>
 
+        <RadioGroup
+            android:id="@+id/IfInterpolation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:layout_toRightOf="@+id/ncattView"
+            android:saveEnabled="true">
+
+            <RadioButton
+                android:id="@+id/InterNo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:layout_marginBottom="20dp"
+                android:text="未插值" />
+
+            <RadioButton
+                android:id="@+id/InterYes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="插值" />
+
+        </RadioGroup>
     </RelativeLayout>
+
 </LinearLayout>

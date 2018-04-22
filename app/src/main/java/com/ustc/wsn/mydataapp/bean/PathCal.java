@@ -1,9 +1,7 @@
-package com.ustc.wsn.mydataapp;
+package com.ustc.wsn.mydataapp.bean;
 
 import android.util.Log;
 
-import com.ustc.wsn.mydataapp.bean.CubicSpline;
-import com.ustc.wsn.mydataapp.bean.PathBasicData;
 import com.ustc.wsn.mydataapp.bean.math.myMath;
 
 import java.util.ArrayList;
@@ -15,6 +13,7 @@ import java.util.ArrayList;
 public class PathCal {
     private final String TAG = this.getClass().toString();
     private float[][] accQueue = null;
+    private float[][] PathQueue = null;
     private float[] timeQueue = null;
     private int RawLength = 0;
     private StringBuffer PathBuffer = new StringBuffer();
@@ -37,7 +36,7 @@ public class PathCal {
         }
     }
 
-    public void CalPath(float[][] PostionQueue) {
+    public void CalPath() {
         StringBuffer pathOut = new StringBuffer();
         float[][] velocityQueue = new float[RawLength][3];
         float[][] positionQ = new float[RawLength][3];
@@ -57,12 +56,12 @@ public class PathCal {
 
             pathOut.append(accNow[0] + "\t");
             pathOut.append(accNow[1] + "\t");
-            pathOut.append(accNow[2] - myMath.G + "\t");
+            pathOut.append(accNow[2] + "\t");
 
             //新速度
             velocityQueue[i][0] = velocityQueue[i - 1][0] + accNow[0] * deltT;
             velocityQueue[i][1] = velocityQueue[i - 1][1] + accNow[1] * deltT;
-            velocityQueue[i][2] = velocityQueue[i - 1][2] + (accNow[2] - myMath.G) * deltT;
+            velocityQueue[i][2] = velocityQueue[i - 1][2] + accNow[2] * deltT;
 
 
             pathOut.append(velocityQueue[i][0] + "\t");
@@ -81,12 +80,9 @@ public class PathCal {
              if(i >accQueue.length-100 || i <100) {
            //if (false) {
                 Log.d(TAG, "deltTime[i]" + String.valueOf(i) + ":\t" + deltT);
-                Log.d(TAG, "accQueue[i][0]:" + String.valueOf(i) + ":\t" + accQueue[i][0]);
-                Log.d(TAG, "accQueue[i][1]:" + String.valueOf(i) + ":\t" + accQueue[i][1]);
-                Log.d(TAG, "accQueue[i][2]:" + String.valueOf(i) + ":\t" + accQueue[i][2]);
                 Log.d(TAG, "accNow[0]:" + String.valueOf(i) + ":\t" + accNow[0]);
                 Log.d(TAG, "accNow[1]:" + String.valueOf(i) + ":\t" + accNow[1]);
-                Log.d(TAG, "accNow[2]:" + String.valueOf(i) + ":\t" + (accNow[2] - myMath.G));
+                Log.d(TAG, "accNow[2]:" + String.valueOf(i) + ":\t" + accNow[2]);
                 Log.d(TAG, "velocityQueue[0]:" + String.valueOf(i) + ":\t" + velocityQueue[i][0]);
                 Log.d(TAG, "velocityQueue[1]:" + String.valueOf(i) + ":\t" + velocityQueue[i][1]);
                 Log.d(TAG, "velocityQueue[2]:" + String.valueOf(i) + ":\t" + velocityQueue[i][2]);
@@ -96,10 +92,18 @@ public class PathCal {
             }
         }
         PathBuffer = pathOut;
+        PathQueue = positionQ.clone();
     }
 
     public StringBuffer getPathBuffer(){
         return PathBuffer;
+    }
+
+    public float[][] getPathQueue(){
+        if(PathQueue!=null) {
+            return PathQueue;
+        }
+        return null;
     }
 
 }

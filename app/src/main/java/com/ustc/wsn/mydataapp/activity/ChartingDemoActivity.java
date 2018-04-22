@@ -20,6 +20,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Window;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -106,6 +108,26 @@ public class ChartingDemoActivity extends Activity {
                 }
             }, 0, 50);
         }
+
+        RadioGroup IfInter = (RadioGroup) findViewById(R.id.IfInterpolation);
+        IfInter.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup IfInter, int checkedId) {
+                RadioButton _IfInter = (RadioButton) findViewById(checkedId);
+                switch (checkedId) {
+                    case R.id.InterYes:
+                        sensorListener.ifInterpolation = true;
+                        track.markerUse = track.markerInter;
+                        break;
+                    case R.id.InterNo:
+                        sensorListener.ifInterpolation = false;
+                        track.markerUse = track.marker;
+                        break;
+                }
+
+            }
+        });
+
     }
 
     private Handler handler = new Handler() {
@@ -177,9 +199,8 @@ public class ChartingDemoActivity extends Activity {
                     if (sensorListener.ifNewPath()) {
                         sensorListener.ifNewPath = false;
                         position = sensorListener.getPosition();
-                        int mark = sensorListener.getPosition_mark();
                         if (position != null) {
-                            track.setPosition(position, mark);
+                            track.setPosition(position);
                             track.updateData(i);
                         }
                     }

@@ -145,6 +145,7 @@ public class PathService extends Service {
             t.show();
         }
         sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,true);
+        sensorListener.ifInterpolation = true;
         if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
         }
