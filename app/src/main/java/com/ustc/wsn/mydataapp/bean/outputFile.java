@@ -45,6 +45,10 @@ public class outputFile {
             appDir = new File(temp + "/MobileData/");
         }
 
+        if(!userDir.exists()){
+            userDir.mkdirs();
+        }
+
     }
 
     public outputFile() {
@@ -57,6 +61,10 @@ public class outputFile {
             File temp = Environment.getDataDirectory();
             appDir = new File(temp + "/MobileData/");
             INIDir = new File(temp + "/MobileData/"+"/INI/");
+        }
+
+        if(!INIDir.exists()){
+            INIDir.mkdirs();
         }
     }
 
