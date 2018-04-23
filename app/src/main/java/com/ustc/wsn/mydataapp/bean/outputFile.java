@@ -14,6 +14,7 @@ public class outputFile {
 
     private Context context;
     private static File sdCardDir;
+    private static File GeographicalParamsFile;
     private static File stateParamsFile;
     private static File accelParamsFile;
     private static File rawFile;
@@ -117,6 +118,11 @@ public class outputFile {
     public static File getAccParamsFile() {
         accelParamsFile = new File(INIDir, "accParams.bat");
         return accelParamsFile;
+    }
+
+    public static File getGeographicalParamsFile(){
+        GeographicalParamsFile = new File(INIDir,"GeographicalParams.bat");
+        return GeographicalParamsFile;
     }
 
     public static File getlocFile() {

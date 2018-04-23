@@ -13,8 +13,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.util.Log;
 
+import com.ustc.wsn.mydataapp.bean.Geomagnetism;
 import com.ustc.wsn.mydataapp.bean.LocationData;
+import com.ustc.wsn.mydataapp.bean.math.myMath;
 
 import java.util.Iterator;
 
@@ -58,6 +61,12 @@ public class DetectorLocationListener {
                     System.currentTimeMillis(), location.getSpeed(), location.getBearing())).toString();
             //bear = String.valueOf(location.getBearing());
             loc_cur = (loc_cur + 1) % DataSize;
+
+            myMath.updateGravity(location.getLatitude(),location.getAltitude());
+            Geomagnetism gm = new Geomagnetism(location.getLongitude(), location.getLatitude());
+            myMath.updateDeclination((float) gm.getDeclination());
+            myMath.updateGeographicalParams();
+            Log.d(TAG," magnetic declination\t"+gm.getDeclination());
         }
         // store(location);
         // 监听状态
@@ -73,6 +82,7 @@ public class DetectorLocationListener {
         // 注意：此处更新准确度非常低，推荐在service里面启动一个Thread，在run中sleep(10000);然后执行handler.sendMessage(),更新位置
         lm.requestLocationUpdates(bestProvider, 5000, 10, locationListener);
     }
+
 
     public String getLocation() {
         if (loc_old != loc_cur)// 非空
@@ -135,6 +145,12 @@ public class DetectorLocationListener {
                 bear = String.valueOf(location.getBearing());
                 bear_count++;
                 loc_cur = (loc_cur + 1) % DataSize;
+
+                myMath.updateGravity(location.getLatitude(),location.getAltitude());
+                Geomagnetism gm = new Geomagnetism(location.getLongitude(), location.getLatitude());
+                myMath.updateDeclination((float) gm.getDeclination());
+                myMath.updateGeographicalParams();
+                Log.d(TAG," magnetic declination\t"+gm.getDeclination());
             }
 			/*
 			 * slocation = location; if (thread == null) { thread = new
@@ -185,6 +201,12 @@ public class DetectorLocationListener {
                         System.currentTimeMillis(), location.getSpeed(), location.getBearing())).toString();
                 //bear = String.valueOf(location.getBearing());
                 loc_cur = (loc_cur + 1) % DataSize;
+
+                myMath.updateGravity(location.getLatitude(),location.getAltitude());
+                Geomagnetism gm = new Geomagnetism(location.getLongitude(), location.getLatitude());
+                myMath.updateDeclination((float) gm.getDeclination());
+                myMath.updateGeographicalParams();
+                Log.d(TAG," magnetic declination\t"+gm.getDeclination());
             }
         }
 
@@ -253,7 +275,7 @@ public class DetectorLocationListener {
         // 设置是否需要方位信息
         criteria.setBearingRequired(true);
         // 设置是否需要海拔信息
-        criteria.setAltitudeRequired(false);
+        criteria.setAltitudeRequired(true);
         // 设置对电源的需求
         criteria.setPowerRequirement(Criteria.POWER_LOW);
         return criteria;

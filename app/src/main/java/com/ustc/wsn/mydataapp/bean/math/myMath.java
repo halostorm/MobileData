@@ -1,16 +1,74 @@
 package com.ustc.wsn.mydataapp.bean.math;
 
+import android.util.Log;
+
+import com.ustc.wsn.mydataapp.bean.outputFile;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
 /**
  * Created by halo on 2018/3/26.
  */
 
 public class myMath {
+    private static final String TAG = myMath.class.toString();
     //统计库
-    public  static final float PI = 3.1416f;
-    public  static final float G = -9.807f;
-    public  static final float G_A = 9.807f;
+    public static final float PI = 3.141593f;
+    public static final float G_INIT = -9.7932f;
+    public static float G = G_INIT;
 
-    public  static final int N = 10;
+    public static final int N = 10;
+
+    public static float DECLINATION = -5.2989f;
+
+    public synchronized static void updateGravity(double latitude, double altitude) {
+        latitude = latitude / 180 * Math.PI;
+        G = -(float) (9.780327 * (1 + 0.005302 * Math.sin(latitude) * Math.sin(latitude) - 0.000005 * Math.sin(2 * latitude) * Math.sin(2 * latitude)) - 3.08769 * 10e-6 * (1 - 0.0014437 * Math.sin(2 * latitude) * Math.sin(2 * latitude)) * altitude);
+        Log.d(TAG, "local Gravity:\t" + G);
+    }
+
+    public synchronized static void updateDeclination(float dec) {
+        DECLINATION = dec;
+    }
+
+    public synchronized static void updateGeographicalParams() {
+        File f = outputFile.getGeographicalParamsFile();
+        String out = G + "\t" + DECLINATION;
+        try {
+            FileWriter writer = new FileWriter(f);
+            writer.write(out);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized static void getGeographicalParams() {
+        File f = outputFile.getGeographicalParamsFile();
+        if (f.exists()) {
+            try {
+                BufferedReader bf = new BufferedReader(new FileReader(f));
+
+                String values = new String();
+                values = bf.readLine();
+                if (values.length() != 0) {
+                    String[] v = new String[10];
+                    v = values.split("\t");
+                    G = Float.parseFloat(v[0]);
+                    DECLINATION = Float.parseFloat(v[1]);
+
+                    Log.d(TAG, "Gravity & DECLINATION\t" + G + "\t" + DECLINATION);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public synchronized static float getMoulding(float[] value) {
         float temp = 0;
@@ -264,7 +322,7 @@ public class myMath {
         return matrix.clone();
     }
 
-    public synchronized static float[] Q2Euler(float[] q){
+    public synchronized static float[] Q2Euler(float[] q) {
         float[] eulerAngles = {0, 0, 0};
         eulerAngles[0] = (float) Math.atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), 1.0f - 2.0f * (q[1] * q[1] + q[2] * q[2]));
         eulerAngles[1] = (float) Math.asin(2.0f * (q[0] * q[2] - q[3] * q[1]));
@@ -281,6 +339,7 @@ public class myMath {
         eulerAngles[2] = (float) Math.atan2(Rot_matrix[3], Rot_matrix[0]);
         return eulerAngles.clone();
     }
+
     /*
     public synchronized static float[] Rot2Q(float[] dcm) {
         float[] _q = new float[4];
@@ -291,7 +350,7 @@ public class myMath {
         return _q.clone();
     }
     */
-    public synchronized static float[] Rot2Q(float[] dcm){
+    public synchronized static float[] Rot2Q(float[] dcm) {
         float[] _q = new float[4];
         float tr = dcm[0] + dcm[4] + dcm[8];
         if (tr > 0.0f) {
@@ -302,26 +361,26 @@ public class myMath {
             _q[2] = (dcm[2] - dcm[6]) * s;
             _q[3] = (dcm[3] - dcm[1]) * s;
         } else {
-			/* Find maximum diagonal element in dcm
-			* store index in dcm_i */
+            /* Find maximum diagonal element in dcm
+            * store index in dcm_i */
             int dcm_i = 0;
             for (int i = 1; i < 3; i++) {
-                if (dcm[i*3+i] > dcm[dcm_i*3+dcm_i]) {
+                if (dcm[i * 3 + i] > dcm[dcm_i * 3 + dcm_i]) {
                     dcm_i = i;
                 }
             }
             int dcm_j = (dcm_i + 1) % 3;
             int dcm_k = (dcm_i + 2) % 3;
-            float s = (float) Math.sqrt((dcm[dcm_i*3+dcm_i] - dcm[dcm_j*3+dcm_j] -
-                    dcm[dcm_k*3+dcm_k]) + 1.0f);
+            float s = (float) Math.sqrt((dcm[dcm_i * 3 + dcm_i] - dcm[dcm_j * 3 + dcm_j] - dcm[dcm_k * 3 + dcm_k]) + 1.0f);
             _q[dcm_i + 1] = s * 0.5f;
             s = 0.5f / s;
-            _q[dcm_j + 1] = (dcm[dcm_i*3+dcm_j] + dcm[dcm_j*3+dcm_i]) * s;
-            _q[dcm_k + 1] = (dcm[dcm_k*3+dcm_i] + dcm[dcm_i*3+dcm_k]) * s;
-            _q[0] = (dcm[dcm_k*3+dcm_j] - dcm[dcm_j*3+dcm_k]) * s;
+            _q[dcm_j + 1] = (dcm[dcm_i * 3 + dcm_j] + dcm[dcm_j * 3 + dcm_i]) * s;
+            _q[dcm_k + 1] = (dcm[dcm_k * 3 + dcm_i] + dcm[dcm_i * 3 + dcm_k]) * s;
+            _q[0] = (dcm[dcm_k * 3 + dcm_j] - dcm[dcm_j * 3 + dcm_k]) * s;
         }
         return _q.clone();
     }
+
     //矩阵坐标系变换
     public synchronized static float[] Rot_coordinatesTransform(float[] DCM, float[] values) {
         float[] valuesEarth = new float[3];
@@ -339,7 +398,7 @@ public class myMath {
         float q1q1 = Q[1] * Q[1];
         float q2q2 = Q[2] * Q[2];
         float q3q3 = Q[3] * Q[3];
-        
+
         valuesEarth[0] = values[0] * (q0q0 + q1q1 - q2q2 - q3q3) + values[1] * 2.0f * (Q[1] * Q[2] - Q[0] * Q[3]) + values[2] * 2.0f * (Q[0] * Q[2] + Q[1] * Q[3]);
 
         valuesEarth[1] = values[0] * 2.0f * (Q[1] * Q[2] + Q[0] * Q[3]) + values[1] * (q0q0 - q1q1 + q2q2 - q3q3) + values[2] * 2.0f * (Q[2] * Q[3] - Q[0] * Q[1]);
@@ -347,5 +406,5 @@ public class myMath {
         valuesEarth[2] = values[0] * 2.0f * (Q[1] * Q[3] - Q[0] * Q[2]) + values[1] * 2.0f * (Q[0] * Q[1] + Q[2] * Q[3]) + values[2] * (q0q0 - q1q1 - q2q2 + q3q3);
         return valuesEarth.clone();
     }
-    
+
 }

@@ -242,6 +242,7 @@ public class TrackSensorListener implements SensorEventListener {
                                 Euler = myMath.Q2Euler(Quarternion);
                             }
                         }
+                        Euler[2] -= myMath.DECLINATION/180*myMath.PI;//去除磁偏角
                     }
                     PhoneState.Euler = Euler.clone();
                     PhoneState.Quarternion = Quarternion.clone();

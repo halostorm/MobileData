@@ -19,7 +19,9 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ustc.wsn.mydataapp.Listenter.DetectorLocationListener;
 import com.ustc.wsn.mydataapp.R;
+import com.ustc.wsn.mydataapp.bean.math.myMath;
 import com.ustc.wsn.mydataapp.bean.outputFile;
 
 import java.io.BufferedReader;
@@ -30,8 +32,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends Activity {
+    private final String TAG = this.getClass().toString();
     protected Boolean isExit = false;
     private String userID = "";
+    private DetectorLocationListener GPS = null;
 
     @SuppressLint("ResourceAsColor")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
@@ -40,6 +44,10 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         new outputFile();
+
+        GPS = new DetectorLocationListener(this);// start GPS to update geographical params: gravity, declination;
+
+        myMath.getGeographicalParams();
 
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
@@ -113,7 +121,7 @@ public class MainActivity extends Activity {
         public void onClick(View view) {
 
             Intent intent = new Intent(MainActivity.this, DetectorActivity.class);
-
+            intent.putExtra("userId", userID);
             startActivity(intent);
             finish();
         }
@@ -166,5 +174,8 @@ public class MainActivity extends Activity {
     public void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
+        if(GPS!=null){
+            GPS.closeLocation();
+        }
     }
 }

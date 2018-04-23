@@ -21,15 +21,15 @@ public class PhoneGlModel {
             one, 0, one, one, one, 0, one, one, one, 0, one, one, one, 0, one, one,};
 
     public IntBuffer quaterBuffer;
-    public int[] quaterVertices = new int[]{one/2, one, -one/10, -one/2, one, -one/10, one/2, one, one/10, -one/2, one, one/10,
+    public int[] quaterVertices = new int[]{one/100, one, -one/10, -one/100, one, -one/10, one/100, one, one/10, -one/100, one, one/10,//前
 
-            one/2, -one, one/10, -one/2, -one, one/10, one/2, -one, -one/10, -one/2, -one, -one/10,
+            one/2, -one, one/10, -one/2, -one, one/10, one/2, -one, -one/10, -one/2, -one, -one/10,//后
 
-            one/2, one, one/10, -one/2, one, one/10, one/2, -one, one/10, -one/2, -one, one/10,
+            one/100, one, one/10, -one/100, one, one/10, one/2, -one, one/10, -one/2, -one, one/10,//上
 
-            one/2, -one, -one/10, -one/2, -one, -one/10, one/2, one, -one/10, -one/2, one, -one/10,
+            one/2, -one, -one/10, -one/2, -one, -one/10, one/100, one, -one/10, -one/100, one, -one/10,//下
 
-            -one/2, one, one/10, -one/2, one, -one/10, -one/2, -one, one/10, -one/2, -one, -one/10,
+            -one/100, one, one/10, -one/100, one, -one/10, -one/2, -one, one/10, -one/2, -one, -one/10,//左
 
-            one/2, one, -one/10, one/2, one, one/10, one/2, -one, -one/10, one/2, -one, one/10};
+            one/100, one, -one/10, one/100, one, one/10, one/2, -one, -one/10, one/2, -one, one/10};//右
 }
