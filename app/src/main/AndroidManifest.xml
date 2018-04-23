@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ustc.wsn.mydataapp">
+    package="com.ustc.wsn.mobileData">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -40,12 +40,12 @@
             android:name=".service.DetectorService"
             android:enabled="true">
             <intent-filter android:priority="1000">
-                <action android:name="com.ustc.wsn.mydataapp.activity.DetectorActivity" />
+                <action android:name="com.ustc.wsn.mobileData.activity.DetectorActivity" />
             </intent-filter>
         </service>
         <service android:name=".service.AutoUploadSeriver">
             <intent-filter android:priority="1000">
-                <action android:name="com.ustc.wsn.mydataapp.service.AutoUploadSeriver" />
+                <action android:name="com.ustc.wsn.mobileData.service.AutoUploadSeriver" />
             </intent-filter>
         </service>
         <service

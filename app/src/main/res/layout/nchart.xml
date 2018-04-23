@@ -5,11 +5,28 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.nulana.NChart.NChartView
-        android:id="@+id/surface"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="500dp"
-        android:orientation="vertical" />
+        android:layout_height="@dimen/y280"
+        android:orientation="horizontal">
+
+        <com.nulana.NChart.NChartView
+            android:id="@+id/surface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+
+
+        <ImageView
+            android:layout_width="160dp"
+            android:layout_height="80dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:gravity="center_horizontal"
+            android:src="@drawable/ic_launcher4"
+            android:visibility="visible" />
+
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -20,9 +37,9 @@
             android:id="@+id/ncattView"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:layout_marginBottom="5dp"
             android:gravity="left"
             android:orientation="vertical"></RelativeLayout>
 
@@ -144,26 +161,26 @@
             android:id="@+id/IfInterpolation"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center_vertical"
             android:layout_toRightOf="@+id/ncattView"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
             android:saveEnabled="true">
 
             <RadioButton
                 android:id="@+id/InterNo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
-                android:textColor="@color/mid_blue"
                 android:layout_marginBottom="20dp"
-                android:text="不显示插值" />
+                android:checked="true"
+                android:text="不显示插值"
+                android:textColor="@color/mid_blue" />
 
             <RadioButton
                 android:id="@+id/InterYes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/mid_orange"
-                android:text="显示插值" />
+                android:text="显示插值"
+                android:textColor="@color/mid_orange" />
 
         </RadioGroup>
     </RelativeLayout>
