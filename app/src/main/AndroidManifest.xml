@@ -101,7 +101,7 @@
             android:label="@string/title_activity_data_upload" />
         <activity
             android:name=".activity.LoginActivity"
-            android:label="@string/title_activity_login"></activity>
+            android:label="@string/title_activity_login" />
     </application>
 
 </manifest>

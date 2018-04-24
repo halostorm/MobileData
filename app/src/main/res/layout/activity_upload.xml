@@ -14,21 +14,21 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="@layout/label_round"
-            android:elevation="10dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="10dp"
+            android:elevation="@dimen/x6"
+            android:layout_marginLeft="@dimen/x24"
+            android:layout_marginRight="@dimen/x24"
+            android:layout_marginTop="@dimen/x6"
             android:text="开始上传" />
         <Button
             android:id="@+id/btnStopUpload"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="@layout/label_round"
-            android:elevation="10dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
+            android:elevation="@dimen/x6"
+            android:layout_marginLeft="@dimen/x24"
+            android:layout_marginRight="@dimen/x24"
+            android:layout_marginTop="@dimen/x6"
+            android:layout_marginBottom="@dimen/x6"
             android:text="停止上传" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

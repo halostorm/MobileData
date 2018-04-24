@@ -99,8 +99,8 @@ public class CalibrateStateActivity extends Activity {
         valueCurveLayout = (LinearLayout) findViewById(R.id.state_value_curve);
 
         valueService = new ChartService(this);
-        valueService.setXYMultipleSeriesDataset("Mean", " Variance", "");
-        valueService.setXYMultipleSeriesRenderer(0, 10, 0, 20, "状态值", "时间 /s", "0.0", Color.BLACK, Color.BLACK,Color.RED, Color.BLUE, Color.CYAN,  Color.BLACK);
+        valueService.setXYMultipleSeriesDataset("Mean ", " Variance ", "Threshold (Var)");
+        valueService.setXYMultipleSeriesRenderer(0, 10, 0, 20, "状态值", "时间 /s", "0.0", Color.BLACK, Color.BLACK,Color.RED, Color.BLUE, Color.YELLOW,  Color.BLACK);
         valueView = valueService.getGraphicalView();
 
         //将左右图表添加到布局容器中

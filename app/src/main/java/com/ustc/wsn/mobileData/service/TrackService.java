@@ -118,7 +118,7 @@ public class TrackService extends Service implements NChartSeriesDataSource, NCh
         markerUse = marker;
         position = new float[this.window_size*2][3];
 
-        NChartBrush background = new NChartSolidColorBrush(Color.argb(20, 255, 255, 255));
+        NChartBrush background = new NChartSolidColorBrush(Color.argb(20, 0, 0, 0));
 
         //Switch on antialiasing.
         if (drawIn3D) {

@@ -3,12 +3,14 @@ package com.ustc.wsn.mobileData.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -77,9 +79,13 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
                 if (ifCollect) {
                     try {
                         start.setTextColor(Color.BLACK);
+                        stop.setTextColor(Color.BLUE);
+                        stop.setText("正在计算校准结果...");
                         threadDisable_data_update = true;
                         fit = new EllipsoidFit(sample);
                         ifFit = true;
+                        stop.setText("校准完成");
+                        stop.setTextColor(Color.BLACK);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -101,6 +107,7 @@ public class EllipsoidFitActivity extends Activity implements View.OnClickListen
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    finish();
                 }
                 break;
         }

@@ -106,5 +106,6 @@
     <string name="action_example">Example action</string>
     <string name="title_activity_data_upload">DataUploadActivity</string>
     <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_view_test">ViewTestActivity</string>
 
 </resources>

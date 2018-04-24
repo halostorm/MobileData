@@ -5,10 +5,10 @@
     android:orientation="vertical">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="1dp"
+        android:layout_height="0px"
+        android:layout_marginLeft="@dimen/x6"
+        android:layout_marginRight="@dimen/x6"
+        android:layout_marginBottom="@dimen/x1"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -25,7 +25,7 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x6"
                     android:layout_weight="1" >
 
                     <TextView
@@ -41,19 +41,19 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x6"
                     android:layout_weight="1" >
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="1dp"
+                        android:layout_marginBottom="@dimen/x1"
                         android:text="3D校准加速度(m2/s)" />
                 </RelativeLayout>
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x6"
                     android:layout_weight="1" >
 
                     <TextView
@@ -98,7 +98,7 @@
                 <RelativeLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginLeft="@dimen/x6"
                     android:layout_weight="1" >
 
                     <TextView
@@ -130,10 +130,10 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="1dp"
+        android:layout_height="0px"
+        android:layout_marginLeft="@dimen/x6"
+        android:layout_marginRight="@dimen/x6"
+        android:layout_marginBottom="@dimen/x1"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -150,7 +150,7 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x6"
                     android:layout_weight="1" >
 
                     <TextView
@@ -165,19 +165,19 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x6"
                     android:layout_weight="1" >
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="1dp"
+                        android:layout_marginBottom="@dimen/x1"
                         android:text="未校准加速度(m2/s)" />
                 </RelativeLayout>
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x6"
                     android:layout_weight="1" >
 
                     <TextView
@@ -222,7 +222,7 @@
                 <RelativeLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginLeft="@dimen/x6"
                     android:layout_weight="1" >
 
                     <TextView
@@ -253,10 +253,10 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="1dp"
+        android:layout_height="0px"
+        android:layout_marginLeft="@dimen/x6"
+        android:layout_marginRight="@dimen/x6"
+        android:layout_marginBottom="@dimen/x1"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -273,7 +273,7 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x6"
                     android:layout_weight="1" >
 
                     <TextView
@@ -288,19 +288,19 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x6"
                     android:layout_weight="1" >
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="1dp"
+                        android:layout_marginBottom="@dimen/x1"
                         android:text="3D角速度(rad/s)" />
                 </RelativeLayout>
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x6"
                     android:layout_weight="1" >
 
                     <TextView
@@ -345,7 +345,7 @@
                 <RelativeLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginLeft="@dimen/x6"
                     android:layout_weight="1" >
 
                     <TextView
@@ -376,10 +376,10 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="1dp"
+        android:layout_height="0px"
+        android:layout_marginLeft="@dimen/x6"
+        android:layout_marginRight="@dimen/x6"
+        android:layout_marginBottom="@dimen/x1"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -396,7 +396,7 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x6"
                     android:layout_weight="1" >
 
                     <TextView
@@ -411,19 +411,19 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x6"
                     android:layout_weight="1" >
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="1dp"
+                        android:layout_marginBottom="@dimen/x1"
                         android:text="3D磁感应强度(uT)" />
                 </RelativeLayout>
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x6"
                     android:layout_weight="1" >
 
                     <TextView
@@ -468,7 +468,7 @@
                 <RelativeLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginLeft="@dimen/x6"
                     android:layout_weight="1" >
 
                     <TextView

@@ -49,6 +49,7 @@ public class ChartService extends Service {
      */
     public GraphicalView getGraphicalView() {
         xGraphicalView = ChartFactory.getCubeLineChartView(context, xmultipleSeriesDataset, xmultipleSeriesRenderer, 0.1f);
+        xGraphicalView.setBackgroundColor(Color.argb(40,181, 181, 181));
         return xGraphicalView;
     }
 
@@ -104,7 +105,7 @@ public class ChartService extends Service {
         xmultipleSeriesRenderer.setChartTitleTextSize(20);
         xmultipleSeriesRenderer.setLabelsTextSize(20);
         xmultipleSeriesRenderer.setLegendTextSize(20);
-        xmultipleSeriesRenderer.setPointSize(2f);//曲线描点尺寸
+        xmultipleSeriesRenderer.setPointSize(5f);//曲线描点尺寸
         xmultipleSeriesRenderer.setFitLegend(true);
         xmultipleSeriesRenderer.setMargins(new int[]{20, 30, 15, 20});
         xmultipleSeriesRenderer.setShowGrid(true);

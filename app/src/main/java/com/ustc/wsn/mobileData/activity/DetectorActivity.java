@@ -75,19 +75,14 @@ public class DetectorActivity extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detector);
-
-        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics outMetrics = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(outMetrics);
-
         File accParams = outputFile.getAccParamsFile();
         if(!accParams.exists()) {
-            Toast.makeText(DetectorActivity.this, "首次使用，请先校准加速度计！", Toast.LENGTH_SHORT).show();
+            Toast.makeText(DetectorActivity.this, "请先校准加速度计！", Toast.LENGTH_SHORT).show();
             Intent intent1 = new Intent(DetectorActivity.this, EllipsoidFitActivity.class);
             startActivity(intent1);
         }
 
+        setContentView(R.layout.activity_detector);
         loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         btnStartService = (Button) findViewById(R.id.btnStartService);
@@ -239,6 +234,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 return true;
             case R.id.ReLogin:
                 startActivity(new Intent(this, LoginActivity.class));
+                finish();
                 return true;
             case R.id.exitSystem:
                 Intent startMain = new Intent(Intent.ACTION_MAIN);

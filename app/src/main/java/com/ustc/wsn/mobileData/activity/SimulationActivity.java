@@ -166,13 +166,13 @@ public class SimulationActivity extends Activity {
 
     }
 
-    private String[] items={"手机坐标系","惯性坐标系"};
+    private String[] items = {"手机坐标系", "惯性坐标系"};
 
-    class DialogSingleClickListener implements DialogInterface.OnClickListener{
+    class DialogSingleClickListener implements DialogInterface.OnClickListener {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            switch (which){
+            switch (which) {
                 case 0:
                     FRAME_TYPE = 0;
                     aframevalue.setText(items[0]);
@@ -182,32 +182,33 @@ public class SimulationActivity extends Activity {
                     break;
                 case 1:
                     FRAME_TYPE = 1;
-                    aframevalue.setText(items[1]+AttItems[0]);
-                    rframevalue.setText(items[1]+AttItems[0]);
-                    mframevalue.setText(items[1]+AttItems[0]);
-                    gframevalue.setText(items[1]+AttItems[0]);
+                    aframevalue.setText(items[1] + AttItems[0]);
+                    rframevalue.setText(items[1] + AttItems[0]);
+                    mframevalue.setText(items[1] + AttItems[0]);
+                    gframevalue.setText(items[1] + AttItems[0]);
                     break;
             }
             dialog.dismiss();
         }
 
     }
-    private void ShowFrameDialog(){
-        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+
+    private void ShowFrameDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("请选择传感器坐标系");
         builder.setIcon(R.drawable.ic_launcher);
-        if(FRAME_TYPE == 0) {
+        if (FRAME_TYPE == 0) {
             builder.setSingleChoiceItems(items, 0, new DialogSingleClickListener());
-        }else if(FRAME_TYPE == 1) {
+        } else if (FRAME_TYPE == 1) {
             builder.setSingleChoiceItems(items, 1, new DialogSingleClickListener());
         }
-        AlertDialog dialog=builder.create();
+        AlertDialog dialog = builder.create();
         dialog.show();
     }
 
-    private String[] AttItems={"EKF算法","互补滤波算法","梯度下降滤波算法","仅陀螺仪,周期校正","Android自带算法"};
+    private String[] AttItems = {"EKF算法", "互补滤波算法", "梯度下降滤波算法", "仅陀螺仪,周期校正", "Android自带算法"};
 
-    class AttDialogSingleClickListener implements DialogInterface.OnClickListener{
+    class AttDialogSingleClickListener implements DialogInterface.OnClickListener {
 
         @Override
         public void onClick(DialogInterface dialog, int which) {
@@ -216,7 +217,7 @@ public class SimulationActivity extends Activity {
             rframevalue.setText(AttItems[AttChoose]);
             mframevalue.setText(AttItems[AttChoose]);
             gframevalue.setText(AttItems[AttChoose]);
-            switch (which){
+            switch (which) {
                 case 0:
                     sensorListener.setAttitudeMode(PhoneState.Attitude_EKF);
                     break;
@@ -237,14 +238,15 @@ public class SimulationActivity extends Activity {
         }
 
     }
-    private void ShowAttChooseDialog(){
-        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+
+    private void ShowAttChooseDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("请选择姿态解算算法");
         builder.setIcon(R.drawable.ic_launcher);
 
         builder.setSingleChoiceItems(AttItems, AttChoose, new AttDialogSingleClickListener());
 
-        AlertDialog dialog=builder.create();
+        AlertDialog dialog = builder.create();
         dialog.show();
     }
 
@@ -278,11 +280,11 @@ public class SimulationActivity extends Activity {
                 ShowFrameDialog();
                 return true;
             case R.id.AttChoose:
-                if(FRAME_TYPE == 0){
+                if (FRAME_TYPE == 0) {
                     t = Toast.makeText(this, "请先选择坐标系为惯性坐标系", Toast.LENGTH_SHORT);
                     t.setGravity(Gravity.CENTER, 0, 0);
                     t.show();
-                }else {
+                } else {
                     ShowAttChooseDialog();
                 }
                 return true;
@@ -303,7 +305,7 @@ public class SimulationActivity extends Activity {
             accService.rightUpdateChart(AccData[0], AccData[1], AccData[2]);
             gyroSeivice.rightUpdateChart(GyroData[0], GyroData[1], GyroData[2]);
             magService.rightUpdateChart(MagData[0], MagData[1], MagData[2]);
-            rawService.rightUpdateChart(RawAccData[0],RawAccData[1], RawAccData[2]);
+            rawService.rightUpdateChart(RawAccData[0], RawAccData[1], RawAccData[2]);
         }
     };
 
@@ -335,7 +337,7 @@ public class SimulationActivity extends Activity {
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerator = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         float accMax = accelerator.getMaximumRange();
-        Log.d(TAG,"accMaxRange\t"+accMax);
+        Log.d(TAG, "accMaxRange\t" + accMax);
         if (accelerator != null) {
             ACCELERATOR_EXIST = true;
         } else {
@@ -345,7 +347,7 @@ public class SimulationActivity extends Activity {
         }
         gyroscrope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         float gyroMax = gyroscrope.getMaximumRange();
-        Log.d(TAG,"gyroMaxRange\t"+gyroMax);
+        Log.d(TAG, "gyroMaxRange\t" + gyroMax);
         if (gyroscrope != null) {
             GYROSCROPE_EXIST = true;
         } else {
@@ -355,7 +357,7 @@ public class SimulationActivity extends Activity {
         }
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         float magMax = magnetic.getMaximumRange();
-        Log.d(TAG,"magMaxRange\t"+magMax);
+        Log.d(TAG, "magMaxRange\t" + magMax);
         if (magnetic != null) {
             MAGNETIC_EXIST = true;
         } else {
@@ -363,15 +365,15 @@ public class SimulationActivity extends Activity {
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,false);
+        sensorListener = new TrackSensorListener(accMax, gyroMax, magMax, false);
         if (ACCELERATOR_EXIST) {
-            sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME);
         }
         if (GYROSCROPE_EXIST) {
-            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME);
         }
         if (MAGNETIC_EXIST) {
-            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
         }
     }
 
@@ -384,16 +386,16 @@ public class SimulationActivity extends Activity {
         if (timer2 != null) {
             timer2.cancel();
         }
-        if(rawService!=null){
+        if (rawService != null) {
             rawService.stopSelf();
         }
-        if(accService!=null){
+        if (accService != null) {
             accService.stopSelf();
         }
-        if(gyroSeivice!=null){
+        if (gyroSeivice != null) {
             gyroSeivice.stopSelf();
         }
-        if(magService!=null){
+        if (magService != null) {
             magService.stopSelf();
         }
         sensorListener.closeSensorThread();

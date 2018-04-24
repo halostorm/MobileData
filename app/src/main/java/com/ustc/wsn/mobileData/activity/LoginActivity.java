@@ -24,7 +24,9 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ustc.wsn.mobileData.Listenter.DetectorLocationListener;
 import com.ustc.wsn.mobileData.R;
+import com.ustc.wsn.mobileData.bean.math.myMath;
 import com.ustc.wsn.mobileData.bean.outputFile;
 
 import java.io.File;
@@ -47,10 +49,13 @@ public class LoginActivity extends Activity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        myMath.getGeographicalParams();
 
-        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics outMetrics = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(outMetrics);
+        File accParams = outputFile.getAccParamsFile();
+        if (!accParams.exists()) {
+            Toast.makeText(this, "首次使用，请查看使用说明！", Toast.LENGTH_LONG).show();
+            showHelpDialog();
+        }
 
         EditText userID = (EditText) findViewById(R.id.userID);
         EditText age = (EditText) findViewById(R.id.age);
@@ -80,11 +85,6 @@ public class LoginActivity extends Activity {
         });
 
         //Calibrate accel if app is firstly used
-        File accParams = outputFile.getAccParamsFile();
-        if (!accParams.exists()) {
-            Toast.makeText(LoginActivity.this, "首次使用，请查看使用说明！", Toast.LENGTH_LONG).show();
-            showHelpDialog();
-        }
     }
 
     private void showHelpDialog() {
@@ -165,38 +165,8 @@ public class LoginActivity extends Activity {
     };
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            exitByDoubleClick();
-        }
-        if (keyCode == KeyEvent.KEYCODE_HOME) {
-            //exitByDoubleClick();
-        }
-        return false;
-    }
-
-    private void exitByDoubleClick() {
-        Timer tExit;
-        if (!isExit) {
-            isExit = true;
-            Toast.makeText(this, "再按一次退出 Mobile Data !", Toast.LENGTH_SHORT).show();
-            tExit = new Timer();
-            tExit.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    isExit = false;//取消退出
-                }
-            }, 1000);// 如果1秒钟内没有按下返回键，则启动定时器取消掉刚才执行的任务
-        } else {
-            finish();
-            System.exit(0);
-        }
-    }
-
-    @Override
-    public void onStop() {
+    public void onDestroy() {
         // TODO Auto-generated method stub
-        super.onStop();
-        onDestroy();
+        super.onDestroy();
     }
 }

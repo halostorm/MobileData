@@ -45,7 +45,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         new outputFile();
-
         GPS = new DetectorLocationListener(this);// start GPS to update geographical params: gravity, declination;
 
         myMath.getGeographicalParams();
@@ -60,14 +59,11 @@ public class MainActivity extends Activity {
 
         Log.d(TAG,"we & he\t"+we+"\t"+he);
 
-        TextView Pass = (TextView) findViewById(R.id.btnPass);
-        Pass.setOnClickListener(mOnClickListener);
-
         //Login if app is firstly used
-
         File userInfo = outputFile.getUserInfoFile();
         if (!userInfo.exists()) {
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
         }
         else{
             try {
@@ -84,6 +80,10 @@ public class MainActivity extends Activity {
                 e.printStackTrace();
             }
         }
+
+        TextView Pass = (TextView) findViewById(R.id.btnPass);
+        Pass.setOnClickListener(mOnClickListener);
+
     }
 
     private void showHelpDialog() {
@@ -117,6 +117,7 @@ public class MainActivity extends Activity {
                 return true;
             case R.id.ReLogin:
                 startActivity(new Intent(this, LoginActivity.class));
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -7,11 +7,11 @@
 
     <ImageView
         android:id="@+id/imageview"
-        android:layout_width="192dp"
-        android:layout_height="192dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_width="@dimen/x180"
+        android:layout_height="@dimen/x180"
+        android:layout_marginLeft="@dimen/x6"
+        android:layout_marginRight="@dimen/x6"
+        android:layout_marginTop="@dimen/x6"
         android:contentDescription="login image"
         android:gravity="center_horizontal"
         android:src="@drawable/ic_launcher"
@@ -20,34 +20,34 @@
     <EditText
         android:id="@+id/userID"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/x36"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginLeft="@dimen/x24"
+        android:layout_marginRight="@dimen/x24"
+        android:layout_marginTop="@dimen/x6"
         android:background="@layout/label_round"
         android:gravity="center_vertical"
         android:hint="请输入手机号码"
         android:inputType="phone"
         android:maxLines="1"
         android:textColorHint="@color/grey"
-        android:textSize="12dp" />
+        android:textSize="@dimen/x9" />
 
     <EditText
         android:id="@+id/age"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/x36"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginLeft="@dimen/x24"
+        android:layout_marginRight="@dimen/x24"
+        android:layout_marginTop="@dimen/x6"
         android:background="@layout/label_round"
         android:gravity="center_vertical"
         android:hint="年龄"
         android:inputType="phone"
         android:maxLines="1"
         android:textColorHint="@color/grey"
-        android:textSize="12dp" />
+        android:textSize="@dimen/x9" />
 
     <RadioGroup
         android:id="@+id/gender"
@@ -72,11 +72,11 @@
     <TextView
         android:id="@+id/btnlogin"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginBottom="30dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="10dp"
+        android:layout_height="@dimen/x36"
+        android:layout_marginBottom="@dimen/x24"
+        android:layout_marginLeft="@dimen/x24"
+        android:layout_marginRight="@dimen/x24"
+        android:layout_marginTop="@dimen/x6"
         android:background="@layout/label_round"
         android:gravity="center"
         android:hint="登录"

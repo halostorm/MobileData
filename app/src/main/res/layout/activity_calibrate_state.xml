@@ -7,18 +7,18 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginBottom="@dimen/x1"
+        android:layout_marginLeft="@dimen/x22"
+        android:layout_marginRight="@dimen/x8"
         android:gravity="center_vertical"
         android:orientation="vertical">
 
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginBottom="@dimen/x8"
+            android:layout_marginRight="@dimen/x8"
+            android:layout_marginTop="@dimen/x8"
             android:gravity="center_vertical">
 
             <Button
@@ -36,7 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@layout/button_round"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="@dimen/x8"
                 android:layout_toRightOf="@+id/stateLogo"
                 android:text="***"
                 android:textColor="@color/dark_orange" />
@@ -45,10 +45,10 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/x8"
+        android:layout_marginRight="@dimen/x8"
+        android:layout_marginBottom="@dimen/x8"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -63,12 +63,12 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x8"
                     android:layout_weight="1" >
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="1dp"
+                        android:layout_marginBottom="@dimen/x1"
                         android:textColor="@color/mid_orange"
                         android:textStyle="bold"
                         android:text="加速度状态统计量" />
@@ -77,7 +77,7 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="@dimen/x8"
                     android:layout_weight="1" >
 
                     <TextView
@@ -137,7 +137,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@layout/button_round"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="@dimen/x16"
             android:gravity="center"
             android:text="参数调整"
             android:textAppearance="?android:attr/textAppearanceMedium"
@@ -149,72 +149,72 @@
                 android:id="@+id/paramsleft"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginBottom="@dimen/x16"
+                android:layout_marginLeft="@dimen/x16"
+                android:layout_marginRight="@dimen/x8"
+                android:layout_marginTop="@dimen/x8"
                 android:gravity="center"
                 android:orientation="vertical">
 
                 <EditText
                     android:id="@+id/accMean_Ab"
-                    android:layout_width="220dp"
-                    android:layout_height="30dp"
-                    android:layout_marginBottom="15dp"
+                    android:layout_width="@dimen/x180"
+                    android:layout_height="@dimen/x22"
+                    android:layout_marginBottom="@dimen/x12"
                     android:background="@layout/button_round"
                     android:hint="请输入绝对静止-加速度均值阈值（默认）"
                     android:inputType="phone"
                     android:maxLines="1"
                     android:textColor="@color/dark_orange"
                     android:textColorHint="@color/lightgrey"
-                    android:textSize="10dp" />
+                    android:textSize="@dimen/x8" />
 
                 <EditText
                     android:id="@+id/accVar_Ab"
-                    android:layout_width="220dp"
-                    android:layout_height="30dp"
-                    android:layout_marginBottom="15dp"
+                    android:layout_width="@dimen/x180"
+                    android:layout_height="@dimen/x22"
+                    android:layout_marginBottom="@dimen/x12"
                     android:background="@layout/button_round"
                     android:hint="请输入绝对静止-加速度方差阈值（默认）"
                     android:inputType="phone"
                     android:maxLines="1"
                     android:textColor="@color/dark_orange"
                     android:textColorHint="@color/lightgrey"
-                    android:textSize="10dp" />
+                    android:textSize="@dimen/x8" />
 
                 <EditText
                     android:id="@+id/accMean_User"
-                    android:layout_width="220dp"
-                    android:layout_height="30dp"
-                    android:layout_marginBottom="15dp"
+                    android:layout_width="@dimen/x180"
+                    android:layout_height="@dimen/x22"
+                    android:layout_marginBottom="@dimen/x12"
                     android:background="@layout/button_round"
                     android:hint="请输入相对静止-加速度均值阈值（默认）"
                     android:inputType="phone"
                     android:maxLines="1"
                     android:textColor="@color/dark_orange"
                     android:textColorHint="@color/lightgrey"
-                    android:textSize="10dp" />
+                    android:textSize="@dimen/x8" />
 
                 <EditText
                     android:id="@+id/accVar_User"
-                    android:layout_width="220dp"
-                    android:layout_height="30dp"
+                    android:layout_width="@dimen/x180"
+                    android:layout_height="@dimen/x22"
                     android:background="@layout/button_round"
                     android:hint="请输入相对静止-加速度方差阈值（默认）"
                     android:inputType="phone"
                     android:maxLines="1"
                     android:textColor="@color/dark_orange"
                     android:textColorHint="@color/lightgrey"
-                    android:textSize="10dp" />
+                    android:textSize="@dimen/x8" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginBottom="@dimen/x16"
+                android:layout_marginLeft="@dimen/x8"
+                android:layout_marginRight="@dimen/x8"
+                android:layout_marginTop="@dimen/x8"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -222,27 +222,27 @@
                     android:id="@+id/btninitParams"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="@dimen/x16"
                     android:background="@layout/button_round"
                     android:layout_toRightOf="@id/paramsleft"
                     android:hint="默认值"
                     android:gravity="center"
-                    android:textColorHint="@color/grey"
-                    android:textSize="30dp"/>
+                    android:textColorHint="@color/mid_green"
+                    android:textSize="@dimen/x22"/>
 
                 <Button
                     android:id="@+id/btnconfirmParams"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="@dimen/x16"
                     android:background="@layout/button_round"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="@dimen/x8"
                     android:layout_toRightOf="@id/paramsleft"
                     android:gravity="center"
                     android:hint="  保存  "
                     android:textAlignment="center"
                     android:textColorHint="@color/grey"
-                    android:textSize="30dp" />
+                    android:textSize="@dimen/x22" />
             </LinearLayout>
         </TableRow>
     </TableLayout>

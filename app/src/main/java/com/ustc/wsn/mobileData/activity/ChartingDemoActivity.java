@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
@@ -71,6 +72,7 @@ public class ChartingDemoActivity extends Activity {
         initSensor();
         GLSurfaceView glView = new GLSurfaceView(this);
         myRender = new MyRender();
+        glView.setBackgroundColor(Color.argb(40,255,255, 255));
         glView.setRenderer(myRender);
         attLayout.addView(glView);
 

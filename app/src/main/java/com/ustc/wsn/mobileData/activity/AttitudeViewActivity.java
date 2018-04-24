@@ -73,6 +73,8 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
         attLayout = (RelativeLayout) findViewById(R.id.attView);
         initSensor();
         GLSurfaceView glView = new GLSurfaceView(this);
+
+        glView.setBackgroundColor(Color.argb(40,255,255, 255));
         myRender = new MyRender();
         glView.setRenderer(myRender);
         attLayout.addView(glView);
