@@ -24,6 +24,9 @@ public class PathIntegration {
     private float[][] gyroQueue;
     private float[] timeQueue;
     private int PathLength = 0;
+
+    private float[][] PathQueue = null;
+
     public ArrayList<PathData> PathQ;
 
     private StringBuffer PathBuffer = new StringBuffer();
@@ -82,7 +85,7 @@ public class PathIntegration {
         }
     }
 
-    public void CalPath(float[][] PostionQueue){
+    public void CalPath(){
         StringBuffer pathOut = new StringBuffer();
         float[] RotMatrix= RotMatrix0.clone();
         float[] RotMatrixLast= RotMatrix.clone();
@@ -165,10 +168,9 @@ public class PathIntegration {
                 Log.d(TAG, "position[2]" + String.valueOf(i) + ":\t" + positionQ[i][2]);
             }
 
-            //PostionQueue[i] = positionQ[i].clone();
-
             PathBuffer = pathOut;
         }
+        PathQueue = positionQ.clone();
     }
 
     public StringBuffer getPathBuffer(){

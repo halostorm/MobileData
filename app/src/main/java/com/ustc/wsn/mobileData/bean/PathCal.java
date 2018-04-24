@@ -77,8 +77,8 @@ public class PathCal {
             pathOut.append(positionQ[i][1] + "\t");
             pathOut.append(positionQ[i][2] + "\n");
 
-             if(i >accQueue.length-100 || i <100) {
-           //if (false) {
+             //if(i >accQueue.length-100 || i <100) {
+           if (false) {
                 Log.d(TAG, "deltTime[i]" + String.valueOf(i) + ":\t" + deltT);
                 Log.d(TAG, "accNow[0]:" + String.valueOf(i) + ":\t" + accNow[0]);
                 Log.d(TAG, "accNow[1]:" + String.valueOf(i) + ":\t" + accNow[1]);
