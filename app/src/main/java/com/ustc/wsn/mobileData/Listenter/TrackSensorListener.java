@@ -18,6 +18,7 @@ import com.ustc.wsn.mobileData.bean.Filter.ekfParamsHandle;
 import com.ustc.wsn.mobileData.bean.Log.myLog;
 import com.ustc.wsn.mobileData.bean.PathBasicData;
 import com.ustc.wsn.mobileData.bean.PhoneState;
+import com.ustc.wsn.mobileData.bean.fft.FastFourierTransform;
 import com.ustc.wsn.mobileData.bean.math.myMath;
 
 //import org.jtransforms.fft.FloatFFT_1D;
@@ -32,8 +33,8 @@ public class TrackSensorListener implements SensorEventListener {
     private final String TAG = TrackSensorListener.this.toString();
 
     //数据窗口参数
-    public final int windowSize = 25;//20*windowSize ms - 500ms
-    public final int DurationWindow = 10;// 5s
+    public final int windowSize = 32;//20*windowSize ms - 500ms
+    public final int DurationWindow = 8;//
     public final int sampleInterval = 20;//ms
     public volatile int sampleIntervalReal = sampleInterval;//ms
 
@@ -581,11 +582,11 @@ public class TrackSensorListener implements SensorEventListener {
                                         InterPosition[i/myMath.N] = InterpositionQueue[i];
                                     }
                                 }
+                                ifVehicle();
                             }else {
                                 InterPosition = new float[DurationWindow*windowSize][3];
                             }
                             ifNewPath = true;
-                            //ifVehicle();
                         }//结束Path
 
                         LAST_STATE = NOW_STATE;
@@ -890,14 +891,14 @@ public class TrackSensorListener implements SensorEventListener {
         }
     }
 
-    /*
+
     private boolean ifVehicle(){
-        FloatFFT_1D FFT = new FloatFFT_1D(DurationWindow*windowSize);
-        float[] result = accNormQueue.clone();
-        FFT.complexForward(result);
-        myLog.log(TAG,"FFT result\t",result);
+        FastFourierTransform FFT = new FastFourierTransform(DurationWindow*windowSize);
+        float[] input = accNormQueue.clone();
+        float[] output = new float[2*DurationWindow*windowSize+1];
+        FFT.applyReal(input,0,false,output,0);
+        myLog.log(TAG,"FFT result\t",output);
         return false;
     }
-    */
 
 }
