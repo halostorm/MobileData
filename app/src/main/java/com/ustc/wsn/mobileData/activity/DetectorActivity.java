@@ -149,6 +149,16 @@ public class DetectorActivity extends Activity implements OnClickListener {
             if (isChecked) {
                 gpsEnabled = true;
                 if (detectorStart) {
+                    loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                    // 判断GPS是否正常启动
+                    if(!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER) && gpsEnabled) {
+                        t = Toast.makeText(DetectorActivity.this, "请开启高精度GPS！", Toast.LENGTH_SHORT);
+                        t.setGravity(Gravity.CENTER, 0, 0);
+                        t.show();
+                        // 返回开启GPS导航设置界面
+                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivityForResult(intent, 0);
+                    }
                     Log.d(TAG, "Gps manual Start--------------------------");
                     startService(GpsserviceIntent);
                     gpsStart = true;
@@ -358,7 +368,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                     if (gpsEnabled) {
                         loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                         // 判断GPS是否正常启动
-                        while (!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER) && gpsEnabled) {
+                        if(!loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER) && gpsEnabled) {
                             t = Toast.makeText(this, "请开启高精度GPS！", Toast.LENGTH_SHORT);
                             t.setGravity(Gravity.CENTER, 0, 0);
                             t.show();
