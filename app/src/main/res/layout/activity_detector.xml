@@ -10,7 +10,7 @@
         android:layout_marginLeft="@dimen/x20"
         android:layout_marginRight="@dimen/x20"
         android:layout_marginTop="@dimen/x6"
-        android:background="@layout/label_round"
+        android:background="@layout/button_round1"
         android:elevation="@dimen/x6"
         android:text="采集数据" />
 
@@ -19,13 +19,13 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/x20"
         android:layout_marginRight="@dimen/x20"
-        android:layout_marginTop="@dimen/x6">
+        android:layout_marginTop="@dimen/y4">
 
         <CheckBox
             android:id="@+id/checkboxEnableGPS"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@layout/label_round"
+            android:background="@layout/button_round1"
             android:layout_marginLeft="@dimen/x1"
             android:layout_marginRight="@dimen/x20"
             android:elevation="@dimen/x6"
@@ -36,7 +36,7 @@
             android:id="@+id/checkboxEnablePath"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@layout/label_round"
+            android:background="@layout/button_round1"
             android:layout_toRightOf="@id/checkboxEnableGPS"
             android:checked="true"
             android:elevation="@dimen/x6"
@@ -51,7 +51,7 @@
         android:layout_marginLeft="@dimen/x20"
         android:layout_marginRight="@dimen/x20"
         android:layout_marginTop="@dimen/x6"
-        android:background="@layout/label_round"
+        android:background="@layout/button_round1"
         android:elevation="@dimen/x6"
         android:text="停止采集" />
 
@@ -62,7 +62,7 @@
         android:layout_marginLeft="@dimen/x20"
         android:layout_marginRight="@dimen/x20"
         android:layout_marginTop="@dimen/x6"
-        android:background="@layout/label_round"
+        android:background="@layout/button_round1"
         android:elevation="@dimen/x6"
         android:text="标记数据" />
 
@@ -73,7 +73,7 @@
         android:layout_marginLeft="@dimen/x20"
         android:layout_marginRight="@dimen/x20"
         android:layout_marginTop="@dimen/x6"
-        android:background="@layout/label_round"
+        android:background="@layout/button_round1"
         android:elevation="@dimen/x6"
         android:text="查看数据视图" />
 
@@ -84,7 +84,7 @@
         android:layout_marginLeft="@dimen/x20"
         android:layout_marginRight="@dimen/x20"
         android:layout_marginTop="@dimen/x6"
-        android:background="@layout/label_round"
+        android:background="@layout/button_round1"
         android:elevation="@dimen/x6"
         android:text="手机实时姿态视图" />
 
@@ -96,7 +96,7 @@
         android:layout_marginLeft="@dimen/x20"
         android:layout_marginRight="@dimen/x20"
         android:layout_marginTop="@dimen/x6"
-        android:background="@layout/label_round"
+        android:background="@layout/button_round1"
         android:elevation="@dimen/x6"
         android:text="轨迹还原" />
 
@@ -108,7 +108,7 @@
         android:layout_marginLeft="@dimen/x20"
         android:layout_marginRight="@dimen/x20"
         android:layout_marginTop="@dimen/x6"
-        android:background="@layout/label_round"
+        android:background="@layout/button_round1"
         android:elevation="@dimen/x6"
         android:text="上传数据" />
 

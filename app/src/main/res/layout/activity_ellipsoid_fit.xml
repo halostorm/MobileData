@@ -8,7 +8,7 @@
     <ImageView
         android:id="@+id/imageview"
         android:layout_width="@dimen/x300"
-        android:layout_height="@dimen/x300"
+        android:layout_height="@dimen/y210"
         android:layout_marginTop="@dimen/x6"
         android:contentDescription="login image"
         android:gravity="center_horizontal"
@@ -22,7 +22,7 @@
         android:layout_marginLeft="@dimen/x18"
         android:layout_marginRight="@dimen/x18"
         android:layout_marginTop="@dimen/x6"
-        android:background="@layout/label_round"
+        android:background="@layout/button_round1"
         android:elevation="@dimen/x6"
         android:text="开始校准" />
 
@@ -33,7 +33,7 @@
         android:layout_marginLeft="@dimen/x18"
         android:layout_marginRight="@dimen/x18"
         android:layout_marginTop="@dimen/x6"
-        android:background="@layout/label_round"
+        android:background="@layout/button_round1"
         android:elevation="@dimen/x6"
         android:text="结束校准" />
 
@@ -44,7 +44,7 @@
         android:layout_marginLeft="@dimen/x18"
         android:layout_marginRight="@dimen/x18"
         android:layout_marginTop="@dimen/x6"
-        android:background="@layout/label_round"
+        android:background="@layout/button_round1"
         android:elevation="@dimen/x6"
         android:text="保存" />
 

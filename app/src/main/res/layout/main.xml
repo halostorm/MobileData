@@ -8,7 +8,7 @@
     <ImageView
         android:id="@+id/imageview"
         android:layout_width="@dimen/x240"
-        android:layout_height="@dimen/x240"
+        android:layout_height="@dimen/y169"
         android:layout_marginLeft="@dimen/x6"
         android:layout_marginRight="@dimen/x6"
         android:layout_marginTop="@dimen/x6"
@@ -17,16 +17,16 @@
         android:src="@drawable/ic_launcher"
         android:visibility="visible" />
 
-    <TextView
+    <Button
         android:id="@+id/btnPass"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginBottom="@dimen/x24"
+        android:layout_height="@dimen/y30"
+        android:layout_marginBottom="@dimen/y17"
         android:layout_marginLeft="@dimen/x24"
         android:layout_marginRight="@dimen/x24"
         android:layout_marginTop="@dimen/x6"
-        android:background="@layout/label_round"
+        android:background="@layout/button_round1"
         android:gravity="center"
-        android:hint="进入Mobile Data"
-        android:textColorHint="@color/grey" />
+        android:text="已登陆，点击进入">
+    </Button>
 </LinearLayout>

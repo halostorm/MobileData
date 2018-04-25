@@ -20,8 +20,9 @@
 
 
         <ImageView
+            android:id="@+id/imageView"
             android:layout_width="@dimen/x150"
-            android:layout_height="@dimen/x70"
+            android:layout_height="@dimen/y50"
             android:layout_marginLeft="0dp"
             android:layout_marginTop="@dimen/x2"
             android:gravity="center_horizontal"
@@ -49,7 +50,7 @@
         <ImageView
             android:id="@+id/FrameView"
             android:layout_width="@dimen/x45"
-            android:layout_height="@dimen/x45"
+            android:layout_height="@dimen/y32"
             android:layout_marginLeft="@dimen/x7"
             android:layout_marginRight="@dimen/x7"
             android:layout_marginTop="@dimen/x7"
@@ -160,32 +161,40 @@
 
         </LinearLayout>
 
-        <RadioGroup
-            android:id="@+id/IfInterpolation"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_toRightOf="@+id/ncattView"
             android:gravity="center_vertical"
-            android:orientation="vertical"
-            android:saveEnabled="true">
+            android:orientation="vertical">
 
-            <RadioButton
-                android:id="@+id/InterNo"
+            <RadioGroup
+                android:id="@+id/IfInterpolation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/x15"
-                android:checked="true"
-                android:text="线性插值"
-                android:textColor="@color/mid_blue" />
+                android:background="@layout/button_round1"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                android:saveEnabled="true">
 
-            <RadioButton
-                android:id="@+id/InterYes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="球面插值"
-                android:textColor="@color/mid_orange" />
+                <RadioButton
+                    android:id="@+id/InterNo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/y6"
+                    android:checked="true"
+                    android:text="线性插值"
+                    android:textColor="@color/mid_blue" />
 
-        </RadioGroup>
+                <RadioButton
+                    android:id="@+id/InterYes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="球面插值"
+                    android:textColor="@color/mid_orange" />
+
+            </RadioGroup>
+        </LinearLayout>
     </RelativeLayout>
 
 </LinearLayout>

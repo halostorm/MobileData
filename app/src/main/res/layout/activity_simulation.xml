@@ -35,7 +35,7 @@
                         android:textColor="@color/mid_orange"
                         android:text="手机坐标系"
                         android:textStyle="bold"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -62,7 +62,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:text="X:"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
 
                     <TextView
                         android:id="@+id/value_accx_axis"
@@ -70,7 +70,7 @@
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/label_accx_axis"
                         android:text="0.00"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -84,7 +84,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:text="Y:"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
 
                     <TextView
                         android:id="@+id/value_accy_axis"
@@ -92,7 +92,7 @@
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/label_accy_axis"
                         android:text="0.00"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -107,7 +107,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:text="Z:"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
 
                     <TextView
                         android:id="@+id/value_accz_axis"
@@ -115,7 +115,7 @@
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/label_accz_axis"
                         android:text="0.00"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
 
             </TableRow>
@@ -160,7 +160,7 @@
                         android:textColor="@color/mid_orange"
                         android:text="手机坐标系"
                         android:textStyle="bold"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -186,7 +186,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:text="X:"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
 
                     <TextView
                         android:id="@+id/value_linearx_axis"
@@ -194,7 +194,7 @@
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/label_linearx_axis"
                         android:text="0.00"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -208,7 +208,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:text="Y:"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
 
                     <TextView
                         android:id="@+id/value_lineary_axis"
@@ -216,7 +216,7 @@
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/label_lineary_axis"
                         android:text="0.00"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -231,7 +231,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:text="Z:"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
 
                     <TextView
                         android:id="@+id/value_linearz_axis"
@@ -239,7 +239,7 @@
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/label_linearz_axis"
                         android:text="0.00"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
             </TableRow>
         </TableLayout>
@@ -283,7 +283,7 @@
                         android:textColor="@color/mid_orange"
                         android:text="手机坐标系"
                         android:textStyle="bold"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -309,7 +309,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:text="X:"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
 
                     <TextView
                         android:id="@+id/value_gyrox_axis"
@@ -317,7 +317,7 @@
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/label_gyrox_axis"
                         android:text="0.00"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -331,7 +331,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:text="Y:"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
 
                     <TextView
                         android:id="@+id/value_gyroy_axis"
@@ -339,7 +339,7 @@
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/label_gyroy_axis"
                         android:text="0.00"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -354,7 +354,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:text="Z:"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
 
                     <TextView
                         android:id="@+id/value_gyroz_axis"
@@ -362,7 +362,7 @@
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/label_gyroz_axis"
                         android:text="0.00"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
             </TableRow>
         </TableLayout>
@@ -406,7 +406,7 @@
                         android:textColor="@color/mid_orange"
                         android:text="手机坐标系"
                         android:textStyle="bold"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -432,7 +432,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:text="X:"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
 
                     <TextView
                         android:id="@+id/value_magx_axis"
@@ -440,7 +440,7 @@
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/label_magx_axis"
                         android:text="0.00"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -454,7 +454,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:text="Y:"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
 
                     <TextView
                         android:id="@+id/value_magy_axis"
@@ -462,7 +462,7 @@
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/label_magy_axis"
                         android:text="0.00"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -477,7 +477,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:text="Z:"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
 
                     <TextView
                         android:id="@+id/value_magz_axis"
@@ -485,7 +485,7 @@
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/label_magz_axis"
                         android:text="0.00"
-                        android:textAppearance="?android:attr/textAppearanceSmall" />
+                        android:textSize="@dimen/x10" />
                 </RelativeLayout>
             </TableRow>
         </TableLayout>

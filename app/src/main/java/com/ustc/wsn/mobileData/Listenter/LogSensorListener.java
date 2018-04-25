@@ -33,6 +33,7 @@ public class LogSensorListener implements SensorEventListener {
     private float MagRange;
     private float RangeK = 0.8f;
 
+    //private String timestamp = "";
     private String[] accData;
     private String[] gyroData;
     private String[] magData;
@@ -177,7 +178,7 @@ public class LogSensorListener implements SensorEventListener {
                         //Log.d(TAG,"GPS__bear："+gpsBear);
                         setBearData(gpsBear);
                     } else{
-                        String bear = String.valueOf(ekf.euler[2]/ Math.PI*180);
+                        String bear = String.valueOf(ekf.euler[2]/ Math.PI*180 -myMath.DECLINATION);
                         setBearData(bear);
                         //Log.d(TAG,"AM__bear："+ bear);
                     }
@@ -190,7 +191,7 @@ public class LogSensorListener implements SensorEventListener {
     private void setAccData() {
         if (((acc_cur + 1) % Data_Size != acc_old) && accNow != null) {// 不满
             if (accNow != null) {
-                this.accData[acc_cur] = System.currentTimeMillis() + "\t" + accNow;
+                this.accData[acc_cur] = System.nanoTime() + "\t" + accNow;
             } else {
                 this.accData[acc_cur] = null;
             }

@@ -12,7 +12,7 @@
         android:id="@+id/btnDataUpload"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@layout/label_round"
+        android:background="@layout/button_round1"
         android:elevation="10dp"
         android:text="上传"></Button>
 </LinearLayout>

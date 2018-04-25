@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <!-- 实心 -->
-    <solid android:color="@android:color/white" />
+    <solid android:color="@color/lightGrey" />
     <!-- 边框 -->
     <stroke
         android:width="@dimen/x1"
@@ -17,5 +17,4 @@
         android:left="@dimen/x4"
         android:right="@dimen/x4"
         android:top="@dimen/x1" />
-
 </shape>

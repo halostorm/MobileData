@@ -12,7 +12,7 @@
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/x300"
+            android:layout_height="@dimen/y210"
             android:orientation="vertical">
 
             <RelativeLayout
@@ -27,7 +27,7 @@
             <ImageView
                 android:id="@+id/FrameView"
                 android:layout_width="@dimen/x80"
-                android:layout_height="@dimen/x80"
+                android:layout_height="@dimen/y56"
                 android:layout_marginLeft="@dimen/x5"
                 android:layout_marginRight="@dimen/x5"
                 android:layout_marginTop="@dimen/x5"

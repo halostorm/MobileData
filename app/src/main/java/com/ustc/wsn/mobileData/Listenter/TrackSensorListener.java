@@ -68,7 +68,8 @@ public class TrackSensorListener implements SensorEventListener {
     private volatile float[] accNormQueue = new float[DurationWindow * windowSize];//
     private volatile float[][] naccQueue = new float[DurationWindow * windowSize][3];
     private volatile float[][] positionQueue = new float[DurationWindow * windowSize][3];//位置队列
-    private volatile float[] deltTQueue = new float[DurationWindow * windowSize];//积分步长
+    private volatile float[] AccDeltTQueue = new float[DurationWindow * windowSize];//积分步长
+    private volatile float[] GyroDeltTQueue = new float[DurationWindow * windowSize];//积分步长
     private volatile float[][] qQueue = new float[DurationWindow * windowSize][4];//姿态队列
     private volatile long[] timeStampQueue = new long[DurationWindow * windowSize];//积分时间
     private volatile int position_mark = DurationWindow * windowSize;
@@ -177,7 +178,7 @@ public class TrackSensorListener implements SensorEventListener {
         //加速度校准参数提取
         getAccCalibrateParams();
 
-        new Thread(new Runnable() {
+        new Thread(new Runnable() {///////////////////// Thread 1: Task to calculate attitude params
             @Override
             public void run() {
                 int count = 0;
@@ -268,33 +269,9 @@ public class TrackSensorListener implements SensorEventListener {
                     time = System.nanoTime();
                     dt = (time - timeOld) / 1000000000f;
                     timeOld = time;
-                    /*
-                    int delay = sampleInterval - ((int) timeMF.filter(dt * 1000) - sampleInterval);
-                    if(delay>5){
-                        sampleIntervalReal = delay;
-                    }
+                    //Log.d(TAG,"thread DT\t"+dt);
 
-                    //测量计算时间，对delay进行补偿
-                    Log.d(TAG, "Thread2 time\t" + String.valueOf(delay));
-
-                    Log.d(TAG, "Thread2 sampleIntervalReal\t" + sampleIntervalReal);
-                    */
-                    //全部转入NED坐标系基准
-                    nrawacc = myMath.Q_coordinatesTransform(Quarternion, rawacc);
-                    nacc = myMath.Q_coordinatesTransform(Quarternion, acc);
-                    ngyro = myMath.Q_coordinatesTransform(Quarternion, gyro);
-                    nmag = myMath.Q_coordinatesTransform(Quarternion, mag);
-
-                    if (GLOBAL_NOW_STATE == PhoneState.UNKONW_STATE && RemainingDataSize > 0) {
-                        RemainingDataSize--;
-                    }
-
-                    myMath.addData(deltTQueue, gyroDelt);
                     myMath.addData(timeStampQueue, System.currentTimeMillis());
-                    myMath.addData(accQueue, acc);
-                    myMath.addData(naccQueue, nacc);
-                    myMath.addData(magQueue, mag);
-                    myMath.addData(gyroQueue, gyro);
                     myMath.addData(qQueue,Quarternion);
                     myMath.addData(accNormQueue,myMath.getMoulding(acc));
 
@@ -312,7 +289,7 @@ public class TrackSensorListener implements SensorEventListener {
 
 
         if (enablePath) {
-            new Thread(new Runnable() {
+            new Thread(new Runnable() {///////////////////// Thread 1: Task to calculate Path
                 @Override
                 public void run() {
                     //等待Thread 1 填充数据
@@ -373,7 +350,8 @@ public class TrackSensorListener implements SensorEventListener {
                             //path数据填充完成
                             long[] timeWindow = timeStampQueue.clone();
                             float[][] gyroWindow = gyroQueue.clone();
-                            float[] deltTWindow = deltTQueue.clone();
+                            float[] AccDeltTWindow = AccDeltTQueue.clone();
+                            float[] GyroDeltTWindow = GyroDeltTQueue.clone();
                             float[][] accWindow = accQueue.clone();
                             float[][] naccWindow = naccQueue.clone();
                             float[][] magWindow = magQueue.clone();
@@ -398,7 +376,7 @@ public class TrackSensorListener implements SensorEventListener {
                                 accSumVar = myMath.getVar(accSlideWindow);
 
                                 //Log.d(TAG, "startSlideWindowID\t" + i);
-                               //Log.d(TAG, "laccSumMean:" + accSumMean);
+                                //Log.d(TAG, "laccSumMean:" + accSumMean);
                                 //Log.d(TAG, "laccSumVar:" + accSumVar);
 
                                 NOW_STATE = stateRecognizeUseAccel(accSumMean, accSumVar, GainStart);
@@ -506,7 +484,7 @@ public class TrackSensorListener implements SensorEventListener {
 
                             //开始计算Path
                             for (int i = beginFlag + 1; i < (StopWindow - 2) * windowSize + stopFlag; i++) {
-                                time0 += deltTWindow[i];
+                                time0 += AccDeltTWindow[i];
                                 //when i = 0, velocitySample[i] =0; positionSample[i] =0;
 
                                 pathOut.append(timeWindow[i] + "\t");
@@ -527,7 +505,7 @@ public class TrackSensorListener implements SensorEventListener {
                                 pathOut.append(accWindow[i][1] + "\t");
                                 pathOut.append(accWindow[i][2] + "\t");
 
-                                gyroAttPath.Filter(W, deltTWindow[i]);
+                                gyroAttPath.Filter(W, GyroDeltTWindow[i]);
 
                                 //myLog.log(TAG, "gyroAttPath q:", gyroAttPath.q);
 
@@ -550,9 +528,9 @@ public class TrackSensorListener implements SensorEventListener {
                                 pathOut.append((accNow[2] + accLast[2] - 2 * myMath.G) / 2 + "\t");
 
                                 //新速度
-                                velocityQueue[i][0] = velocityQueue[i - 1][0] + 0.5f * (accNow[0] + accLast[0]) * deltTWindow[i];
-                                velocityQueue[i][1] = velocityQueue[i - 1][1] + 0.5f * (accNow[1] + accLast[1]) * deltTWindow[i];
-                                velocityQueue[i][2] = velocityQueue[i - 1][2] + 0.5f * ((accNow[2] - myMath.G) + (accLast[2] - myMath.G)) * deltTWindow[i];
+                                velocityQueue[i][0] = velocityQueue[i - 1][0] + 0.5f * (accNow[0] + accLast[0]) * AccDeltTWindow[i];
+                                velocityQueue[i][1] = velocityQueue[i - 1][1] + 0.5f * (accNow[1] + accLast[1]) * AccDeltTWindow[i];
+                                velocityQueue[i][2] = velocityQueue[i - 1][2] + 0.5f * ((accNow[2] - myMath.G) + (accLast[2] - myMath.G)) * AccDeltTWindow[i];
 
                                 //记录上一次加速度
                                 accLast = accNow.clone();
@@ -566,9 +544,9 @@ public class TrackSensorListener implements SensorEventListener {
                                 //Log.d(TAG, "velocityQueue[2]:" + String.valueOf(i) + ":\t" + velocityQueue[i][2]);
 
                                 //新位置
-                                positionQ[i][0] = positionQ[i - 1][0] + 0.5f * (velocityQueue[i][0] + velocityQueue[i - 1][0]) * deltTWindow[i];
-                                positionQ[i][1] = positionQ[i - 1][1] + 0.5f * (velocityQueue[i][1] + velocityQueue[i - 1][1]) * deltTWindow[i];
-                                positionQ[i][2] = positionQ[i - 1][2] + 0.5f * (velocityQueue[i][2] + velocityQueue[i - 1][2]) * deltTWindow[i]; //- freeFallPosition;
+                                positionQ[i][0] = positionQ[i - 1][0] + 0.5f * (velocityQueue[i][0] + velocityQueue[i - 1][0]) * AccDeltTWindow[i];
+                                positionQ[i][1] = positionQ[i - 1][1] + 0.5f * (velocityQueue[i][1] + velocityQueue[i - 1][1]) * AccDeltTWindow[i];
+                                positionQ[i][2] = positionQ[i - 1][2] + 0.5f * (velocityQueue[i][2] + velocityQueue[i - 1][2]) * AccDeltTWindow[i]; //- freeFallPosition;
 
                                 pathOut.append(positionQ[i][0] + "\t");
                                 pathOut.append(positionQ[i][1] + "\t");
@@ -616,6 +594,73 @@ public class TrackSensorListener implements SensorEventListener {
             }).start();
         }
     }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // TODO Auto-generated method stub
+    }
+
+    //////////////////////// Sensor Data Update
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        // TODO Auto-generated method stub
+        switch (event.sensor.getType()) {
+            case Sensor.TYPE_ACCELEROMETER:
+                if (event.values != null) {
+                    if (myMath.getMoulding(event.values) < RangeK * AccRange) {
+                        float[] _rawacc = event.values.clone();
+                        rawacc = myMath.V_android2Ned(_rawacc);
+                        float[] _acc = AccCalibrate(rawacc);
+                        acc = _acc.clone();
+                        accDelt = (event.timestamp-accTimestamp)/1000000000f;
+                        accTimestamp = event.timestamp;
+                        //Log.d(TAG,"acc DT\t"+accDelt);
+                        nacc = myMath.Q_coordinatesTransform(Quarternion, acc);
+                        nrawacc = myMath.Q_coordinatesTransform(Quarternion, rawacc);
+                        myMath.addData(accQueue, acc);
+                        myMath.addData(naccQueue, nacc);
+                        myMath.addData(AccDeltTQueue, accDelt);
+                        //判断为Path时，记录数据是否填充完毕
+                        if (GLOBAL_NOW_STATE == PhoneState.UNKONW_STATE && RemainingDataSize > 0) {
+                            RemainingDataSize--;
+                        }
+
+                        AccOriOriNew = true;
+                    }
+                }
+                break;
+            case Sensor.TYPE_GYROSCOPE:
+                if (event.values != null) {
+                    if (myMath.getMoulding(event.values) < RangeK * GyroRange) {
+                        float[] _gyro = event.values.clone();
+                        gyro = myMath.V_android2Ned(_gyro);
+                        gyroDelt = (event.timestamp-gyroTimestamp)/1000000000f;
+                        gyroTimestamp = event.timestamp;
+                        //Log.d(TAG,"gyro DT\t"+gyroDelt);
+                        ngyro = myMath.Q_coordinatesTransform(Quarternion, gyro);
+                        myMath.addData(gyroQueue, gyro);
+                        myMath.addData(GyroDeltTQueue, gyroDelt);
+                        GyroOriNew = true;
+                    }
+                }
+                break;
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                if (event.values != null) {
+                    if (myMath.getMoulding(event.values) < RangeK * MagRange) {
+                        float[] _mag = event.values.clone();
+                        mag = myMath.V_android2Ned(_mag);
+                        magDelt = (event.timestamp-magTimestamp)/1000000000f;
+                        magTimestamp = event.timestamp;
+                        nmag = myMath.Q_coordinatesTransform(Quarternion, mag);
+                        myMath.addData(magQueue, mag);
+                        MagOriNew = true;
+                    }
+                }
+                break;
+        }
+    }
+    //////////////////////////////////////////////////
+
 
     public void setAttitudeMode(int mode) {
         AttitudeMode = mode;
@@ -704,53 +749,6 @@ public class TrackSensorListener implements SensorEventListener {
         threadDisable_data_update = true;
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        // TODO Auto-generated method stub
-        switch (event.sensor.getType()) {
-            case Sensor.TYPE_ACCELEROMETER:
-                if (event.values != null) {
-                    if (myMath.getMoulding(event.values) < RangeK * AccRange) {
-                        float[] _rawacc = event.values.clone();
-                        rawacc = myMath.V_android2Ned(_rawacc);
-                        float[] _acc = AccCalibrate(rawacc);
-                        acc = _acc.clone();
-                        accDelt = (event.timestamp-accTimestamp)/1000000000f;
-                        accTimestamp = event.timestamp;
-                        AccOriOriNew = true;
-                    }
-                }
-                break;
-            case Sensor.TYPE_GYROSCOPE:
-                if (event.values != null) {
-                    if (myMath.getMoulding(event.values) < RangeK * GyroRange) {
-                        float[] _gyro = event.values.clone();
-                        gyro = myMath.V_android2Ned(_gyro);
-                        gyroDelt = (event.timestamp-gyroTimestamp)/1000000000f;
-                        gyroTimestamp = event.timestamp;
-                        GyroOriNew = true;
-                    }
-                }
-                break;
-            case Sensor.TYPE_MAGNETIC_FIELD:
-                if (event.values != null) {
-                    if (myMath.getMoulding(event.values) < RangeK * MagRange) {
-                        float[] _mag = event.values.clone();
-                        //myLog.log(TAG,"mag raw:",_mag);
-                        mag = myMath.V_android2Ned(_mag);
-                        magDelt = (event.timestamp-magTimestamp)/1000000000f;
-                        magTimestamp = event.timestamp;
-                        MagOriNew = true;
-                    }
-                }
-                break;
-        }
-    }
 
     private float[] AccCalibrate(float[] rData) {
         float[] data = new float[3];

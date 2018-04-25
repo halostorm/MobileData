@@ -7,18 +7,26 @@ package com.ustc.wsn.mobileData.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.shapes.Shape;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v7.app.NotificationCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -32,6 +40,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.ustc.wsn.mobileData.R;
@@ -69,6 +78,9 @@ public class DetectorActivity extends Activity implements OnClickListener {
     private boolean gpsStart = false;
     private boolean pathStart = false;
 
+    private final int N_ID = 9032;
+    private final int resId = R.mipmap.ic_launcher;
+
     protected final String TAG = DetectorActivity.this.toString();
 
     @Override
@@ -76,7 +88,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         File accParams = outputFile.getAccParamsFile();
-        if(!accParams.exists()) {
+        if (!accParams.exists()) {
             Toast.makeText(DetectorActivity.this, "请先校准加速度计！", Toast.LENGTH_SHORT).show();
             Intent intent1 = new Intent(DetectorActivity.this, EllipsoidFitActivity.class);
             startActivity(intent1);
@@ -114,8 +126,6 @@ public class DetectorActivity extends Activity implements OnClickListener {
         Button btnTrack = (Button) findViewById(R.id.btnTrack);
         btnTrack.setOnClickListener(this);
 
-        //ifCollecting.setOnClickListener(this);
-
         Intent intent = this.getIntent();
         psw = intent.getStringExtra("userId");
         Log.d(TAG, "userID:" + psw);
@@ -136,18 +146,34 @@ public class DetectorActivity extends Activity implements OnClickListener {
     class GpsCheckBoxListener implements CompoundButton.OnCheckedChangeListener {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    gpsEnabled = true;
-                    if (detectorStart) {
-                        Log.d(TAG,"Gps manual Start--------------------------");
-                        startService(GpsserviceIntent);
+            if (isChecked) {
+                gpsEnabled = true;
+                if (detectorStart) {
+                    Log.d(TAG, "Gps manual Start--------------------------");
+                    startService(GpsserviceIntent);
+                    gpsStart = true;
+                    String notificationS;
+                    if (pathStart) {
+                        notificationS = "当前记录数据：(1)Sensors\t(2)GPS\t(3)轨迹";
+                    } else {
+                        notificationS = "当前记录数据：(1)Sensors\t(2)GPS";
                     }
-                } else {
-                    gpsEnabled = false;
-                    if (gpsStart && detectorStart) {
-                        stopService(GpsserviceIntent);
-                    }
+                    addIconToStatusbar(notificationS);
                 }
+            } else {
+                gpsEnabled = false;
+                if (gpsStart && detectorStart) {
+                    stopService(GpsserviceIntent);
+                    gpsStart = false;
+                    String notificationS;
+                    if (pathStart) {
+                        notificationS = "当前记录数据：(1)Sensors\t(2)轨迹";
+                    } else {
+                        notificationS = "当前记录数据：(1)Sensors\t";
+                    }
+                    addIconToStatusbar(notificationS);
+                }
+            }
         }
     }
 
@@ -159,12 +185,28 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 pathEnabled = true;
                 if (detectorStart) {
                     startService(PathserviceIntent);
-                    Log.d(TAG,"Path manual Start--------------------------");
+                    pathStart = true;
+                    Log.d(TAG, "Path manual Start--------------------------");
+                    String notificationS;
+                    if (gpsStart) {
+                        notificationS = "当前记录数据：(1)Sensors\t(2)GPS\t(3)轨迹";
+                    } else {
+                        notificationS = "当前记录数据：(1)Sensors\t(2)轨迹";
+                    }
+                    addIconToStatusbar(notificationS);
                 }
             } else {
                 pathEnabled = false;
                 if (pathStart && detectorStart) {
                     stopService(PathserviceIntent);
+                    pathStart = false;
+                    String notificationS;
+                    if (gpsStart) {
+                        notificationS = "当前记录数据：(1)Sensors\t(2)GPS";
+                    } else {
+                        notificationS = "当前记录数据：(1)Sensors\t";
+                    }
+                    addIconToStatusbar(notificationS);
                 }
             }
         }
@@ -230,13 +272,20 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 openSystemFile();
                 return true;
             case R.id.calibrate_accel:
+                stopAllService();
+                deleteIconToStatusbar();
                 startActivity(new Intent(this, EllipsoidFitActivity.class));
                 return true;
             case R.id.ReLogin:
+                deleteIconToStatusbar();
+                stopAllService();
+                stopService(DetectorserviceIntent);
                 startActivity(new Intent(this, LoginActivity.class));
                 finish();
                 return true;
             case R.id.exitSystem:
+                deleteIconToStatusbar();
+                stopAllService();
                 Intent startMain = new Intent(Intent.ACTION_MAIN);
                 startMain.addCategory(Intent.CATEGORY_HOME);
                 startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -277,6 +326,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
         // TODO Auto-generated method stub
         //unbindService(conn);
         super.onDestroy();
+        deleteIconToStatusbar();
     }
 
     @Override
@@ -304,7 +354,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                     btnStartService.setText("采集中");
                     btnStartService.setTextColor(Color.BLUE);
                     detectorStart = true;
-
+                    String notificationS = "当前记录数据：(1)Sensors\t";
                     if (gpsEnabled) {
                         loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                         // 判断GPS是否正常启动
@@ -317,14 +367,17 @@ public class DetectorActivity extends Activity implements OnClickListener {
                             startActivityForResult(intent, 0);
                         }
                         startService(GpsserviceIntent);
-                        Log.d(TAG,"Gps Together Start--------------------------");
+                        Log.d(TAG, "Gps Together Start--------------------------");
+                        notificationS += "(2)GPS\t";
                         gpsStart = true;
                     }
                     if (pathEnabled) {
                         startService(PathserviceIntent);
-                        Log.d(TAG,"Path Together Start--------------------------");
+                        Log.d(TAG, "Path Together Start--------------------------");
+                        notificationS += "(3)轨迹\t";
                         pathStart = true;
                     }
+                    addIconToStatusbar(notificationS);
                 }
                 break;
             case R.id.btnViewData:
@@ -350,7 +403,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
                     t.setGravity(Gravity.CENTER, 0, 0);
                     t.show();
                     */
-
+                    deleteIconToStatusbar();
                     break;
                 }
                 break;
@@ -376,6 +429,44 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 t.show();
                 startActivity(trackActivityIntent);
                 break;
+        }
+    }
+
+    private void addIconToStatusbar(String s) {
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        Notification n = builder.setContentTitle("Mobile Data正在后台运行").setContentText(s).setWhen(System.currentTimeMillis()).setSmallIcon(R.mipmap.ic_launcher).setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher)).build();
+        //常驻状态栏的图标
+        n.icon = resId;
+        // 将此通知放到通知栏的"Ongoing"即"正在运行"组中
+        n.flags |= Notification.FLAG_ONGOING_EVENT;
+        // 表明在点击了通知栏中的"清除通知"后，此通知不清除， 经常与FLAG_ONGOING_EVENT一起使用
+        n.flags |= Notification.FLAG_NO_CLEAR;
+        PendingIntent pi = PendingIntent.getActivity(this, 0, getIntent(), 0);
+        n.contentIntent = pi;
+        nm.notify(N_ID, n);
+    }
+
+    private void deleteIconToStatusbar() {
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.cancel(N_ID);
+    }
+
+    private void stopAllService(){
+        if (detectorStart == true) {
+            // unbindService(conn);
+            stopService(DetectorserviceIntent);
+            detectorStart = false;
+            btnStartService.setText("开始采集");
+            btnStartService.setTextColor(Color.BLACK);
+            if (gpsStart == true) {
+                stopService(GpsserviceIntent);
+                gpsStart = false;
+            }
+            if (pathStart == true) {
+                stopService(PathserviceIntent);
+                pathStart = false;
+            }
         }
     }
 }

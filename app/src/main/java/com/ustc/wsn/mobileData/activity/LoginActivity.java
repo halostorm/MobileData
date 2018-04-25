@@ -59,7 +59,7 @@ public class LoginActivity extends Activity {
 
         EditText userID = (EditText) findViewById(R.id.userID);
         EditText age = (EditText) findViewById(R.id.age);
-        TextView textView = (TextView) findViewById(R.id.btnlogin);
+        TextView textView = (TextView) findViewById(R.id.btnLogin);
 
         RadioGroup genders = (RadioGroup) findViewById(R.id.gender);
 

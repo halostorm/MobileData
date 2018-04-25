@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,7 +82,7 @@ public class MainActivity extends Activity {
             }
         }
 
-        TextView Pass = (TextView) findViewById(R.id.btnPass);
+        Button Pass = (Button) findViewById(R.id.btnPass);
         Pass.setOnClickListener(mOnClickListener);
 
     }
