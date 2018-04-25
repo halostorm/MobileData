@@ -895,7 +895,7 @@ public class TrackSensorListener implements SensorEventListener {
     private boolean ifVehicle(){
         FastFourierTransform FFT = new FastFourierTransform(DurationWindow*windowSize);
         float[] input = accNormQueue.clone();
-        float[] output = new float[2*DurationWindow*windowSize+1];
+        float[] output = new float[2*DurationWindow*windowSize];
         FFT.applyReal(input,0,false,output,0);
         myLog.log(TAG,"FFT result\t",output);
         return false;
