@@ -153,8 +153,24 @@ public class ChartService extends Service {
      * @param yList
      */
     public void updateChart(List<Double> xList, List<Double> yList) {
+       // xmultipleSeriesDataset.removeSeries(xSeries);
         for (int i = 0; i < xList.size(); i++) {
             xSeries.add(xList.get(i), yList.get(i));
+        }
+        xGraphicalView.repaint();//此处也可以调用invalidate()
+    }
+
+    /**
+     * 添加新的数据，多组，更新曲线，只能运行在主线程
+     *
+     * @param x
+     * @param y
+     */
+    public void updateChart(float[] x, float[] y) {
+        //xmultipleSeriesDataset.removeSeries(xSeries);
+        xSeries.clear();
+        for (int i = 0; i <x.length; i++) {
+            xSeries.add(x[i], y[i]);
         }
         xGraphicalView.repaint();//此处也可以调用invalidate()
     }

@@ -1,253 +1,205 @@
-/*
- *  Copyright (c) 2007 - 2008 by Damien Di Fede <ddf@compartmental.net>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU Library General Public License as published
- *   by the Free Software Foundation; either version 2 of the License, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU Library General Public License for more details.
- *
- *   You should have received a copy of the GNU Library General Public
- *   License along with this program; if not, write to the Free Software
- *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
- /*
- *
- *  Adapted to use the FFT with android audio recorder. 
- *  David Sanz Kirbis
- *  12 may 2013
- *
- */
-
 package com.ustc.wsn.mobileData.bean.math;
 
-/**
- * FFT stands for Fast Fourier Transform. It is an efficient way to calculate the Complex
- * Discrete Fourier Transform. There is not much to say about this class other than the fact
- * that when you want to analyze the spectrum of an audio buffer you will almost always use
- * this class. One restriction of this class is that the audio buffers you want to analyze
- * must have a length that is a power of two. If you try to construct an FFT with a
- * <code>timeSize</code> that is not a power of two, an IllegalArgumentException will be
- * thrown.
+import org.apache.commons.math3.complex.Complex;
+
+/******************************************************************************
+ *  Compilation:  javac FFT.java
+ *  Execution:    java FFT n
+ *  Dependencies: Complex.java
  *
- * @author Damien Di Fede
- * @see FourierTransform
- * @see <a href="http://www.dspguide.com/ch12.htm">The Fast Fourier Transform</a>
- */
-public class FFT extends FourierTransform {
-    /**
-     * Constructs an FFT that will accept sample buffers that are
-     * <code>timeSize</code> long and have been recorded with a sample rate of
-     * <code>sampleRate</code>. <code>timeSize</code> <em>must</em> be a
-     * power of two. This will throw an exception if it is not.
+ *  Compute the FFT and inverse FFT of a length n complex sequence
+ *  using the radix 2 Cooley-Tukey algorithm.
+
+ *  Bare bones implementation that runs in O(n log n) time. Our goal
+ *  is to optimize the clarity of the code, rather than performance.
+ *
+ *  Limitations
+ *  -----------
+ *   -  assumes n is a power of 2
+ *
+ *   -  not the most memory efficient algorithm (because it uses
+ *      an object type for representing complex numbers and because
+ *      it re-allocates memory for the subarray, instead of doing
+ *      in-place or reusing a single temporary array)
+ *
+ *  For an in-place radix 2 Cooley-Tukey FFT, see
+ *  https://introcs.cs.princeton.edu/java/97data/InplaceFFT.java.html
+ *
+ ******************************************************************************/
+
+public class FFT {
+
+    // compute the FFT of x[], assuming its length is a power of 2
+    public static Complex[] fft(Complex[] x) {
+        int n = x.length;
+
+        // base case
+        if (n == 1) return new Complex[] { x[0] };
+
+        // radix 2 Cooley-Tukey FFT
+        if (n % 2 != 0) {
+            throw new IllegalArgumentException("n is not a power of 2");
+        }
+
+        // fft of even terms
+        Complex[] even = new Complex[n/2];
+        for (int k = 0; k < n/2; k++) {
+            even[k] = x[2*k];
+        }
+        Complex[] q = fft(even);
+
+        // fft of odd terms
+        Complex[] odd  = even;  // reuse the array
+        for (int k = 0; k < n/2; k++) {
+            odd[k] = x[2*k + 1];
+        }
+        Complex[] r = fft(odd);
+
+        // combine
+        Complex[] y = new Complex[n];
+        for (int k = 0; k < n/2; k++) {
+            double kth = -2 * k * Math.PI / n;
+            Complex wk = new Complex(Math.cos(kth), Math.sin(kth));
+            y[k]       = q[k].add(wk.multiply(r[k]));
+            y[k + n/2] = q[k].subtract(wk.multiply(r[k]));
+        }
+        return y;
+    }
+
+
+    // compute the inverse FFT of x[], assuming its length is a power of 2
+    public static Complex[] ifft(Complex[] x) {
+        int n = x.length;
+        Complex[] y = new Complex[n];
+
+        // take conjugate
+        for (int i = 0; i < n; i++) {
+            y[i] = x[i].conjugate();
+        }
+
+        // compute forward FFT
+        y = fft(y);
+
+        // take conjugate again
+        for (int i = 0; i < n; i++) {
+            y[i] = y[i].conjugate();
+        }
+
+        // divide by n
+        for (int i = 0; i < n; i++) {
+            y[i] = y[i].multiply(1.0 / n);
+        }
+
+        return y;
+
+    }
+
+    // compute the circular convolution of x and y
+    public static Complex[] cconvolve(Complex[] x, Complex[] y) {
+
+        // should probably pad x and y with 0s so that they have same length
+        // and are powers of 2
+        if (x.length != y.length) {
+            throw new IllegalArgumentException("Dimensions don't agree");
+        }
+
+        int n = x.length;
+
+        // compute FFT of each sequence
+        Complex[] a = fft(x);
+        Complex[] b = fft(y);
+
+        // point-wise multiply
+        Complex[] c = new Complex[n];
+        for (int i = 0; i < n; i++) {
+            c[i] = a[i].multiply(b[i]);
+        }
+
+        // compute inverse FFT
+        return ifft(c);
+    }
+
+
+    // compute the linear convolution of x and y
+    public static Complex[] convolve(Complex[] x, Complex[] y) {
+        Complex ZERO = new Complex(0, 0);
+
+        Complex[] a = new Complex[2*x.length];
+        for (int i = 0;        i <   x.length; i++) a[i] = x[i];
+        for (int i = x.length; i < 2*x.length; i++) a[i] = ZERO;
+
+        Complex[] b = new Complex[2*y.length];
+        for (int i = 0;        i <   y.length; i++) b[i] = y[i];
+        for (int i = y.length; i < 2*y.length; i++) b[i] = ZERO;
+
+        return cconvolve(a, b);
+    }
+
+
+    /***************************************************************************
+     *  Test client and sample execution
      *
-     * @param timeSize   the length of the sample buffers you will be analyzing
-     * @param sampleRate the sample rate of the audio you will be analyzing
-     */
-    public FFT(int timeSize, float sampleRate) {
-        super(timeSize, sampleRate);
-        if ((timeSize & (timeSize - 1)) != 0)
-            throw new IllegalArgumentException("FFT: timeSize must be a power of two.");
-        buildReverseTable();
-        buildTrigTables();
-    }
-
-    protected void allocateArrays() {
-        spectrum = new float[timeSize / 2 + 1];
-        real = new float[timeSize];
-        imag = new float[timeSize];
-    }
-
-    public void scaleBand(int i, float s) {
-        if (s < 0) {
-            // Minim.error("Can't scale a frequency band by a negative value.");
-            return;
-        }
-
-        real[i] *= s;
-        imag[i] *= s;
-        spectrum[i] *= s;
-
-        if (i != 0 && i != timeSize / 2) {
-            real[timeSize - i] = real[i];
-            imag[timeSize - i] = -imag[i];
-        }
-    }
-
-    public void setBand(int i, float a) {
-        if (a < 0) {
-            // Minim.error("Can't set a frequency band to a negative value.");
-            return;
-        }
-        if (real[i] == 0 && imag[i] == 0) {
-            real[i] = a;
-            spectrum[i] = a;
-        } else {
-            real[i] /= spectrum[i];
-            imag[i] /= spectrum[i];
-            spectrum[i] = a;
-            real[i] *= spectrum[i];
-            imag[i] *= spectrum[i];
-        }
-        if (i != 0 && i != timeSize / 2) {
-            real[timeSize - i] = real[i];
-            imag[timeSize - i] = -imag[i];
-        }
-    }
-
-    // performs an in-place fft on the data in the real and imag arrays
-    // bit reversing is not necessary as the data will already be bit reversed
-    private void fft() {
-        for (int halfSize = 1; halfSize < real.length; halfSize *= 2) {
-            // float k = -(float)Math.PI/halfSize;
-            // phase shift step
-            // float phaseShiftStepR = (float)Math.cos(k);
-            // float phaseShiftStepI = (float)Math.sin(k);
-            // using lookup table
-            float phaseShiftStepR = cos(halfSize);
-            float phaseShiftStepI = sin(halfSize);
-            // current phase shift
-            float currentPhaseShiftR = 1.0f;
-            float currentPhaseShiftI = 0.0f;
-            for (int fftStep = 0; fftStep < halfSize; fftStep++) {
-                for (int i = fftStep; i < real.length; i += 2 * halfSize) {
-                    int off = i + halfSize;
-                    float tr = (currentPhaseShiftR * real[off]) - (currentPhaseShiftI * imag[off]);
-                    float ti = (currentPhaseShiftR * imag[off]) + (currentPhaseShiftI * real[off]);
-                    real[off] = real[i] - tr;
-                    imag[off] = imag[i] - ti;
-                    real[i] += tr;
-                    imag[i] += ti;
-                }
-                float tmpR = currentPhaseShiftR;
-                currentPhaseShiftR = (tmpR * phaseShiftStepR) - (currentPhaseShiftI * phaseShiftStepI);
-                currentPhaseShiftI = (tmpR * phaseShiftStepI) + (currentPhaseShiftI * phaseShiftStepR);
-            }
-        }
-    }
-
-    public void forward(float[] buffer) {
-        if (buffer.length != timeSize) {
-            //    Minim.error("FFT.forward: The length of the passed sample buffer must be equal to timeSize().");
-            return;
-        }
-        //  doWindow(buffer);
-        // copy samples to real/imag in bit-reversed order
-        bitReverseSamples(buffer, 0);
-        // perform the fft
-        fft();
-        // fill the spectrum buffer with amplitudes
-        fillSpectrum();
-    }
-
-    @Override
-    public void forward(float[] buffer, int startAt) {
-        if (buffer.length - startAt < timeSize) {
-   /*   Minim.error( "FourierTransform.forward: not enough samples in the buffer between " + 
-                   startAt + " and " + buffer.length + " to perform a transform."
-                 );
-   */
-            return;
-        }
-
-        //   windowFunction.apply( buffer, startAt, timeSize );
-        bitReverseSamples(buffer, startAt);
-        fft();
-        fillSpectrum();
-    }
-
-    /**
-     * Performs a forward transform on the passed buffers.
+     *  % java FFT 4
+     *  x
+     *  -------------------
+     *  -0.03480425839330703
+     *  0.07910192950176387
+     *  0.7233322451735928
+     *  0.1659819820667019
      *
-     * @param buffReal the real part of the time domain signal to transform
-     * @param buffImag the imaginary part of the time domain signal to transform
-     */
-    public void forward(float[] buffReal, float[] buffImag) {
-        if (buffReal.length != timeSize || buffImag.length != timeSize) {
-            //  Minim.error("FFT.forward: The length of the passed buffers must be equal to timeSize().");
-            return;
+     *  y = fft(x)
+     *  -------------------
+     *  0.9336118983487516
+     *  -0.7581365035668999 + 0.08688005256493803i
+     *  0.44344407521182005
+     *  -0.7581365035668999 - 0.08688005256493803i
+     *
+     *  z = ifft(y)
+     *  -------------------
+     *  -0.03480425839330703
+     *  0.07910192950176387 + 2.6599344570851287E-18i
+     *  0.7233322451735928
+     *  0.1659819820667019 - 2.6599344570851287E-18i
+     *
+     *  c = cconvolve(x, x)
+     *  -------------------
+     *  0.5506798633981853
+     *  0.23461407150576394 - 4.033186818023279E-18i
+     *  -0.016542951108772352
+     *  0.10288019294318276 + 4.033186818023279E-18i
+     *
+     *  d = convolve(x, x)
+     *  -------------------
+     *  0.001211336402308083 - 3.122502256758253E-17i
+     *  -0.005506167987577068 - 5.058885073636224E-17i
+     *  -0.044092969479563274 + 2.1934338938072244E-18i
+     *  0.10288019294318276 - 3.6147323062478115E-17i
+     *  0.5494685269958772 + 3.122502256758253E-17i
+     *  0.240120239493341 + 4.655566391833896E-17i
+     *  0.02755001837079092 - 2.1934338938072244E-18i
+     *  4.01805098805014E-17i
+     *
+     ***************************************************************************/
+
+    public static void main(String[] args) {
+        int n = Integer.parseInt(args[0]);
+        Complex[] x = new Complex[n];
+
+        // original data
+        for (int i = 0; i < n; i++) {
+            x[i] = new Complex(i, 0);
+            x[i] = new Complex(-2*Math.random() + 1, 0);
         }
-        setComplex(buffReal, buffImag);
-        bitReverseComplex();
-        fft();
-        fillSpectrum();
+        // FFT of original data
+        Complex[] y = fft(x);
+        // take inverse FFT
+        Complex[] z = ifft(y);
+
+        // circular convolution of x with itself
+        Complex[] c = cconvolve(x, x);
+
+        // linear convolution of x with itself
+        Complex[] d = convolve(x, x);
     }
 
-    public void inverse(float[] buffer) {
-        if (buffer.length > real.length) {
-            //   Minim.error("FFT.inverse: the passed array's length must equal FFT.timeSize().");
-            return;
-        }
-        // conjugate
-        for (int i = 0; i < timeSize; i++) {
-            imag[i] *= -1;
-        }
-        bitReverseComplex();
-        fft();
-        // copy the result in real into buffer, scaling as we do
-        for (int i = 0; i < buffer.length; i++) {
-            buffer[i] = real[i] / real.length;
-        }
-    }
-
-    private int[] reverse;
-
-    private void buildReverseTable() {
-        int N = timeSize;
-        reverse = new int[N];
-
-        // set up the bit reversing table
-        reverse[0] = 0;
-        for (int limit = 1, bit = N / 2; limit < N; limit <<= 1, bit >>= 1)
-            for (int i = 0; i < limit; i++)
-                reverse[i + limit] = reverse[i] + bit;
-    }
-
-    // copies the values in the samples array into the real array
-    // in bit reversed order. the imag array is filled with zeros.
-    private void bitReverseSamples(float[] samples, int startAt) {
-        for (int i = 0; i < timeSize; ++i) {
-            real[i] = samples[startAt + reverse[i]];
-            imag[i] = 0.0f;
-        }
-    }
-
-    // bit reverse real[] and imag[]
-    private void bitReverseComplex() {
-        float[] revReal = new float[real.length];
-        float[] revImag = new float[imag.length];
-        for (int i = 0; i < real.length; i++) {
-            revReal[i] = real[reverse[i]];
-            revImag[i] = imag[reverse[i]];
-        }
-        real = revReal;
-        imag = revImag;
-    }
-
-    // lookup tables
-
-    private float[] sinlookup;
-    private float[] coslookup;
-
-    private float sin(int i) {
-        return sinlookup[i];
-    }
-
-    private float cos(int i) {
-        return coslookup[i];
-    }
-
-    private void buildTrigTables() {
-        int N = timeSize;
-        sinlookup = new float[N];
-        coslookup = new float[N];
-        for (int i = 0; i < N; i++) {
-            sinlookup[i] = (float) Math.sin(-(float) Math.PI / i);
-            coslookup[i] = (float) Math.cos(-(float) Math.PI / i);
-        }
-    }
 }

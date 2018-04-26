@@ -18,11 +18,14 @@ import com.ustc.wsn.mobileData.bean.Filter.ekfParamsHandle;
 import com.ustc.wsn.mobileData.bean.Log.myLog;
 import com.ustc.wsn.mobileData.bean.PathBasicData;
 import com.ustc.wsn.mobileData.bean.PhoneState;
-import com.ustc.wsn.mobileData.bean.fft.FastFourierTransform;
+import com.ustc.wsn.mobileData.bean.math.FFT;
 import com.ustc.wsn.mobileData.bean.math.myMath;
 
-//import org.jtransforms.fft.FloatFFT_1D;
+import org.apache.commons.math3.complex.Complex;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -33,6 +36,8 @@ public class TrackSensorListener implements SensorEventListener {
     private final String TAG = TrackSensorListener.this.toString();
 
     //数据窗口参数
+    private int FFT_SIZE = 256;
+    private int FFT_SampleInterval = 1000;
     public final int windowSize = 32;//20*windowSize ms - 500ms
     public final int DurationWindow = 8;//
     public final int sampleInterval = 20;//ms
@@ -140,14 +145,17 @@ public class TrackSensorListener implements SensorEventListener {
     //加速度校准参数
     private static float[] params;
 
+    private float[] Spectrum = new float[FFT_SIZE / 2];
+    private float[] SpectrumID = new float[FFT_SIZE / 2];
     //线程参数
     private boolean threadDisable_data_update = false;
+
     //
     public TrackSensorListener(float accMaxRange, float gyroMaxRange, float magMaxRange, final boolean enablePath) {
         // TODO Auto-generated constructor stub
         super();
         ///store Task
-
+        Log.d(TAG, "FFT SIZE\t" + FFT_SIZE);
         //传感器量程
         AccRange = accMaxRange;
         GyroRange = gyroMaxRange;
@@ -262,7 +270,7 @@ public class TrackSensorListener implements SensorEventListener {
                                 Euler = myMath.Q2Euler(Quarternion);
                             }
                         }
-                        Euler[2] -= myMath.DECLINATION/180*myMath.PI;//去除磁偏角
+                        Euler[2] -= myMath.DECLINATION / 180 * myMath.PI;//去除磁偏角
                     }
                     PhoneState.Euler = Euler.clone();
                     PhoneState.Quarternion = Quarternion.clone();
@@ -273,8 +281,8 @@ public class TrackSensorListener implements SensorEventListener {
                     //Log.d(TAG,"thread DT\t"+dt);
 
                     myMath.addData(timeStampQueue, System.currentTimeMillis());
-                    myMath.addData(qQueue,Quarternion);
-                    myMath.addData(accNormQueue,myMath.getMoulding(acc));
+                    myMath.addData(qQueue, Quarternion);
+                    myMath.addData(accNormQueue, myMath.getMoulding(acc));
 
                     float[] naccSum = new float[windowSize];
                     for (int i = (DurationWindow - 1) * windowSize; i < DurationWindow * windowSize; i++) {
@@ -288,6 +296,25 @@ public class TrackSensorListener implements SensorEventListener {
             }
         }).start();
 
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                while (!threadDisable_data_update) {
+                    try {
+                        Thread.sleep(FFT_SampleInterval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    ifVehicle();
+                }
+            }
+        }).start();
 
         if (enablePath) {
             new Thread(new Runnable() {///////////////////// Thread 1: Task to calculate Path
@@ -452,7 +479,7 @@ public class TrackSensorListener implements SensorEventListener {
                             }
                             float[] _accOri = myMath.getMean(accWindow, 0, InitialSize);
                             float[] _magOri = myMath.getMean(magWindow, 0, InitialSize);
-                            float[] _quarternion = myMath.getMean(qWindow,0,InitialSize);
+                            float[] _quarternion = myMath.getMean(qWindow, 0, InitialSize);
                             /*
                             for(int i = 0;i<InitialSize;i++){
                                 _quarternion[i] = qWindow[i];
@@ -570,21 +597,21 @@ public class TrackSensorListener implements SensorEventListener {
 
                             positionQueue = positionQ.clone();
 
-                            if(ifInterpolation&&PathLength>windowSize) {
-                                PathCal pathTest = new PathCal(Path,PathLength);
+                            if (ifInterpolation && PathLength > windowSize) {
+                                PathCal pathTest = new PathCal(Path, PathLength);
 
                                 pathTest.CalPath();
                                 InterpositionBuffer = pathTest.getPathBuffer();
                                 InterpositionQueue = pathTest.getPathQueue();
-                                InterPosition = new float[DurationWindow*windowSize][3];
-                                for(int i = 0;i<InterpositionQueue.length;i++){
-                                    if(i%myMath.N ==0){
-                                        InterPosition[i/myMath.N] = InterpositionQueue[i];
+                                InterPosition = new float[DurationWindow * windowSize][3];
+                                for (int i = 0; i < InterpositionQueue.length; i++) {
+                                    if (i % myMath.N == 0) {
+                                        InterPosition[i / myMath.N] = InterpositionQueue[i];
                                     }
                                 }
-                                ifVehicle();
-                            }else {
-                                InterPosition = new float[DurationWindow*windowSize][3];
+                                //ifVehicle();
+                            } else {
+                                InterPosition = new float[DurationWindow * windowSize][3];
                             }
                             ifNewPath = true;
                         }//结束Path
@@ -613,7 +640,7 @@ public class TrackSensorListener implements SensorEventListener {
                         rawacc = myMath.V_android2Ned(_rawacc);
                         float[] _acc = AccCalibrate(rawacc);
                         acc = _acc.clone();
-                        accDelt = (event.timestamp-accTimestamp)/1000000000f;
+                        accDelt = (event.timestamp - accTimestamp) / 1000000000f;
                         accTimestamp = event.timestamp;
                         //Log.d(TAG,"acc DT\t"+accDelt);
                         nacc = myMath.Q_coordinatesTransform(Quarternion, acc);
@@ -635,7 +662,7 @@ public class TrackSensorListener implements SensorEventListener {
                     if (myMath.getMoulding(event.values) < RangeK * GyroRange) {
                         float[] _gyro = event.values.clone();
                         gyro = myMath.V_android2Ned(_gyro);
-                        gyroDelt = (event.timestamp-gyroTimestamp)/1000000000f;
+                        gyroDelt = (event.timestamp - gyroTimestamp) / 1000000000f;
                         gyroTimestamp = event.timestamp;
                         //Log.d(TAG,"gyro DT\t"+gyroDelt);
                         ngyro = myMath.Q_coordinatesTransform(Quarternion, gyro);
@@ -650,7 +677,7 @@ public class TrackSensorListener implements SensorEventListener {
                     if (myMath.getMoulding(event.values) < RangeK * MagRange) {
                         float[] _mag = event.values.clone();
                         mag = myMath.V_android2Ned(_mag);
-                        magDelt = (event.timestamp-magTimestamp)/1000000000f;
+                        magDelt = (event.timestamp - magTimestamp) / 1000000000f;
                         magTimestamp = event.timestamp;
                         nmag = myMath.Q_coordinatesTransform(Quarternion, mag);
                         myMath.addData(magQueue, mag);
@@ -892,13 +919,46 @@ public class TrackSensorListener implements SensorEventListener {
     }
 
 
-    private boolean ifVehicle(){
-        FastFourierTransform FFT = new FastFourierTransform(DurationWindow*windowSize);
-        float[] input = accNormQueue.clone();
-        float[] output = new float[2*DurationWindow*windowSize];
-        FFT.applyReal(input,0,false,output,0);
-        myLog.log(TAG,"FFT result\t",output);
+    private boolean ifVehicle() {
+        Complex[] input = new Complex[FFT_SIZE];
+        for (int i = 0; i < input.length; i++) {
+            input[i] = new Complex(accNormQueue[i], 0);
+        }
+        Complex[] _output = FFT.fft(input);
+
+        StringBuffer out = new StringBuffer();
+        float[] output = new float[_output.length];
+        for (int i = 0; i < FFT_SIZE / 2; i++) {
+            if(i != 0) {
+                output[i] = (float) _output[i].abs();
+                SpectrumID[i] = i / 5.0f;
+                Spectrum[i] = (float) Math.log(output[i]);
+            }
+            out.append(i + "\t" + _output[i].abs() + "\n");
+        }
+        myLog.log(TAG, "FFT result\t", output);
+        /*
+        outputFile.updateDir();
+        File f = outputFile.getrawFile();
+        try {
+            FileWriter writer = new FileWriter(f);
+            writer.write(out.toString());
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        myLog.log(TAG, "FFT result\t", output);
+        */
         return false;
+    }
+
+    public float[] getSpectrum() {
+        return Spectrum;
+    }
+
+    public float[] getSpectrumID() {
+        return SpectrumID;
     }
 
 }

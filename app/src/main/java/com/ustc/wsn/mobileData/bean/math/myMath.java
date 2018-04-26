@@ -70,6 +70,11 @@ public class myMath {
         }
     }
 
+    public synchronized static int log2(int n){
+        if(n <= 0) throw new IllegalArgumentException();
+        return 31 - Integer.numberOfLeadingZeros(n);
+    }
+
     public synchronized static float getMoulding(float[] value) {
         float temp = 0;
         for (int i = 0; i < value.length; i++) {

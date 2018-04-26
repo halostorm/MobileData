@@ -51,10 +51,16 @@ public class CalibrateStateActivity extends Activity {
     private GraphicalView valueView;//左右图表
     private ChartService valueService;
 
+    private LinearLayout freCurveLayout;//存放左图表的布局容器
+    private GraphicalView freView;//左右图表
+    private ChartService freService;
+
     private float[] stateValue = {0,0};
 
     private TextView meanAxis;
     private TextView varAxis;
+
+    private TextView freAxis;
 
     private DecimalFormat df;
 
@@ -110,24 +116,46 @@ public class CalibrateStateActivity extends Activity {
         meanAxis = (TextView) findViewById(R.id.value_accMean_axis);
         varAxis = (TextView) findViewById(R.id.value_accVar_axis);
 
+
+        freCurveLayout = (LinearLayout) findViewById(R.id.frequency_value_curve);
+
+        freService = new ChartService(this);
+        freService.setXYMultipleSeriesDataset("对数频谱系数 ", "", "");
+        freService.setXYMultipleSeriesRenderer(0, 25, -5, 10, "频谱系数", "频率", "log(A)",
+                Color.BLACK, Color.BLACK,Color.RED, Color.BLUE, Color.argb(255,238, 154, 0),  Color.BLACK);
+        freView = freService.getGraphicalView();
+
+        //将左右图表添加到布局容器中
+        freCurveLayout.addView(freView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        freAxis = (TextView) findViewById(R.id.value_frequency_axis);
+
         df = new DecimalFormat("0.000");
 
-        Timer timer2 = new Timer();
-        timer2.schedule(new TimerTask() {
+        Timer timer1 = new Timer();
+        timer1.schedule(new TimerTask() {
             @Override
             public void run() {
                 handler2.sendMessage(handler2.obtainMessage());
             }
         }, 0, 20);
 
-        Timer timer3 = new Timer();
-        timer3.schedule(new TimerTask() {
+        Timer timer2 = new Timer();
+        timer2.schedule(new TimerTask() {
             @Override
             public void run() {
                 handler1.sendMessage(handler1.obtainMessage());
                 handler3.sendMessage(handler3.obtainMessage());
             }
         }, 0, 100);
+
+        Timer timer3 = new Timer();
+        timer3.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler4.sendMessage(handler1.obtainMessage());
+            }
+        }, 0, 1000);
     }
 
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -240,6 +268,16 @@ public class CalibrateStateActivity extends Activity {
         public void handleMessage(Message msg) {
             meanAxis.setText(df.format(stateValue[0]));
             varAxis.setText(df.format(stateValue[1]));
+        }
+    };
+
+    private Handler handler4 = new Handler() {
+        @Override
+        //定时更新图表
+        public void handleMessage(Message msg) {
+            float[] Spectrum = sensorListener.getSpectrum();
+            float[] SpectrumID = sensorListener.getSpectrumID();
+            freService.updateChart(SpectrumID,Spectrum);
         }
     };
 
