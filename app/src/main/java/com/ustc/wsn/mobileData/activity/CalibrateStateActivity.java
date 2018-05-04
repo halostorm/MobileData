@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -45,6 +46,7 @@ public class CalibrateStateActivity extends Activity {
     private Toast t;
     private String psw;
     private TextView stateParams;
+    private TextView  maxFreText;
     private TrackSensorListener sensorListener;
 
     private LinearLayout valueCurveLayout;//存放左图表的布局容器
@@ -94,6 +96,8 @@ public class CalibrateStateActivity extends Activity {
         confirmText.setOnClickListener(cOnClickListener);
 
         TextView initParams = (TextView) findViewById(R.id.btninitParams);
+
+        maxFreText = (TextView)findViewById(R.id.value_frequency_axis);
 
         initParams.setTag(R.id.key1, editTextAccMean_Ab);
         initParams.setTag(R.id.key2, editTextAccVar_Ab);
@@ -277,8 +281,15 @@ public class CalibrateStateActivity extends Activity {
         public void handleMessage(Message msg) {
             float[] Spectrum = sensorListener.getSpectrum();
             float[] SpectrumID = sensorListener.getSpectrumID();
+            float maxFre = sensorListener.getMaxFrequency();
             if(Spectrum!=null && SpectrumID !=null) {
                 freService.updateChart(SpectrumID, Spectrum);
+                if(maxFre>0){
+                    maxFreText.setText(df.format(maxFre));
+                }
+                else{
+                    maxFreText.setText("不显著");
+                }
             }
         }
     };

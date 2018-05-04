@@ -147,6 +147,7 @@ public class TrackSensorListener implements SensorEventListener {
 
     private float[] Spectrum = null;
     private float[] SpectrumID = null;
+    private float maxFrequency;
     //线程参数
     private boolean threadDisable_data_update = false;
 
@@ -946,17 +947,21 @@ public class TrackSensorListener implements SensorEventListener {
         stft.feedData(input);
         double[] output = stft.getSpectrumAmpDB();
         stft.calculatePeak();
-        double maxFreq = stft.maxAmpFreq;
-        Log.d(TAG,"Max Frequency\t"+maxFreq);
+        maxFrequency = (float) stft.maxAmpFreq;
+        Log.d(TAG,"Max Frequency\t"+maxFrequency);
 
         SpectrumID  = new float[output.length];
         Spectrum  = new float[output.length];
         for (int i = 0; i < output.length; i++) {
             Spectrum[i] = (float) output[i]/10.f;
-            SpectrumID[i] = (i * (0.5f*50.f/output.length));
+            SpectrumID[i] = (i * (0.5f*50.f/(output.length-1)));
         }
         myLog.log(TAG, "FFT result\t", Spectrum);
         return false;
+    }
+
+    public float getMaxFrequency(){
+        return maxFrequency;
     }
 
     public float[] getSpectrum() {
