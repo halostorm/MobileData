@@ -121,7 +121,7 @@ public class CalibrateStateActivity extends Activity {
 
         freService = new ChartService(this);
         freService.setXYMultipleSeriesDataset("对数频谱系数 ", "", "");
-        freService.setXYMultipleSeriesRenderer(0, 25, -5, 10, "频谱系数", "频率", "log(A)",
+        freService.setXYMultipleSeriesRenderer(0, 25, -20, -5, "频谱系数", "频率", "log(A)",
                 Color.BLACK, Color.BLACK,Color.RED, Color.BLUE, Color.argb(255,238, 154, 0),  Color.BLACK);
         freView = freService.getGraphicalView();
 
@@ -155,7 +155,7 @@ public class CalibrateStateActivity extends Activity {
             public void run() {
                 handler4.sendMessage(handler1.obtainMessage());
             }
-        }, 0, 1000);
+        }, 0, sensorListener.FFT_SampleInterval);
     }
 
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -277,7 +277,9 @@ public class CalibrateStateActivity extends Activity {
         public void handleMessage(Message msg) {
             float[] Spectrum = sensorListener.getSpectrum();
             float[] SpectrumID = sensorListener.getSpectrumID();
-            freService.updateChart(SpectrumID,Spectrum);
+            if(Spectrum!=null && SpectrumID !=null) {
+                freService.updateChart(SpectrumID, Spectrum);
+            }
         }
     };
 

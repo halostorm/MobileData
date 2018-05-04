@@ -5,9 +5,12 @@ package com.ustc.wsn.mobileData.bean.Filter;
  */
 
 public class LPF_I {
-    private float alpha = 0.6f;// 截至频率: Ft = [(1-alpha) / (2*PI) * Fc]
+    // 截至频率: Ft = [(1-alpha) / (2*PI) * Fc]
+    private float alpha = 0.372f;// 5HZ
     //private float[] in;
     private float[] out;
+
+    private float out1 = 0;
 
     public LPF_I(){
         //in = new float[3];
@@ -18,6 +21,11 @@ public class LPF_I {
         out[1] = alpha * out[1] + (1 - alpha) * in[1];
         out[2] = alpha * out[2] + (1 - alpha) * in[2];
         return out;
+    }
+
+    public float filter(float in){
+        out1 = alpha * out1 + (1 - alpha) * in;
+        return out1;
     }
 
     public void setAlpha(float alpha)

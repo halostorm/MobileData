@@ -1,4 +1,4 @@
-package com.ustc.wsn.mobileData.bean.math;
+package com.ustc.wsn.mobileData.bean.math.FFT;
 
 import org.apache.commons.math3.complex.Complex;
 
@@ -27,7 +27,7 @@ import org.apache.commons.math3.complex.Complex;
  *
  ******************************************************************************/
 
-public class FFT {
+public class myFFT {
 
     // compute the FFT of x[], assuming its length is a power of 2
     public static Complex[] fft(Complex[] x) {
@@ -180,7 +180,7 @@ public class FFT {
      *  4.01805098805014E-17i
      *
      ***************************************************************************/
-
+/*
     public static void main(String[] args) {
         int n = Integer.parseInt(args[0]);
         Complex[] x = new Complex[n];
@@ -201,5 +201,5 @@ public class FFT {
         // linear convolution of x with itself
         Complex[] d = convolve(x, x);
     }
-
+*/
 }

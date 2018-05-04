@@ -18,7 +18,7 @@ import com.ustc.wsn.mobileData.bean.Filter.ekfParamsHandle;
 import com.ustc.wsn.mobileData.bean.Log.myLog;
 import com.ustc.wsn.mobileData.bean.PathBasicData;
 import com.ustc.wsn.mobileData.bean.PhoneState;
-import com.ustc.wsn.mobileData.bean.math.FFT;
+import com.ustc.wsn.mobileData.bean.math.FFT.*;
 import com.ustc.wsn.mobileData.bean.math.myMath;
 
 import org.apache.commons.math3.complex.Complex;
@@ -36,12 +36,13 @@ public class TrackSensorListener implements SensorEventListener {
     private final String TAG = TrackSensorListener.this.toString();
 
     //数据窗口参数
-    private int FFT_SIZE = 256;
-    private int FFT_SampleInterval = 1000;
-    public final int windowSize = 32;//20*windowSize ms - 500ms
-    public final int DurationWindow = 8;//
+    public final int windowSize = 25;//20*windowSize ms - 500ms
+    public final int DurationWindow = 10;//
     public final int sampleInterval = 20;//ms
     public volatile int sampleIntervalReal = sampleInterval;//ms
+
+    public int FFT_SampleInterval = 256*sampleInterval;
+    private int FFT_SIZE = 256;
 
     //姿态滤波器选择
     private int AttitudeMode = PhoneState.Attitude_EKF;
@@ -136,17 +137,16 @@ public class TrackSensorListener implements SensorEventListener {
     private LPF_I gyroLPF;
     private LPF_I magLPF;
 
-    private MeanFilter accMF;
-    private MeanFilter gyroMF;
-    private MeanFilter magMF;
-
-    private MeanFilter timeMF;
+    private LPF_I accMouldingLPF;
 
     //加速度校准参数
     private static float[] params;
 
-    private float[] Spectrum = new float[FFT_SIZE / 2];
-    private float[] SpectrumID = new float[FFT_SIZE / 2];
+    //private float[] Spectrum = new float[FFT_SIZE / 2];
+    //private float[] SpectrumID = new float[FFT_SIZE / 2];
+
+    private float[] Spectrum = null;
+    private float[] SpectrumID = null;
     //线程参数
     private boolean threadDisable_data_update = false;
 
@@ -167,12 +167,8 @@ public class TrackSensorListener implements SensorEventListener {
         gyroLPF = new LPF_I();
         magLPF = new LPF_I();
 
-        accMF = new MeanFilter();
-        gyroMF = new MeanFilter();
-        magMF = new MeanFilter();
-
-        timeMF = new MeanFilter(windowSize);
-
+        accMouldingLPF = new LPF_I();
+                
         ekfPH = new ekfParamsHandle();
         ekfP = new ekfParams();
         ekf = new EKF();
@@ -282,7 +278,11 @@ public class TrackSensorListener implements SensorEventListener {
 
                     myMath.addData(timeStampQueue, System.currentTimeMillis());
                     myMath.addData(qQueue, Quarternion);
-                    myMath.addData(accNormQueue, myMath.getMoulding(acc));
+
+                    float accLow = myMath.getMoulding(acc)+myMath.G;
+                    float accHigh = accLow - accMouldingLPF.filter(accLow);
+
+                    myMath.addData(accNormQueue, accHigh);
 
                     float[] naccSum = new float[windowSize];
                     for (int i = (DurationWindow - 1) * windowSize; i < DurationWindow * windowSize; i++) {
@@ -311,7 +311,8 @@ public class TrackSensorListener implements SensorEventListener {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    ifVehicle();
+                    //ifVehicle();
+                    ifVehicle_STFT();
                 }
             }
         }).start();
@@ -924,41 +925,54 @@ public class TrackSensorListener implements SensorEventListener {
         for (int i = 0; i < input.length; i++) {
             input[i] = new Complex(accNormQueue[i], 0);
         }
-        Complex[] _output = FFT.fft(input);
+        Complex[] _output = myFFT.fft(input);
 
-        StringBuffer out = new StringBuffer();
         float[] output = new float[_output.length];
         for (int i = 0; i < FFT_SIZE / 2; i++) {
             if(i != 0) {
                 output[i] = (float) _output[i].abs();
-                SpectrumID[i] = i / 5.0f;
+                SpectrumID[i] = i /5.0f;
                 Spectrum[i] = (float) Math.log(output[i]);
             }
-            out.append(i + "\t" + _output[i].abs() + "\n");
         }
-        myLog.log(TAG, "FFT result\t", output);
-        /*
-        outputFile.updateDir();
-        File f = outputFile.getrawFile();
-        try {
-            FileWriter writer = new FileWriter(f);
-            writer.write(out.toString());
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        //myLog.log(TAG, "FFT result\t", output);
+        return false;
+    }
+
+    private boolean ifVehicle_STFT() {
+        STFT stft = new STFT(FFT_SIZE/8,1000/sampleInterval,1,"Hanning");
+        //wndName: Bartlett, Hanning, Blackman, Blackman Harris, Kaiser, a=2.0/3.0/4.0
+        float[] input = accNormQueue.clone();
+        stft.feedData(input);
+        double[] output = stft.getSpectrumAmpDB();
+        stft.calculatePeak();
+        double maxFreq = stft.maxAmpFreq;
+        Log.d(TAG,"Max Frequency\t"+maxFreq);
+
+        SpectrumID  = new float[output.length];
+        Spectrum  = new float[output.length];
+        for (int i = 0; i < output.length; i++) {
+            Spectrum[i] = (float) output[i]/10.f;
+            SpectrumID[i] = (i * (0.5f*50.f/output.length));
         }
-        myLog.log(TAG, "FFT result\t", output);
-        */
+        myLog.log(TAG, "FFT result\t", Spectrum);
         return false;
     }
 
     public float[] getSpectrum() {
-        return Spectrum;
+        if(Spectrum!=null) {
+            return Spectrum;
+        }
+        else
+            return null;
     }
 
     public float[] getSpectrumID() {
-        return SpectrumID;
+        if(Spectrum!=null) {
+            return SpectrumID;
+        }
+        else
+            return null;
     }
 
 }
