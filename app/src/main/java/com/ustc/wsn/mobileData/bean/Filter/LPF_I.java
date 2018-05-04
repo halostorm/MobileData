@@ -6,7 +6,8 @@ package com.ustc.wsn.mobileData.bean.Filter;
 
 public class LPF_I {
     // 截至频率: Ft = [(1-alpha) / (2*PI) * Fc]
-    private float alpha = 0.372f;// 5HZ
+    //private float alpha = 0.372f;// 5HZ
+    private float alpha = 0.8f;// 1.6HZ
     //private float[] in;
     private float[] out;
 
