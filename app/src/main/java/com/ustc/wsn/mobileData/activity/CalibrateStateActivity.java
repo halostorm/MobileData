@@ -114,7 +114,7 @@ public class CalibrateStateActivity extends Activity {
 
         valueService = new ChartService(this);
         valueService.setXYMultipleSeriesDataset("Mean ", " Variance ", "Threshold (Var)");
-        valueService.setXYMultipleSeriesRenderer(0, 10, 0, 20, "状态值", "时间 /s", "0.0",
+        valueService.setXYMultipleSeriesRenderer(0, 10, 0, 8, "状态值", "时间 /s", "0.0",
                 Color.BLACK, Color.BLACK,Color.RED, Color.BLUE, Color.argb(255,238, 154, 0),  Color.BLACK);
         valueView = valueService.getGraphicalView();
 
@@ -129,8 +129,8 @@ public class CalibrateStateActivity extends Activity {
 
         freService = new ChartService(this);
         freService.setXYMultipleSeriesDataset("对数频谱系数 ", "", "");
-        freService.setXYMultipleSeriesRenderer(0, 25, -20, -5, "频谱系数", "频率", "log(A)",
-                Color.BLACK, Color.BLACK,Color.RED, Color.BLUE, Color.argb(255,238, 154, 0),  Color.BLACK);
+        freService.setXYMultipleSeriesRenderer(0, 25, -20, -5, "频谱系数", "频率", "10log(A)",
+                Color.BLACK, Color.BLACK,Color.RED, Color.RED, Color.RED,  Color.BLACK);
         freView = freService.getGraphicalView();
 
         //将左右图表添加到布局容器中
@@ -163,7 +163,7 @@ public class CalibrateStateActivity extends Activity {
             public void run() {
                 handler4.sendMessage(handler1.obtainMessage());
             }
-        }, 5000, sensorListener.FFT_SampleInterval);
+        }, 10000, sensorListener.FFT_SampleInterval);
     }
 
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {

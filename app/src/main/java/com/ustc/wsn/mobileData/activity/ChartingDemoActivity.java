@@ -177,6 +177,7 @@ public class ChartingDemoActivity extends Activity {
                 return true;
             case R.id.calibrate_state:
                 calibrate_state();
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
