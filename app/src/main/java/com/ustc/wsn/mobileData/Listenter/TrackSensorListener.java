@@ -44,6 +44,11 @@ public class TrackSensorListener implements SensorEventListener {
     public int FFT_SampleInterval = 256*sampleInterval;
     private int FFT_SIZE = 256;
 
+    private float onVehicleProbability = 0f;
+    private float onVehicleProbability_Threshold = 0.8f;
+
+    private boolean onVehicle = false;
+
     //姿态滤波器选择
     private int AttitudeMode = PhoneState.Attitude_EKF;
 
@@ -139,6 +144,8 @@ public class TrackSensorListener implements SensorEventListener {
 
     private LPF_I accMouldingLPF;
 
+    MeanFilter PeakFreMLP;
+
     //加速度校准参数
     private static float[] params;
 
@@ -152,7 +159,7 @@ public class TrackSensorListener implements SensorEventListener {
     private boolean threadDisable_data_update = false;
 
     //
-    public TrackSensorListener(float accMaxRange, float gyroMaxRange, float magMaxRange, final boolean enablePath) {
+    public TrackSensorListener(float accMaxRange, float gyroMaxRange, float magMaxRange, final boolean enableVehicle,final boolean enablePath) {
         // TODO Auto-generated constructor stub
         super();
         ///store Task
@@ -169,6 +176,8 @@ public class TrackSensorListener implements SensorEventListener {
         magLPF = new LPF_I();
 
         accMouldingLPF = new LPF_I();
+
+        PeakFreMLP = new MeanFilter(10);
                 
         ekfPH = new ekfParamsHandle();
         ekfP = new ekfParams();
@@ -184,6 +193,41 @@ public class TrackSensorListener implements SensorEventListener {
         //加速度校准参数提取
         getAccCalibrateParams();
 
+        if(enableVehicle) {
+            // Fre & ifVehicle Thread
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    while (!threadDisable_data_update) {
+                        try {
+                            Thread.sleep(FFT_SampleInterval);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        //ifVehicle();
+                        if (ifVehicle_STFT()) {
+                            onVehicleProbability = PeakFreMLP.filter(1.0f);
+                        } else {
+                            onVehicleProbability = PeakFreMLP.filter(0.0f);
+                        }
+                        Log.d(TAG,"ifOnvehicle\t"+onVehicleProbability);
+                        if(onVehicleProbability>onVehicleProbability_Threshold){
+                            onVehicle = true;
+                        }
+                        else{
+                            onVehicle = false;
+                        }
+                    }
+                }
+            }).start();
+
+        }
+        //Attitude & State & cal-data Thread
         new Thread(new Runnable() {///////////////////// Thread 1: Task to calculate attitude params
             @Override
             public void run() {
@@ -297,27 +341,7 @@ public class TrackSensorListener implements SensorEventListener {
             }
         }).start();
 
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                while (!threadDisable_data_update) {
-                    try {
-                        Thread.sleep(FFT_SampleInterval);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    //ifVehicle();
-                    ifVehicle_STFT();
-                }
-            }
-        }).start();
-
+        //Path Thread
         if (enablePath) {
             new Thread(new Runnable() {///////////////////// Thread 1: Task to calculate Path
                 @Override
@@ -956,7 +980,10 @@ public class TrackSensorListener implements SensorEventListener {
             Spectrum[i] = (float) output[i]/10.f;
             SpectrumID[i] = (i * (0.5f*50.f/(output.length-1)));
         }
-        myLog.log(TAG, "FFT result\t", Spectrum);
+        //myLog.log(TAG, "FFT result\t", Spectrum);
+        if(maxFrequency>10){
+            return true;
+        }
         return false;
     }
 
@@ -978,6 +1005,10 @@ public class TrackSensorListener implements SensorEventListener {
         }
         else
             return null;
+    }
+
+    public boolean getIfOnVehicle() {
+            return onVehicle;
     }
 
 }

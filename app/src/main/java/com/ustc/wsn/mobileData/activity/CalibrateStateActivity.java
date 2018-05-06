@@ -46,6 +46,8 @@ public class CalibrateStateActivity extends Activity {
     private Toast t;
     private String psw;
     private TextView stateParams;
+
+    private TextView ifVehicle;
     private TextView  maxFreText;
     private TrackSensorListener sensorListener;
 
@@ -72,6 +74,8 @@ public class CalibrateStateActivity extends Activity {
         setContentView(R.layout.activity_calibrate_state);
         initSensor();
         stateParams = (TextView) findViewById(R.id.state_param);
+
+        ifVehicle = (TextView)findViewById(R.id.ifVehicle);
 
         EditText editTextAccMean_Ab = (EditText) findViewById(R.id.accMean_Ab);
 
@@ -159,7 +163,7 @@ public class CalibrateStateActivity extends Activity {
             public void run() {
                 handler4.sendMessage(handler1.obtainMessage());
             }
-        }, 0, sensorListener.FFT_SampleInterval);
+        }, 5000, sensorListener.FFT_SampleInterval);
     }
 
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -291,6 +295,12 @@ public class CalibrateStateActivity extends Activity {
                     maxFreText.setText("不显著");
                 }
             }
+            boolean ifOnvehicle = sensorListener.getIfOnVehicle();
+            if(ifOnvehicle){
+                ifVehicle.setText("在车上");
+            }else {
+                ifVehicle.setText("不在车上");
+            }
         }
     };
 
@@ -328,7 +338,7 @@ public class CalibrateStateActivity extends Activity {
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,false);
+        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,true,false);
         if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
         }

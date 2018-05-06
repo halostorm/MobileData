@@ -11,10 +11,16 @@ public class LPF_II {//100-10hz
     private float[][] xv;
     private float[][] yv;
 
+    private float[] x;
+    private float[] y;
+
     public LPF_II() {
         xv = new float[NZEROS + 1][3];
         yv = new float[NPOLES + 1][3];
         yv = new float[NPOLES + 1][3];
+
+        x = new float[NZEROS+1];
+        y = new float[NZEROS+1];
     }
 
     public float[] filter(float[] values) {
@@ -34,5 +40,17 @@ public class LPF_II {//100-10hz
         yv[2][2] = (xv[0][2] + xv[2][2]) + 2 * xv[1][2] + (-0.4128015981f  * yv[0][2]) + (1.1429805025f  * yv[1][2]);
 
         return yv[2];
+    }
+
+    public float filter(float values) {
+        x[0] = x[1];
+        x[1] = x[2];
+        x[2] = values/GAIN;
+        y[0] = y[1];
+        y[1] = y[2];
+
+        y[2] = (x[0] + x[2]) + 2 * x[1] + (-0.4128015981f  * y[0]) + (1.1429805025f  * y[1]);
+
+        return y[2];
     }
 }

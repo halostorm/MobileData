@@ -30,19 +30,13 @@ public class MeanFilter {
     }
 
     public float[] filter(float[] values) {
-        for (int i = SAMPLE_NUMBER - 1; i > 0; i--) {
-            sampleList3D[i] = sampleList3D[i - 1].clone();
-        }
-        sampleList3D[0] = values.clone();
+        myMath.addData(sampleList3D,values);
         mean3D = myMath.getMean(sampleList3D);
         return this.mean3D;
     }
 
     public float filter(float values) {
-        for (int i = SAMPLE_NUMBER - 1; i > 0; i--) {
-            sampleList1D[i] = sampleList1D[i - 1];
-        }
-        sampleList1D[0] = values;
+        myMath.addData(sampleList1D,values);
         mean1D = myMath.getMean(sampleList1D);
         return this.mean1D;
     }

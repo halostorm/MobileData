@@ -48,7 +48,7 @@
                 android:background="@layout/button_label"
                 android:layout_marginLeft="@dimen/x8"
                 android:layout_toRightOf="@+id/state_param"
-                android:text="***"
+                android:text="状态初始化"
                 android:textColor="@color/dark_orange" />
 
         </RelativeLayout>
