@@ -84,7 +84,14 @@ public class PathService extends Service {
                         }
                         if(sensorListener.ifNewPath()) {
                             sensorListener.ifNewPath = false;
-                            StringBuffer PathBuffer = sensorListener.getPositionString();
+                            StringBuffer PathBuffer = null;
+                            if(sensorListener.getIfOnVehicle()){
+                                PathBuffer.append("1\t");
+                            }
+                            else{
+                                PathBuffer.append("0\t");
+                            }
+                            PathBuffer.append(sensorListener.getPositionString());
                             try {
                                 Log.d(TAG, "Service path write");
                                 writer.write(PathBuffer.toString());
