@@ -42,6 +42,8 @@ public class PathService extends Service {
     private File pathFile;
     private File InterPathFile;
 
+    private boolean enableInterPath = false;
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
@@ -55,7 +57,10 @@ public class PathService extends Service {
 
         Log.d(TAG,"Path Service Start");
         pathFile = outputFile.getPathFile();
-        InterPathFile = outputFile.getInterPathFile();
+        if(enableInterPath) {
+            InterPathFile = outputFile.getInterPathFile();
+        }
+
         initSensor();
 
         if(ACCELERATOR_EXIST&&GYROSCROPE_EXIST&&MAGNETIC_EXIST) {
@@ -68,12 +73,13 @@ public class PathService extends Service {
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
-
                     BufferedWriter Interwriter = null;
-                    try {
-                        Interwriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(InterPathFile, true)));
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+                    if(enableInterPath) {
+                        try {
+                            Interwriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(InterPathFile, true)));
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
 
                     while (!threadDisable) {
@@ -84,14 +90,8 @@ public class PathService extends Service {
                         }
                         if(sensorListener.ifNewPath()) {
                             sensorListener.ifNewPath = false;
-                            StringBuffer PathBuffer = null;
-                            if(sensorListener.getIfOnVehicle()){
-                                PathBuffer.append("1\t");
-                            }
-                            else{
-                                PathBuffer.append("0\t");
-                            }
-                            PathBuffer.append(sensorListener.getPositionString());
+                            StringBuffer PathBuffer = sensorListener.getPositionString();
+
                             try {
                                 Log.d(TAG, "Service path write");
                                 writer.write(PathBuffer.toString());
@@ -100,16 +100,17 @@ public class PathService extends Service {
                                 e4.printStackTrace();
                             }
 
-                            StringBuffer InterPathBuffer = sensorListener.getInterPositionString();
-                            try {
-                                Log.d(TAG, "Service path write");
-                                Interwriter.write(InterPathBuffer.toString());
-                                Interwriter.flush();
-                            } catch (IOException e4) {
-                                e4.printStackTrace();
+                            if(enableInterPath) {
+                                StringBuffer InterPathBuffer = sensorListener.getInterPositionString();
+                                try {
+                                    Log.d(TAG, "Service path write");
+                                    Interwriter.write(InterPathBuffer.toString());
+                                    Interwriter.flush();
+                                } catch (IOException e4) {
+                                    e4.printStackTrace();
+                                }
+
                             }
-
-
                         }
                     }
                 }
@@ -152,7 +153,9 @@ public class PathService extends Service {
             t.show();
         }
         sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,true,true);
-        sensorListener.ifInterpolation = true;
+        if(enableInterPath) {
+            sensorListener.ifInterpolation = true;
+        }
         if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
         }

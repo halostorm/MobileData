@@ -49,6 +49,14 @@ public class PhoneState {
     public static float ACC_MEAN_STATIC_THRESHOLD = 2f;
     public static float ACC_VAR_STATIC_THRESHOLD = 1.0f;
 
+    public static float AMPDB_THRESHOLD_DEFAULT = -11;
+    public static float PEAK_FRE_THRESHOLD_DEFAULT = 10;
+    public static float VEHICLE_PROBABILITY_THRESHOLD_DEFAULT = 0.8f;
+
+    public static float AMPDB_THRESHOLD = -11;
+    public static float PEAK_FRE_THRESHOLD = 10;
+    public static float VEHICLE_PROBABILITY_THRESHOLD = 0.8f;
+
     //加速度校准参数
     private static float[] params = {1,0,0, 0,1,0, 0,0,1, 0,0,0};
 
@@ -94,10 +102,18 @@ public class PhoneState {
                     ACC_VAR_ABSOLUTE_STATIC_THRESHOLD = Float.parseFloat(v[1]);
                     ACC_MEAN_STATIC_THRESHOLD = Float.parseFloat(v[2]);
                     ACC_VAR_STATIC_THRESHOLD = Float.parseFloat(v[3]);
+
+                    AMPDB_THRESHOLD = Float.parseFloat(v[4]);
+                    PEAK_FRE_THRESHOLD = Float.parseFloat(v[5]);
+                    VEHICLE_PROBABILITY_THRESHOLD = Float.parseFloat(v[6]);
+
                     Log.d(TAG, "params0:"+v[0]);
                     Log.d(TAG, "params1:"+v[1]);
                     Log.d(TAG, "params2:"+v[2]);
                     Log.d(TAG, "params3:"+v[3]);
+                    Log.d(TAG, "params4:"+v[4]);
+                    Log.d(TAG, "params5:"+v[5]);
+                    Log.d(TAG, "params6:"+v[6]);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -21,6 +21,8 @@ package com.ustc.wsn.mobileData.bean.math.FFT;
 import java.util.Arrays;
 import android.util.Log;
 
+import com.ustc.wsn.mobileData.bean.PhoneState;
+
 // float Time Fourier Transform
 public class STFT {
     // data for frequency Analysis
@@ -260,6 +262,7 @@ public class STFT {
         getSpectrumAmpDB();
         // Find and show peak amplitude
         maxAmpDB  = 20 * Math.log10(0.125/32768);
+        maxAmpDB = PhoneState.AMPDB_THRESHOLD*10;
         maxAmpFreq = -fftLen/sampleRate;
         for (int i = 1; i < spectrumAmpOutDB.length; i++) {  // skip the direct current term
             if (spectrumAmpOutDB[i] > maxAmpDB) {

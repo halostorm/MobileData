@@ -36,8 +36,14 @@ public class PathCal {
         }
     }
 
-    public void CalPath() {
+    public void CalPath(boolean ifOnVehicle) {
         StringBuffer pathOut = new StringBuffer();
+        if(ifOnVehicle){
+            pathOut.append("1\t");
+        }
+        else{
+            pathOut.append("0\t");
+        }
         float[][] velocityQueue = new float[RawLength][3];
         float[][] positionQ = new float[RawLength][3];
 

@@ -272,6 +272,11 @@ public class DetectorActivity extends Activity implements OnClickListener {
         }
     }
 
+    private void calibrate_state() {
+        Intent intent = new Intent(this, CalibrateStateActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -280,6 +285,9 @@ public class DetectorActivity extends Activity implements OnClickListener {
                 return true;
             case R.id.open_path:
                 openSystemFile();
+                return true;
+            case R.id.calibrate_state:
+                calibrate_state();
                 return true;
             case R.id.calibrate_accel:
                 stopAllService();

@@ -116,7 +116,7 @@ public class outputFile {
     }
 
     public static File getAccParamsFile() {
-        accelParamsFile = new File(INIDir, "accParams.bat");
+        accelParamsFile = new File(INIDir, "accCalibrateParams.bat");
         return accelParamsFile;
     }
 

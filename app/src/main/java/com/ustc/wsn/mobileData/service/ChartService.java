@@ -166,13 +166,23 @@ public class ChartService extends Service {
      * @param x
      * @param y
      */
-    public void updateChart(float[] x, float[] y) {
+    public void updateChart(float[] x, float[] y,float ThresholdX,float ThresholdY) {
         //xmultipleSeriesDataset.removeSeries(xSeries);
         xSeries.clear();
+        ySeries.clear();
+        zSeries.clear();
         for (int i = 0; i <x.length; i++) {
             xSeries.add(x[i], y[i]);
+            ySeries.add(x[i],ThresholdY);
         }
+        for(int j = (int)zSeries.getMinY();j<(int)zSeries.getMaxY();j++){
+            zSeries.add(ThresholdX,j);
+        }
+
         xGraphicalView.repaint();//此处也可以调用invalidate()
+    }
+    public void updateChart(){
+
     }
 
     public void rightUpdateChart(float addY_X,float addY_Y,float addY_Z) {

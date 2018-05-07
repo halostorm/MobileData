@@ -85,17 +85,31 @@ public class CalibrateStateActivity extends Activity {
 
         EditText editTextAccVar_User = (EditText) findViewById(R.id.accVar_User);
 
-        editTextAccMean_Ab.setHint("请输入绝对静止-加速度均值阈值（当前值：" + PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD + "）");
-        editTextAccVar_Ab.setHint("请输入绝对静止-加速度方差阈值（当前值：" + PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD + ")");
-        editTextAccMean_User.setHint("请输入相对静止-加速度均值阈值（当前值：" + PhoneState.ACC_MEAN_STATIC_THRESHOLD + "）");
-        editTextAccVar_User.setHint("请输入相对静止-加速度方差阈值(当前值：" + PhoneState.ACC_VAR_STATIC_THRESHOLD + "）");
+        EditText editTextAMPDB = (EditText) findViewById(R.id.AmpDBThreshold);
+
+        EditText editTextPEAKFRE = (EditText) findViewById(R.id.PeakFreThreshold);
+
+        EditText editTextPROBABILITY = (EditText) findViewById(R.id.ifVehicleProbability);
+
+        editTextAccMean_Ab.setHint("输入绝对静止-acc均值阈值（当前值：" + PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD + "）");
+        editTextAccVar_Ab.setHint("输入绝对静止-acc方差阈值（当前值：" + PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD + ")");
+        editTextAccMean_User.setHint("输入相对静止-acc均值阈值（当前值：" + PhoneState.ACC_MEAN_STATIC_THRESHOLD + "）");
+        editTextAccVar_User.setHint("输入相对静止-acc方差阈值(当前值：" + PhoneState.ACC_VAR_STATIC_THRESHOLD + "）");
+
+        editTextAMPDB.setHint("输入幅值显著性阈值（当前值：" + PhoneState.AMPDB_THRESHOLD + "）");
+        editTextPEAKFRE.setHint("输入峰值频率阈值（当前值：" + PhoneState.PEAK_FRE_THRESHOLD + ")");
+        editTextPROBABILITY.setHint("输入车内识别概率阈值（当前值：" + PhoneState.VEHICLE_PROBABILITY_THRESHOLD + "）");
 
         TextView confirmText = (TextView) findViewById(R.id.btnconfirmParams);
 
-        confirmText.setTag(R.id.key1, editTextAccMean_Ab);
-        confirmText.setTag(R.id.key2, editTextAccVar_Ab);
-        confirmText.setTag(R.id.key3, editTextAccMean_User);
-        confirmText.setTag(R.id.key4, editTextAccVar_User);
+        confirmText.setTag(R.id.accMean_Ab, editTextAccMean_Ab);
+        confirmText.setTag(R.id.accVar_Ab, editTextAccVar_Ab);
+        confirmText.setTag(R.id.accMean_User, editTextAccMean_User);
+        confirmText.setTag(R.id.accVar_User, editTextAccVar_User);
+
+        confirmText.setTag(R.id.AmpDBThreshold, editTextAMPDB);
+        confirmText.setTag(R.id.PeakFreThreshold, editTextPEAKFRE);
+        confirmText.setTag(R.id.ifVehicleProbability, editTextPROBABILITY);
 
         confirmText.setOnClickListener(cOnClickListener);
 
@@ -103,10 +117,14 @@ public class CalibrateStateActivity extends Activity {
 
         maxFreText = (TextView)findViewById(R.id.value_frequency_axis);
 
-        initParams.setTag(R.id.key1, editTextAccMean_Ab);
-        initParams.setTag(R.id.key2, editTextAccVar_Ab);
-        initParams.setTag(R.id.key3, editTextAccMean_User);
-        initParams.setTag(R.id.key4, editTextAccVar_User);
+        initParams.setTag(R.id.accMean_Ab, editTextAccMean_Ab);
+        initParams.setTag(R.id.accVar_Ab, editTextAccVar_Ab);
+        initParams.setTag(R.id.accMean_User, editTextAccMean_User);
+        initParams.setTag(R.id.accVar_User, editTextAccVar_User);
+
+        initParams.setTag(R.id.AmpDBThreshold, editTextAMPDB);
+        initParams.setTag(R.id.PeakFreThreshold, editTextPEAKFRE);
+        initParams.setTag(R.id.ifVehicleProbability, editTextPROBABILITY);
 
         initParams.setOnClickListener(mOnClickListener);
         //图表
@@ -128,9 +146,9 @@ public class CalibrateStateActivity extends Activity {
         freCurveLayout = (LinearLayout) findViewById(R.id.frequency_value_curve);
 
         freService = new ChartService(this);
-        freService.setXYMultipleSeriesDataset("对数频谱系数 ", "", "");
+        freService.setXYMultipleSeriesDataset("对数频谱系数 ", "幅值显著性阈值", "Vehicle峰值频率阈值");
         freService.setXYMultipleSeriesRenderer(0, 25, -20, -5, "频谱系数", "频率", "10log(A)",
-                Color.BLACK, Color.BLACK,Color.RED, Color.RED, Color.RED,  Color.BLACK);
+                Color.BLACK, Color.BLACK,Color.RED, Color.argb(255,238, 154, 0), Color.BLUE,Color.BLACK);
         freView = freService.getGraphicalView();
 
         //将左右图表添加到布局容器中
@@ -174,25 +192,40 @@ public class CalibrateStateActivity extends Activity {
             String accMeanUserParams = String.valueOf(PhoneState.ACC_MEAN_STATIC_THRESHOLD_DEFAULT);
             String accVarUserParams = String.valueOf(PhoneState.ACC_VAR_STATIC_THRESHOLD_DEFAULT);
 
-            ((EditText) view.getTag(R.id.key1)).setText(accMeanAbParams);
-            ((EditText) view.getTag(R.id.key2)).setText(accVarAbParams);
-            ((EditText) view.getTag(R.id.key3)).setText(accMeanUserParams);
-            ((EditText) view.getTag(R.id.key4)).setText(accVarUserParams);
+            String AMPDBParams = String.valueOf(PhoneState.AMPDB_THRESHOLD_DEFAULT);
+            String PeakFreParams = String.valueOf(PhoneState.PEAK_FRE_THRESHOLD_DEFAULT);
+            String VehicleProParams = String.valueOf(PhoneState.VEHICLE_PROBABILITY_THRESHOLD_DEFAULT);
+
+            ((EditText) view.getTag(R.id.accMean_Ab)).setText(accMeanAbParams);
+            ((EditText) view.getTag(R.id.accVar_Ab)).setText(accVarAbParams);
+            ((EditText) view.getTag(R.id.accMean_User)).setText(accMeanUserParams);
+            ((EditText) view.getTag(R.id.accVar_User)).setText(accVarUserParams);
+
+            ((EditText) view.getTag(R.id.AmpDBThreshold)).setText(AMPDBParams);
+            ((EditText) view.getTag(R.id.PeakFreThreshold)).setText(PeakFreParams);
+            ((EditText) view.getTag(R.id.ifVehicleProbability)).setText(VehicleProParams);
         }
     };
 
     private View.OnClickListener cOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            EditText t1 = ((EditText) view.getTag(R.id.key1));
-            EditText t2 = ((EditText) view.getTag(R.id.key2));
-            EditText t3 = ((EditText) view.getTag(R.id.key3));
-            EditText t4 = ((EditText) view.getTag(R.id.key4));
+            EditText t1 = ((EditText) view.getTag(R.id.accMean_Ab));
+            EditText t2 = ((EditText) view.getTag(R.id.accVar_Ab));
+            EditText t3 = ((EditText) view.getTag(R.id.accMean_User));
+            EditText t4 = ((EditText) view.getTag(R.id.accVar_User));
+            EditText t5 = ((EditText) view.getTag(R.id.AmpDBThreshold));
+            EditText t6 = ((EditText) view.getTag(R.id.PeakFreThreshold));
+            EditText t7 = ((EditText) view.getTag(R.id.ifVehicleProbability));
 
             String accMeanAbParams = t1.getText().toString().trim();
             String accVarAbParams = t2.getText().toString().trim();
             String accMeanUserParams = t3.getText().toString().trim();
             String accVarUserParams = t4.getText().toString().trim();
+
+            String AMPDBParams = t5.getText().toString().trim();
+            String PeakFreParams = t6.getText().toString().trim();
+            String VehicleProParams = t7.getText().toString().trim();
 
             String out = new String();
             if (accMeanAbParams.length() == 0) {
@@ -217,7 +250,26 @@ public class CalibrateStateActivity extends Activity {
                 out += PhoneState.ACC_VAR_STATIC_THRESHOLD + "\n";
             } else {
                 PhoneState.ACC_VAR_STATIC_THRESHOLD = Float.parseFloat(accVarUserParams);
-                out += accVarUserParams + "\n";
+                out += accVarUserParams + "\t";
+            }
+
+            if (AMPDBParams.length() == 0) {
+                out += PhoneState.AMPDB_THRESHOLD + "\t";
+            } else {
+                PhoneState.AMPDB_THRESHOLD = Float.parseFloat(AMPDBParams);
+                out += AMPDBParams + "\t";
+            }
+            if (PeakFreParams.length() == 0) {
+                out += PhoneState.PEAK_FRE_THRESHOLD + "\t";
+            } else {
+                PhoneState.PEAK_FRE_THRESHOLD = Float.parseFloat(PeakFreParams);
+                out += PeakFreParams + "\t";
+            }
+            if (VehicleProParams.length() == 0) {
+                out += PhoneState.VEHICLE_PROBABILITY_THRESHOLD + "\t";
+            } else {
+                PhoneState.PEAK_FRE_THRESHOLD = Float.parseFloat(VehicleProParams);
+                out += VehicleProParams;
             }
 
             File params = outputFile.getParamsFile();
@@ -234,11 +286,18 @@ public class CalibrateStateActivity extends Activity {
             t2.setText("");
             t3.setText("");
             t4.setText("");
+            t5.setText("");
+            t6.setText("");
+            t7.setText("");
 
-            t1.setHint("输入绝对静止-加速度均值阈值（当前值：" + PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD + "）");
-            t2.setHint("输入绝对静止-加速度方差阈值（当前值：" + PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD + ")");
-            t3.setHint("输入相对静止-加速度均值阈值（当前值：" + PhoneState.ACC_MEAN_STATIC_THRESHOLD + "）");
-            t4.setHint("输入相对静止-加速度方差阈值(当前值：" + PhoneState.ACC_VAR_STATIC_THRESHOLD + "）");
+            t1.setHint("输入绝对静止-acc均值阈值（当前值：" + PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD + "）");
+            t2.setHint("输入绝对静止-acc方差阈值（当前值：" + PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD + ")");
+            t3.setHint("输入相对静止-acc均值阈值（当前值：" + PhoneState.ACC_MEAN_STATIC_THRESHOLD + "）");
+            t4.setHint("输入相对静止-acc方差阈值(当前值：" + PhoneState.ACC_VAR_STATIC_THRESHOLD + "）");
+
+            t5.setHint("输入幅值显著性阈值（当前值：" + PhoneState.AMPDB_THRESHOLD + "）");
+            t6.setHint("输入峰值频率阈值（当前值：" + PhoneState.PEAK_FRE_THRESHOLD + ")");
+            t7.setHint("输入车内识别概率阈值（当前值：" + PhoneState.VEHICLE_PROBABILITY_THRESHOLD + "）");
 
         }
     };
@@ -285,9 +344,10 @@ public class CalibrateStateActivity extends Activity {
         public void handleMessage(Message msg) {
             float[] Spectrum = sensorListener.getSpectrum();
             float[] SpectrumID = sensorListener.getSpectrumID();
+
             float maxFre = sensorListener.getMaxFrequency();
             if(Spectrum!=null && SpectrumID !=null) {
-                freService.updateChart(SpectrumID, Spectrum);
+                freService.updateChart(SpectrumID, Spectrum,PhoneState.PEAK_FRE_THRESHOLD,PhoneState.AMPDB_THRESHOLD);
                 if(maxFre>0){
                     maxFreText.setText(df.format(maxFre));
                 }

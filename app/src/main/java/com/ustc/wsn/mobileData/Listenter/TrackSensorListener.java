@@ -45,7 +45,6 @@ public class TrackSensorListener implements SensorEventListener {
     private int FFT_SIZE = 256;
 
     private float onVehicleProbability = 0f;
-    private float onVehicleProbability_Threshold = 0.8f;
 
     private boolean onVehicle = false;
 
@@ -64,6 +63,10 @@ public class TrackSensorListener implements SensorEventListener {
     private float ACC_MEAN_STATIC_THRESHOLD;
     private float ACC_VAR_ABSOLUTE_STATIC_THRESHOLD;
     private float ACC_VAR_STATIC_THRESHOLD;
+
+    private  float AMPDB_THRESHOLD;
+    private  float PEAK_FRE_THRESHOLD;
+    public  float VEHICLE_PROBABILITY_THRESHOLD;
 
     //路径参数
     public boolean ifNewPath = false;
@@ -209,14 +212,15 @@ public class TrackSensorListener implements SensorEventListener {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        //ifVehicle();
+                        updateStateThreshold();
+
                         if (ifVehicle_STFT()) {
                             onVehicleProbability = PeakFreMLP.filter(1.0f);
                         } else {
                             onVehicleProbability = PeakFreMLP.filter(0.0f);
                         }
                         Log.d(TAG,"ifOnvehicle\t"+onVehicleProbability);
-                        if(onVehicleProbability>onVehicleProbability_Threshold){
+                        if(onVehicleProbability>VEHICLE_PROBABILITY_THRESHOLD){
                             onVehicle = true;
                         }
                         else{
@@ -622,11 +626,10 @@ public class TrackSensorListener implements SensorEventListener {
                             Log.d(TAG, "PathLength\t" + PathLength);
 
                             positionQueue = positionQ.clone();
-
                             if (ifInterpolation && PathLength > windowSize) {
                                 PathCal pathTest = new PathCal(Path, PathLength);
 
-                                pathTest.CalPath();
+                                pathTest.CalPath(getIfOnVehicle());
                                 InterpositionBuffer = pathTest.getPathBuffer();
                                 InterpositionQueue = pathTest.getPathQueue();
                                 InterPosition = new float[DurationWindow * windowSize][3];
@@ -635,7 +638,6 @@ public class TrackSensorListener implements SensorEventListener {
                                         InterPosition[i / myMath.N] = InterpositionQueue[i];
                                     }
                                 }
-                                //ifVehicle();
                             } else {
                                 InterPosition = new float[DurationWindow * windowSize][3];
                             }
@@ -730,6 +732,10 @@ public class TrackSensorListener implements SensorEventListener {
         ACC_MEAN_STATIC_THRESHOLD = PhoneState.ACC_MEAN_STATIC_THRESHOLD;
         ACC_VAR_ABSOLUTE_STATIC_THRESHOLD = PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD;
         ACC_VAR_STATIC_THRESHOLD = PhoneState.ACC_VAR_STATIC_THRESHOLD;
+
+        AMPDB_THRESHOLD = PhoneState.AMPDB_THRESHOLD;
+        PEAK_FRE_THRESHOLD = PhoneState.PEAK_FRE_THRESHOLD;
+        VEHICLE_PROBABILITY_THRESHOLD = PhoneState.VEHICLE_PROBABILITY_THRESHOLD;
     }
 
 
@@ -981,7 +987,7 @@ public class TrackSensorListener implements SensorEventListener {
             SpectrumID[i] = (i * (0.5f*50.f/(output.length-1)));
         }
         //myLog.log(TAG, "FFT result\t", Spectrum);
-        if(maxFrequency>10){
+        if(maxFrequency>PEAK_FRE_THRESHOLD){
             return true;
         }
         return false;

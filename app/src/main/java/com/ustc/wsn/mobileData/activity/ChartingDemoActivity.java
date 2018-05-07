@@ -164,20 +164,11 @@ public class ChartingDemoActivity extends Activity {
         helpDialog.show();
     }
 
-    private void calibrate_state() {
-        Intent intent = new Intent(this, CalibrateStateActivity.class);
-        startActivity(intent);
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_settings_help:
                 showHelpDialog();
-                return true;
-            case R.id.calibrate_state:
-                calibrate_state();
-                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
