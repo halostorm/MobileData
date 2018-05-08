@@ -22,16 +22,21 @@ import com.ustc.wsn.mobileData.bean.math.myMath;
 import java.util.Iterator;
 
 public class DetectorLocationListener {
-    private static LocationManager lm;
-    private static int DataSize = 10000;// GPS缓冲池大小为10000
-    private static final String TAG = DetectorLocationListener.class.toString();
+    private LocationManager lm;
+    private int DataSize = 10000;// GPS缓冲池大小为10000
+    private final String TAG = DetectorLocationListener.class.toString();
     private String[] slocation;
     private static String bear;
+    private static String Velocity;
     private int loc_cur;
     private int loc_old;
     private static int bear_count=0;
     private static int last_bear_count=0;
     private static int bear_same_count=0;
+
+    private static int Velocity_count=0;
+    private static int last_Velocity_count=0;
+    private static int Velocity_same_count=0;
     // private StoreData sd;
 
     /**
@@ -80,7 +85,7 @@ public class DetectorLocationListener {
 
         // 1秒更新一次，或最小位移变化超过1米更新一次；
         // 注意：此处更新准确度非常低，推荐在service里面启动一个Thread，在run中sleep(10000);然后执行handler.sendMessage(),更新位置
-        lm.requestLocationUpdates(bestProvider, 5000, 10, locationListener);
+        lm.requestLocationUpdates(bestProvider, 5000, 5, locationListener);
     }
 
 
@@ -93,11 +98,6 @@ public class DetectorLocationListener {
         } else
             return null;
     }
-
-    public static void setCurrentBearToNull() {
-        bear = null;
-    }
-
 
     public static String getCurrentBear() {
         if (bear != null&&bear_same_count<256*2)// 非空且bear相同时间不超过两个窗口
@@ -113,6 +113,24 @@ public class DetectorLocationListener {
             bear_same_count=0;
             bear = null;
             return bear;
+        }
+
+    }
+
+    public static String getCurrentVelocity() {
+        if (Velocity != null&&Velocity_same_count<256*2)// 非空且Velocity相同时间不超过两个窗口
+        {
+            if(Velocity_count==last_Velocity_count)//相等则Velocity没更新
+            {
+                Velocity_same_count++;
+            }
+            last_Velocity_count=Velocity_count;
+            return Velocity;
+        }
+        else{//Velocity不能用
+            Velocity_same_count=0;
+            Velocity = null;
+            return Velocity;
         }
 
     }
@@ -144,6 +162,8 @@ public class DetectorLocationListener {
                         System.currentTimeMillis(), location.getSpeed(), location.getBearing())).toString();
                 bear = String.valueOf(location.getBearing());
                 bear_count++;
+                Velocity = String.valueOf(location.getSpeed());
+                Velocity_count++;
                 loc_cur = (loc_cur + 1) % DataSize;
 
                 myMath.updateGravity(location.getLatitude(),location.getAltitude());

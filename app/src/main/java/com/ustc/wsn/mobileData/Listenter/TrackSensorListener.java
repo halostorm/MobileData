@@ -44,7 +44,7 @@ public class TrackSensorListener implements SensorEventListener {
     public int FFT_SampleInterval = 256*sampleInterval;
     private int FFT_SIZE = 256;
 
-    private float onVehicleProbability = 0f;
+    private static float onVehicleProbability = -1f;
 
     private boolean onVehicle = false;
 
@@ -541,6 +541,7 @@ public class TrackSensorListener implements SensorEventListener {
                             int PathLength = 1;
 
                             //开始计算Path
+                            pathOut.append(onVehicleProbability+"\n");
                             for (int i = beginFlag + 1; i < (StopWindow - 2) * windowSize + stopFlag; i++) {
                                 time0 += AccDeltTWindow[i];
                                 //when i = 0, velocitySample[i] =0; positionSample[i] =0;
@@ -629,7 +630,7 @@ public class TrackSensorListener implements SensorEventListener {
                             if (ifInterpolation && PathLength > windowSize) {
                                 PathCal pathTest = new PathCal(Path, PathLength);
 
-                                pathTest.CalPath(getIfOnVehicle());
+                                pathTest.CalPath(getIfOnVehicleProbability());
                                 InterpositionBuffer = pathTest.getPathBuffer();
                                 InterpositionQueue = pathTest.getPathQueue();
                                 InterPosition = new float[DurationWindow * windowSize][3];
@@ -1015,6 +1016,10 @@ public class TrackSensorListener implements SensorEventListener {
 
     public boolean getIfOnVehicle() {
             return onVehicle;
+    }
+
+    public static float getIfOnVehicleProbability() {
+        return onVehicleProbability;
     }
 
 }

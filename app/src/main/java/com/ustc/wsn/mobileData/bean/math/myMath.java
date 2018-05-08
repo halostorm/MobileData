@@ -161,6 +161,32 @@ public class myMath {
         return dAve.clone();
     }
 
+    public static float[] dataRandom(float[] rawData,int sampleSize) {
+        int windowSize = rawData.length;
+        float[] dataList = new float[sampleSize];
+        int i = 0;
+        boolean inArray;
+
+        while (i < sampleSize) {
+            int temp;
+            inArray = false;
+            temp = (int) (Math.random() * windowSize);
+
+            for (int j = 0; j < i; j++) {
+                if (dataList[i] == dataList[j]) {
+                    inArray = true;
+                }
+            }
+
+            if (inArray == false) {
+                dataList[i] = rawData[temp];
+                i++;
+            }
+        }
+
+        return dataList;
+    }
+
 
     public synchronized static float[] matrixMultiply(float[] A, float[] B, int N) {
         float[] values = new float[N * N];

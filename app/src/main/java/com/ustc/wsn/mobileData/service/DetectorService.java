@@ -16,6 +16,7 @@ import android.view.Gravity;
 import android.widget.Toast;
 
 import com.ustc.wsn.mobileData.Listenter.LogSensorListener;
+import com.ustc.wsn.mobileData.Listenter.TrackSensorListener;
 import com.ustc.wsn.mobileData.bean.CellInfo;
 import com.ustc.wsn.mobileData.bean.StoreData;
 import com.ustc.wsn.mobileData.utils.z7Compression;
@@ -39,6 +40,7 @@ public class DetectorService extends Service {
     private Sensor magnetic;
     private Sensor rotation;
     private LogSensorListener sensorListener;
+    private TrackSensorListener trackSensorListener;
     private static int windowSize = 256;// 256
     private static int sampleSize = 150;// 150
     private boolean threadDisable_sensor = false;
@@ -54,6 +56,8 @@ public class DetectorService extends Service {
     private String[] MAG = new String[windowSize];
     private String[] ROT = new String[windowSize];
     private String[] BEAR = new String[windowSize];
+    private String[] VELOCITY = new String[windowSize];
+    private String[] PRO = new String[windowSize];
 
     /**
      * 返回一个Binder对象
@@ -85,6 +89,7 @@ public class DetectorService extends Service {
         public void setLabel(int label) {
             stateLabel = label;
         }
+
         public int getLabel() {
             return stateLabel;
         }
@@ -95,8 +100,8 @@ public class DetectorService extends Service {
     public void onCreate() {
         // TODO Auto-generated method stub
         super.onCreate();
-        Log.d(TAG,"Sensor Service Start");
-        sd = new StoreData(false,true);//create data store class
+        Log.d(TAG, "Sensor Service Start");
+        sd = new StoreData(false, true);//create data store class
         initSensor();// init sensor
         sensorDataHandle();//begin reading sensor data
 
@@ -126,6 +131,8 @@ public class DetectorService extends Service {
                     String magData;
                     String bearData;
                     String rotData;
+                    String velocityData;
+                    String proData;
 
                     int cLabel = stateLabel;
                     while (i < windowSize) {
@@ -134,51 +141,47 @@ public class DetectorService extends Service {
                         magData = sensorListener.getMagData();
                         bearData = sensorListener.getBearData();
                         rotData = sensorListener.getRotData();
+                        velocityData = sensorListener.getVelocityData();
+                        proData = sensorListener.getProData();
 
                         // 转化数据
-                        if (GYROSCROPE_EXIST) {
-                            if (accData != null && gyroData != null && magData != null && bearData != null) {
-                                ACC[i] = accData;
-                                GYRO[i] = gyroData;
-                                MAG[i] = magData;
+                        if (accData != null && gyroData != null && magData != null) {
+                            ACC[i] = accData;
+                            GYRO[i] = gyroData;
+                            MAG[i] = magData;
+                            ROT[i] = rotData;
+                            if (bearData != null) {
                                 BEAR[i] = bearData;
-                                ROT[i] = rotData;
-                                //recognise static and move
-                                i++;
+                            } else {
+                                BEAR[i] = "*";
                             }
-                            // 如果出現緩衝池空，則停止讀取，等待5s
-                            else {
-                                try {
-                                    Thread.sleep(5000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
+
+                            if (velocityData != null) {
+                                VELOCITY[i] = velocityData;
+                            } else {
+                                VELOCITY[i] = "*";
                             }
-                        } else {
-                            if (accData != null && magData != null && bearData != null) {
-                                gyroData = "-" + "\t" + "-" + "\t" + "-";
-                                ACC[i] = accData;
-                                GYRO[i] = gyroData;
-                                MAG[i] = magData;
-                                BEAR[i] = bearData;
-                                ROT[i] = "-" + "\t" + "-" + "\t" + "-";;
-                                //recognise static and move
-                                i++;
+
+                            if (proData != null) {
+                                PRO[i] = proData;
+                            } else {
+                                PRO[i] = "*";
                             }
-                            // 如果出現緩衝池空，則停止讀取，等待5s
-                            else {
-                                try {
-                                    Thread.sleep(5000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
+                            //recognise static and move
+                            i++;
+                        }
+                        // 如果出現緩衝池空，則停止讀取，等待5s
+                        else {
+                            try {
+                                Thread.sleep(5000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
                         }
+
                     }
                     for (int i_2 = 0; i_2 < windowSize; i_2++) {
-                        //outStoreRaw[i_2] = cLabel + "\t" +"q0"+ "\t" +"q1"+ "\t" +"q2"+"\t" +"q3"+ "\t"
-                        //       + ROT[i_2]+"\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2]+"\t" + BEAR[i_2];
-                        outStoreRaw[i_2] = cLabel + "\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2] + "\t" + BEAR[i_2];
+                        outStoreRaw[i_2] = cLabel + "\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2] + "\t" + ROT[i_2] + "\t" + BEAR[i_2] + "\t" + VELOCITY[i_2]+"\t"+PRO[i_2];
                     }
 
                     /*
@@ -392,108 +395,52 @@ public class DetectorService extends Service {
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerator = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         float accMax = accelerator.getMaximumRange();
-        Log.d(TAG,"accMaxRange\t"+accMax);
+        Log.d(TAG, "accMaxRange\t" + accMax);
         if (accelerator != null) {
             ACCELERATOR_EXIST = true;
         } else {
             t = Toast.makeText(this, "您的手机不支持加速度计", Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
+            this.onDestroy();
         }
         gyroscrope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         float gyroMax = gyroscrope.getMaximumRange();
-        Log.d(TAG,"gyroMaxRange\t"+gyroMax);
+        Log.d(TAG, "gyroMaxRange\t" + gyroMax);
         if (gyroscrope != null) {
             GYROSCROPE_EXIST = true;
         } else {
             t = Toast.makeText(this, "您的手机不支持陀螺仪", Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
+            this.onDestroy();
         }
         magnetic = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         float magMax = magnetic.getMaximumRange();
-        Log.d(TAG,"magMaxRange\t"+magMax);
+        Log.d(TAG, "magMaxRange\t" + magMax);
         if (magnetic != null) {
             MAGNETIC_EXIST = true;
         } else {
             t = Toast.makeText(this, "您的手机不支持电子罗盘", Toast.LENGTH_SHORT);
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
+            this.onDestroy();
         }
-        sensorListener = new LogSensorListener(accMax,gyroMax,magMax);
+        sensorListener = new LogSensorListener(accMax, gyroMax, magMax);
+        //trackSensorListener = new TrackSensorListener(accMax, gyroMax, magMax, true,true);
         if (ACCELERATOR_EXIST) {
-            sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME);
         }
         if (GYROSCROPE_EXIST) {
-            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, gyroscrope, SensorManager.SENSOR_DELAY_GAME);
         }
         if (MAGNETIC_EXIST) {
-            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, magnetic, SensorManager.SENSOR_DELAY_GAME);
         }
-        if(ACCELERATOR_EXIST&&GYROSCROPE_EXIST&&MAGNETIC_EXIST){
+        if (ACCELERATOR_EXIST && GYROSCROPE_EXIST && MAGNETIC_EXIST) {
             rotation = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-            sm.registerListener(sensorListener, rotation, SensorManager.SENSOR_DELAY_GAME );
+            sm.registerListener(sensorListener, rotation, SensorManager.SENSOR_DELAY_GAME);
         }
-    }
-
-    public float[] dataRandom(float[] rawData) {
-        // int[] index = new int[windowSize];
-        float[] dataList = new float[sampleSize];
-        int i = 0;
-        boolean inArray;
-
-        while (i < sampleSize) {
-            int temp;
-            inArray = false;
-            temp = (int) (Math.random() * windowSize);
-
-            for (int j = 0; j < i; j++) {
-                if (dataList[i] == dataList[j]) {
-                    inArray = true;
-                }
-            }
-
-            if (inArray == false) {
-                dataList[i] = rawData[temp];
-                i++;
-            }
-        }
-
-        return dataList;
-    }
-
-    public float getStdVar(float[] x) {
-        int m = x.length;
-        float sum = 0;
-        for (int i = 0; i < m; i++) {// 求和
-            sum += x[i];
-        }
-        float dAve = sum / m;// 求平均值
-        float dVar = 0;
-        for (int i = 0; i < m; i++) {// 求方差
-            dVar += (x[i] - dAve) * (x[i] - dAve);
-        }
-        return (float) Math.sqrt(dVar / m);
-    }
-
-    public float getMean(float[] x) {
-        int m = x.length;
-        float sum = 0;
-        for (int i = 0; i < m; i++) {// 求和
-            sum += x[i];
-        }
-        float dAve = sum / m;// 求平均值
-        return dAve;
-    }
-
-    public float getMean(float[][] x, int k) {
-        int m = x.length;
-        float sum = 0;
-        for (int i = 0; i < m; i++) {// 求和
-            sum += x[i][k];
-        }
-        float dAve = sum / m;// 求平均值
-        return dAve;
     }
 
     @Override

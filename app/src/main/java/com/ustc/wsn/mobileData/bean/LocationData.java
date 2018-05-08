@@ -137,7 +137,7 @@ public class LocationData {
 		// Date curDate = new Date(time);
 		// return formatter.format(curDate) + "\t" + time + "\t" + longitude
 		// + "\t" + latitude;
-		return TimeUtil.getTime(time) + "\t" + time + "\t" + longitude + "\t" + latitude + "\t" + speed+ "\t" + angle;
+		return time + "\t" + longitude + "\t" + latitude + "\t" + speed+ "\t" + angle;
 		// Date curDate = new Date(currentBestLocation.getTime());
 		// return formatter.format(curDate) + "\t" +
 		// currentBestLocation.getTime() + "\t"
