@@ -15,13 +15,6 @@ public class TimeUtil {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(millis);
         return String.valueOf(c.get(Calendar.YEAR)) + "_" + String.valueOf(c.get(Calendar.MONTH) + 1) + "_" + String.valueOf(c.get(Calendar.DAY_OF_MONTH)) + "_" + String.valueOf(c.get(Calendar.HOUR_OF_DAY)) + "_" + String.valueOf(c.get(Calendar.MINUTE) + "_" + String.valueOf(c.get(Calendar.SECOND)));
-        /*
-		 * return normalize(c.get(Calendar.YEAR), 1) + ":" +
-		 * normalize(c.get(Calendar.MONTH), 2) + ":" +
-		 * normalize(c.get(Calendar.DATE), 2) + ":" + c.get(Calendar.AM_PM) +
-		 * ":" + normalize(c.get(Calendar.HOUR), 2) + ":" +
-		 * normalize(c.get(Calendar.MINUTE), 2); //+ ":"
-		 */
     }
 
     /**
