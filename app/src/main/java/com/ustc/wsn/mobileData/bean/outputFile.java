@@ -19,6 +19,7 @@ public class outputFile {
     private static File accelParamsFile;
     private static File rawFile;
     private static File pathFile;
+    private static File GlobalStateFile;
     private static File InterpathFile;
     private static File locFile;
     private static File z7RawFile;
@@ -141,6 +142,12 @@ public class outputFile {
         current_time = System.currentTimeMillis();
         rawFile = new File(dir, "raw" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
         return rawFile;
+    }
+
+    public static File getStateFile() {
+        current_time = System.currentTimeMillis();
+        GlobalStateFile = new File(dir, "state" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
+        return GlobalStateFile;
     }
 
     public static File getz7RawFile() {

@@ -19,13 +19,9 @@ import com.ustc.wsn.mobileData.bean.Log.myLog;
 import com.ustc.wsn.mobileData.bean.PathBasicData;
 import com.ustc.wsn.mobileData.bean.PhoneState;
 import com.ustc.wsn.mobileData.bean.math.FFT.*;
+import com.ustc.wsn.mobileData.bean.math.LinearFit;
 import com.ustc.wsn.mobileData.bean.math.myMath;
 
-import org.apache.commons.math3.complex.Complex;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -41,10 +37,10 @@ public class TrackSensorListener implements SensorEventListener {
     public final int sampleInterval = 20;//ms
     public volatile int sampleIntervalReal = sampleInterval;//ms
 
-    public int FFT_SampleInterval = 256*sampleInterval;
+    public int FFT_SampleInterval = 256 * sampleInterval;
     private int FFT_SIZE = 256;
 
-    private static float onVehicleProbability = -1f;
+    private static float onVehicleProbability = 0.0f;
 
     private boolean onVehicle = false;
 
@@ -64,9 +60,9 @@ public class TrackSensorListener implements SensorEventListener {
     private float ACC_VAR_ABSOLUTE_STATIC_THRESHOLD;
     private float ACC_VAR_STATIC_THRESHOLD;
 
-    private  float AMPDB_THRESHOLD;
-    private  float PEAK_FRE_THRESHOLD;
-    public  float VEHICLE_PROBABILITY_THRESHOLD;
+    private float AMPDB_THRESHOLD;
+    private float PEAK_FRE_THRESHOLD;
+    public float VEHICLE_PROBABILITY_THRESHOLD;
 
     //路径参数
     public boolean ifNewPath = false;
@@ -90,6 +86,8 @@ public class TrackSensorListener implements SensorEventListener {
     private volatile int position_mark = DurationWindow * windowSize;
     private volatile int RemainingDataSize = 0;
 
+    //Path 方向矢量
+    private volatile float[] PathVector = new float[3];
     //传感器参数
 
     private float AccRange;
@@ -162,7 +160,7 @@ public class TrackSensorListener implements SensorEventListener {
     private boolean threadDisable_data_update = false;
 
     //
-    public TrackSensorListener(float accMaxRange, float gyroMaxRange, float magMaxRange, final boolean enableVehicle,final boolean enablePath) {
+    public TrackSensorListener(float accMaxRange, float gyroMaxRange, float magMaxRange, final boolean enableAttitude, final boolean enableVehicle, final boolean enablePath, final boolean enableAlwaysPath) {
         // TODO Auto-generated constructor stub
         super();
         ///store Task
@@ -181,7 +179,7 @@ public class TrackSensorListener implements SensorEventListener {
         accMouldingLPF = new LPF_I();
 
         PeakFreMLP = new MeanFilter(10);
-                
+
         ekfPH = new ekfParamsHandle();
         ekfP = new ekfParams();
         ekf = new EKF();
@@ -196,158 +194,22 @@ public class TrackSensorListener implements SensorEventListener {
         //加速度校准参数提取
         getAccCalibrateParams();
 
-        if(enableVehicle) {
-            // Fre & ifVehicle Thread
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    while (!threadDisable_data_update) {
-                        try {
-                            Thread.sleep(FFT_SampleInterval);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        updateStateThreshold();
-
-                        if (ifVehicle_STFT()) {
-                            onVehicleProbability = PeakFreMLP.filter(1.0f);
-                        } else {
-                            onVehicleProbability = PeakFreMLP.filter(0.0f);
-                        }
-                        Log.d(TAG,"ifOnvehicle\t"+onVehicleProbability);
-                        if(onVehicleProbability>VEHICLE_PROBABILITY_THRESHOLD){
-                            onVehicle = true;
-                        }
-                        else{
-                            onVehicle = false;
-                        }
-                    }
-                }
-            }).start();
-
+        if (enableAttitude) {
+            AttitudeAndStateThread();
         }
-        //Attitude & State & cal-data Thread
-        new Thread(new Runnable() {///////////////////// Thread 1: Task to calculate attitude params
-            @Override
-            public void run() {
-                int count = 0;
-                long time = 0;
-                long timeOld = System.nanoTime();
-                float dt = sampleIntervalReal / 1000f;
 
-                try {
-                    Thread.sleep(windowSize * sampleInterval);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        if (enableVehicle) {
+            VehicleThread();
+        }
 
-                while (!threadDisable_data_update) {
-                    try {
-                        Thread.sleep(sampleIntervalReal);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    updateStateThreshold();
-                    //EKF
-                    if (AccOriOriNew && MagOriNew && GyroOriNew) {
-                        //myLog.log(TAG,"x_apo",ekf.x_apo);
-                        //myLog.log(TAG,"P_apo",ekf.P_apo);
-                        float[] accOri = acc.clone();
-                        float[] gyroOri = gyro.clone();
-                        float[] magOri = mag.clone();
-
-                        if (AttitudeMode == PhoneState.Attitude_GDF) {
-                            //用EKF初始化GDF
-                            if (gdf.InitCount < 100) {
-                                ekfAtt(accOri, gyroOri, magOri, dt);
-                                Euler = ekf.euler.clone();
-                                //DCM = ekf.Rot_matrix.clone();
-                                Quarternion = ekf.q.clone();
-                                gdf.InitCount++;
-                                gdf.q = ekf.q.clone();
-                            } else {
-                                gdfAtt(accOri, gyroOri, magOri, dt, true);
-                                Euler = gdf.Euler.clone();
-                                //DCM = gdf.Rot_Matrix.clone();
-                                Quarternion = gdf.q.clone();
-                            }
-                            //myLog.log(TAG, "gdf q:", Quarternion);
-                        }
-                        if (AttitudeMode == PhoneState.Attitude_EKF) {
-                            ekfAtt(accOri, gyroOri, magOri, dt);
-                            Euler = ekf.euler.clone();
-                            //DCM = ekf.Rot_matrix.clone();
-                            Quarternion = ekf.q.clone();
-                            //myLog.log(TAG, "ekf q:", Quarternion);
-                        }
-                        if (AttitudeMode == PhoneState.Attitude_FCF) {
-                            fcfAtt(accOri, gyroOri, magOri, dt);
-                            Euler = fcf.euler.clone();
-                            //DCM = fcf.Rot_matrix.clone();
-                            Quarternion = fcf.q.clone();
-                            //myLog.log(TAG, "fcf q:", Quarternion);
-                        }
-
-                        if (AttitudeMode == PhoneState.Attitude_ANDROID) {
-                            androidAtt(accOri, magOri);
-                            //DCM = androidDCM.clone();
-                            Quarternion = androidQ.clone();
-                            Euler = myMath.Q2Euler(Quarternion);
-                        }
-
-                        if (AttitudeMode == PhoneState.Attitude_GYRO) {
-                            if (count++ == DurationWindow * windowSize) {
-                                androidAtt(accOri, magOri);
-                                //DCM = androidDCM.clone();
-                                Quarternion = androidQ.clone();
-                                Euler = myMath.Q2Euler(Quarternion);
-                                gyroAtt = new GyroAtt(Quarternion);
-                                count = 0;
-                            } else {
-                                gyroAtt.Filter(gyroOri, dt);
-                                Quarternion = gyroAtt.q.clone();
-                                Euler = myMath.Q2Euler(Quarternion);
-                            }
-                        }
-                        Euler[2] -= myMath.DECLINATION / 180 * myMath.PI;//去除磁偏角
-                    }
-                    PhoneState.Euler = Euler.clone();
-                    PhoneState.Quarternion = Quarternion.clone();
-
-                    time = System.nanoTime();
-                    dt = (time - timeOld) / 1000000000f;
-                    timeOld = time;
-                    //Log.d(TAG,"thread DT\t"+dt);
-
-                    myMath.addData(timeStampQueue, System.currentTimeMillis());
-                    myMath.addData(qQueue, Quarternion);
-
-                    float accLow = myMath.getMoulding(acc)+myMath.G;
-                    float accHigh = accLow - accMouldingLPF.filter(accLow);
-
-                    myMath.addData(accNormQueue, accHigh);
-
-                    float[] naccSum = new float[windowSize];
-                    for (int i = (DurationWindow - 1) * windowSize; i < DurationWindow * windowSize; i++) {
-                        naccSum[i - (DurationWindow - 1) * windowSize] = (naccQueue[i][0] * naccQueue[i][0] + naccQueue[i][1] * naccQueue[i][1]);
-                    }
-                    stateValues[0] = myMath.getMean(naccSum);
-                    stateValues[1] = myMath.getVar(naccSum);
-
-                    Window_STATE = stateRecognizeUseAccel(stateValues[0], stateValues[1]);
-                }
-            }
-        }).start();
-
-        //Path Thread
         if (enablePath) {
-            new Thread(new Runnable() {///////////////////// Thread 1: Task to calculate Path
+            PathThread(enableAlwaysPath);
+        }
+    }
+
+    private void PathThread(final boolean enableAlwaysPath) {
+        if (!enableAlwaysPath) {
+            new Thread(new Runnable() {
                 @Override
                 public void run() {
                     //等待Thread 1 填充数据
@@ -359,12 +221,8 @@ public class TrackSensorListener implements SensorEventListener {
                     //初始化Thread 2 相关参数
                     int NOW_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
                     int LAST_STATE = PhoneState.ABSOLUTE_STATIC_STATE;
-                    long time = 0;
-                    long timeOld = System.nanoTime();
-                    float dt = sampleIntervalReal / 1000f;
                     int beginFlag = 0;
                     int stopFlag = 0;
-                    int StartWindow = 0;
                     int StopWindow = 0;
                     while (!threadDisable_data_update) {
                         try {
@@ -374,7 +232,6 @@ public class TrackSensorListener implements SensorEventListener {
                         }
                         //更新状态阈值参数
                         updateStateThreshold();
-
                         //对最新数据窗口判断状态（数据队列最后一个窗口）
                         float[] naccSum = new float[windowSize];
                         for (int i = (DurationWindow - 1) * windowSize; i < DurationWindow * windowSize; i++) {
@@ -517,8 +374,8 @@ public class TrackSensorListener implements SensorEventListener {
                             }
                             */
 
-                            DCM_Static = androidAtt(_accOri, _magOri);
-                            Q_Static = myMath.Rot2Q(DCM_Static);
+                            //DCM_Static = androidAtt(_accOri, _magOri);
+                            //Q_Static = myMath.Rot2Q(DCM_Static);
                             //myLog.log(TAG,"_qStatic\t",_quarternion);
                             gyroAttPath = new GyroAtt(_quarternion);
 
@@ -532,7 +389,7 @@ public class TrackSensorListener implements SensorEventListener {
                             //path输出数据缓存
                             StringBuffer pathOut = new StringBuffer();
 
-                            //path数据提取
+                            //path插值数据提取
                             ArrayList<PathBasicData> Path = new ArrayList<PathBasicData>();
                             PathBasicData pathValue = new PathBasicData(accNow, 0f);
                             Path.add(pathValue);
@@ -540,116 +397,369 @@ public class TrackSensorListener implements SensorEventListener {
                             float time0 = 0;
                             int PathLength = 1;
 
+                            //LinearFit
+                            ArrayList<float[]> fitData = new ArrayList<>();
                             //开始计算Path
-                            pathOut.append(onVehicleProbability+"\n");
-                            for (int i = beginFlag + 1; i < (StopWindow - 2) * windowSize + stopFlag; i++) {
-                                time0 += AccDeltTWindow[i];
-                                //when i = 0, velocitySample[i] =0; positionSample[i] =0;
+                            pathOut.append(onVehicleProbability + "\n");
+                            int PathStart = beginFlag + 1;
+                            int PathStop = (StopWindow - 2) * windowSize + stopFlag;
 
-                                pathOut.append(timeWindow[i] + "\t");
+                            if (PathStart < PathStop) {
+                                for (int i = PathStart; i < PathStop; i++) {
+                                    time0 += AccDeltTWindow[i];
+                                    //when i = 0, velocitySample[i] =0; positionSample[i] =0;
 
-                                //角速度插值
-                                //float[] W = myMath.matrixDivide(myMath.matrixAdd(gyroWindow[i], gyroWindow[i - 1]), 2);
-                                float[] W = gyroWindow[i].clone();
+                                    pathOut.append(timeWindow[i] + "\t");
 
-                                pathOut.append(W[0] + "\t");
-                                pathOut.append(W[1] + "\t");
-                                pathOut.append(W[2] + "\t");
+                                    //角速度插值
+                                    //float[] W = myMath.matrixDivide(myMath.matrixAdd(gyroWindow[i], gyroWindow[i - 1]), 2);
+                                    float[] W = gyroWindow[i].clone();
 
-                                //Log.d(TAG, "accWindow[i][0]:" + String.valueOf(i) + ":\t" + accWindow[i][0]);
-                                //Log.d(TAG, "accWindow[i][1]:" + String.valueOf(i) + ":\t" + accWindow[i][1]);
-                                //Log.d(TAG, "accWindow[i][2]:" + String.valueOf(i) + ":\t" + accWindow[i][2]);
+                                    pathOut.append(W[0] + "\t");
+                                    pathOut.append(W[1] + "\t");
+                                    pathOut.append(W[2] + "\t");
 
-                                pathOut.append(accWindow[i][0] + "\t");
-                                pathOut.append(accWindow[i][1] + "\t");
-                                pathOut.append(accWindow[i][2] + "\t");
+                                    //Log.d(TAG, "accWindow[i][0]:" + String.valueOf(i) + ":\t" + accWindow[i][0]);
+                                    //Log.d(TAG, "accWindow[i][1]:" + String.valueOf(i) + ":\t" + accWindow[i][1]);
+                                    //Log.d(TAG, "accWindow[i][2]:" + String.valueOf(i) + ":\t" + accWindow[i][2]);
 
-                                gyroAttPath.Filter(W, GyroDeltTWindow[i]);
+                                    pathOut.append(accWindow[i][0] + "\t");
+                                    pathOut.append(accWindow[i][1] + "\t");
+                                    pathOut.append(accWindow[i][2] + "\t");
 
-                                //myLog.log(TAG, "gyroAttPath q:", gyroAttPath.q);
+                                    gyroAttPath.Filter(W, GyroDeltTWindow[i]);
 
-                                float[] eu = gyroAttPath.Euler.clone();
+                                    //myLog.log(TAG, "gyroAttPath q:", gyroAttPath.q);
 
-                                //myLog.log(TAG, "gyroAttPath Euler:", eu);
+                                    //float[] eu = gyroAttPath.Euler.clone();
 
-                                accNow = myMath.Q_coordinatesTransform(gyroAttPath.q, accWindow[i]);
+                                    //myLog.log(TAG, "gyroAttPath Euler:", eu);
 
-                                //Log.d(TAG, "accNow[0]:" + String.valueOf(i) + ":\t" + accNow[0]);
-                                //Log.d(TAG, "accNow[1]:" + String.valueOf(i) + ":\t" + accNow[1]);
-                                //Log.d(TAG, "accNow[2]:" + String.valueOf(i) + ":\t" + (accNow[2] - myMath.G));
+                                    accNow = myMath.Q_coordinatesTransform(gyroAttPath.q, accWindow[i]);
 
-                                //Log.d(TAG, "accLast[0]:" + String.valueOf(i) + ":\t" + accLast[0]);
-                                //Log.d(TAG, "accLast[1]:" + String.valueOf(i) + ":\t" + accLast[1]);
-                                //Log.d(TAG, "accLast[2]:" + String.valueOf(i) + ":\t" + (accLast[2] - myMath.G));
+                                    //Log.d(TAG, "accNow[0]:" + String.valueOf(i) + ":\t" + accNow[0]);
+                                    //Log.d(TAG, "accNow[1]:" + String.valueOf(i) + ":\t" + accNow[1]);
+                                    //Log.d(TAG, "accNow[2]:" + String.valueOf(i) + ":\t" + (accNow[2] - myMath.G));
 
-                                pathOut.append((accNow[0] + accLast[0]) / 2 + "\t");
-                                pathOut.append((accNow[1] + accLast[1]) / 2 + "\t");
-                                pathOut.append((accNow[2] + accLast[2] - 2 * myMath.G) / 2 + "\t");
+                                    //Log.d(TAG, "accLast[0]:" + String.valueOf(i) + ":\t" + accLast[0]);
+                                    //Log.d(TAG, "accLast[1]:" + String.valueOf(i) + ":\t" + accLast[1]);
+                                    //Log.d(TAG, "accLast[2]:" + String.valueOf(i) + ":\t" + (accLast[2] - myMath.G));
 
-                                //新速度
-                                velocityQueue[i][0] = velocityQueue[i - 1][0] + 0.5f * (accNow[0] + accLast[0]) * AccDeltTWindow[i];
-                                velocityQueue[i][1] = velocityQueue[i - 1][1] + 0.5f * (accNow[1] + accLast[1]) * AccDeltTWindow[i];
-                                velocityQueue[i][2] = velocityQueue[i - 1][2] + 0.5f * ((accNow[2] - myMath.G) + (accLast[2] - myMath.G)) * AccDeltTWindow[i];
+                                    pathOut.append((accNow[0] + accLast[0]) / 2 + "\t");
+                                    pathOut.append((accNow[1] + accLast[1]) / 2 + "\t");
+                                    pathOut.append((accNow[2] + accLast[2] - 2 * myMath.G) / 2 + "\t");
 
-                                //记录上一次加速度
-                                accLast = accNow.clone();
+                                    //新速度
+                                    velocityQueue[i][0] = velocityQueue[i - 1][0] + 0.5f * (accNow[0] + accLast[0]) * AccDeltTWindow[i];
+                                    velocityQueue[i][1] = velocityQueue[i - 1][1] + 0.5f * (accNow[1] + accLast[1]) * AccDeltTWindow[i];
+                                    velocityQueue[i][2] = velocityQueue[i - 1][2] + 0.5f * ((accNow[2] - myMath.G) + (accLast[2] - myMath.G)) * AccDeltTWindow[i];
 
-                                pathOut.append(velocityQueue[i][0] + "\t");
-                                pathOut.append(velocityQueue[i][1] + "\t");
-                                pathOut.append(velocityQueue[i][2] + "\t");
+                                    //记录上一次加速度
+                                    accLast = accNow.clone();
 
-                                //Log.d(TAG, "velocityQueue[0]:" + String.valueOf(i) + ":\t" + velocityQueue[i][0]);
-                                //Log.d(TAG, "velocityQueue[1]:" + String.valueOf(i) + ":\t" + velocityQueue[i][1]);
-                                //Log.d(TAG, "velocityQueue[2]:" + String.valueOf(i) + ":\t" + velocityQueue[i][2]);
+                                    pathOut.append(velocityQueue[i][0] + "\t");
+                                    pathOut.append(velocityQueue[i][1] + "\t");
+                                    pathOut.append(velocityQueue[i][2] + "\t");
 
-                                //新位置
-                                positionQ[i][0] = positionQ[i - 1][0] + 0.5f * (velocityQueue[i][0] + velocityQueue[i - 1][0]) * AccDeltTWindow[i];
-                                positionQ[i][1] = positionQ[i - 1][1] + 0.5f * (velocityQueue[i][1] + velocityQueue[i - 1][1]) * AccDeltTWindow[i];
-                                positionQ[i][2] = positionQ[i - 1][2] + 0.5f * (velocityQueue[i][2] + velocityQueue[i - 1][2]) * AccDeltTWindow[i]; //- freeFallPosition;
+                                    //Log.d(TAG, "velocityQueue[0]:" + String.valueOf(i) + ":\t" + velocityQueue[i][0]);
+                                    //Log.d(TAG, "velocityQueue[1]:" + String.valueOf(i) + ":\t" + velocityQueue[i][1]);
+                                    //Log.d(TAG, "velocityQueue[2]:" + String.valueOf(i) + ":\t" + velocityQueue[i][2]);
 
-                                pathOut.append(positionQ[i][0] + "\t");
-                                pathOut.append(positionQ[i][1] + "\t");
-                                pathOut.append(positionQ[i][2] + "\n");
+                                    //新位置
+                                    positionQ[i][0] = positionQ[i - 1][0] + 0.5f * (velocityQueue[i][0] + velocityQueue[i - 1][0]) * AccDeltTWindow[i];
+                                    positionQ[i][1] = positionQ[i - 1][1] + 0.5f * (velocityQueue[i][1] + velocityQueue[i - 1][1]) * AccDeltTWindow[i];
+                                    positionQ[i][2] = positionQ[i - 1][2] + 0.5f * (velocityQueue[i][2] + velocityQueue[i - 1][2]) * AccDeltTWindow[i]; //- freeFallPosition;
 
-                                //Log.d(TAG, "position[0]" + String.valueOf(i) + ":\t" + positionQ[i][0]);
-                                //Log.d(TAG, "position[1]" + String.valueOf(i) + ":\t" + positionQ[i][1]);
-                                //Log.d(TAG, "position[2]" + String.valueOf(i) + ":\t" + positionQ[i][2]);
+                                    pathOut.append(positionQ[i][0] + "\t");
+                                    pathOut.append(positionQ[i][1] + "\t");
+                                    pathOut.append(positionQ[i][2] + "\n");
 
-                                pathValue = new PathBasicData(accNow, time0);
-                                Path.add(pathValue);
+                                    //Log.d(TAG, "position[0]" + String.valueOf(i) + ":\t" + positionQ[i][0]);
+                                    //Log.d(TAG, "position[1]" + String.valueOf(i) + ":\t" + positionQ[i][1]);
+                                    //Log.d(TAG, "position[2]" + String.valueOf(i) + ":\t" + positionQ[i][2]);
 
-                                PathLength++;
-                            }
+                                    pathValue = new PathBasicData(accNow, time0);
+                                    Path.add(pathValue);
 
-                            //输出path数据
-                            pathOut.append("\n");
-                            positionBuffer = pathOut;
-                            Log.d(TAG, "PathLength\t" + PathLength);
+                                    float[] fitValue = {positionQ[i][0] * 100, positionQ[i][1] * 100};
+                                    fitData.add(fitValue);
 
-                            positionQueue = positionQ.clone();
-                            if (ifInterpolation && PathLength > windowSize) {
-                                PathCal pathTest = new PathCal(Path, PathLength);
-
-                                pathTest.CalPath(getIfOnVehicleProbability());
-                                InterpositionBuffer = pathTest.getPathBuffer();
-                                InterpositionQueue = pathTest.getPathQueue();
-                                InterPosition = new float[DurationWindow * windowSize][3];
-                                for (int i = 0; i < InterpositionQueue.length; i++) {
-                                    if (i % myMath.N == 0) {
-                                        InterPosition[i / myMath.N] = InterpositionQueue[i];
-                                    }
+                                    PathLength++;
                                 }
-                            } else {
-                                InterPosition = new float[DurationWindow * windowSize][3];
-                            }
-                            ifNewPath = true;
-                        }//结束Path
 
+                                //输出path数据
+                                pathOut.append("\n");
+                                positionBuffer = pathOut;
+                                Log.d(TAG, "PathLength\t" + PathLength);
+
+                                positionQueue = positionQ.clone();
+
+                                LinearFit linearFit = new LinearFit(fitData, 1);
+                                float[] fitParams = linearFit.Fitting();
+
+                                PathVector = linearFit.getUnitVector();//Path方向矢量
+
+                                Log.d(TAG, "fitParams[0]" + fitParams[0]);
+                                Log.d(TAG, "fitParams[1]" + fitParams[1]);
+
+                                //Path插值(默认不执行)
+                                if (ifInterpolation && PathLength > windowSize) {
+                                    PathCal pathTest = new PathCal(Path, PathLength);
+
+                                    pathTest.CalPath(getIfOnVehicleProbability());
+                                    InterpositionBuffer = pathTest.getPathBuffer();
+                                    InterpositionQueue = pathTest.getPathQueue();
+                                    InterPosition = new float[DurationWindow * windowSize][3];
+                                    for (int i = 0; i < InterpositionQueue.length; i++) {
+                                        if (i % myMath.N == 0) {
+                                            InterPosition[i / myMath.N] = InterpositionQueue[i];
+                                        }
+                                    }
+                                } else {
+                                    InterPosition = new float[DurationWindow * windowSize][3];
+                                }
+
+                                ifNewPath = true;
+                            }
+                        }//结束Path
                         LAST_STATE = NOW_STATE;
                     }
                 }
             }).start();
         }
+        //enableAlwaysPath = true
+        else {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    //等待Thread 1 填充数据
+
+                    try {
+                        Thread.sleep(DurationWindow * windowSize * sampleInterval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    while (!threadDisable_data_update) {
+                        try {
+                            Thread.sleep(DurationWindow * windowSize * sampleInterval);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        float[][] gyroWindow = gyroQueue.clone();
+                        float[] AccDeltTWindow = AccDeltTQueue.clone();
+                        float[] GyroDeltTWindow = GyroDeltTQueue.clone();
+                        float[][] accWindow = accQueue.clone();
+
+                        float[][] positionQ = new float[DurationWindow * windowSize][3];
+                        float[][] velocityQueue = new float[DurationWindow * windowSize][3];
+
+                        float[] _quarternion = qQueue[0].clone();
+                        gyroAttPath = new GyroAtt(_quarternion);
+                        float[] accNow = myMath.Q_coordinatesTransform(_quarternion, accWindow[0]);
+                        float[] accLast = accNow.clone();
+
+                        //LinearFit
+                        ArrayList<float[]> fitData = new ArrayList<>();
+                        //开始计算Path
+                        for (int i = 1; i < accWindow.length; i++) {
+                            //when i = 0, velocitySample[i] =0; positionSample[i] =0;
+
+                            //角速度插值
+                            float[] W = gyroWindow[i].clone();
+                            gyroAttPath.Filter(W, GyroDeltTWindow[i]);
+
+                            accNow = myMath.Q_coordinatesTransform(gyroAttPath.q, accWindow[i]);
+
+                            //新速度
+                            velocityQueue[i][0] = velocityQueue[i - 1][0] + 0.5f * (accNow[0] + accLast[0]) * AccDeltTWindow[i];
+                            velocityQueue[i][1] = velocityQueue[i - 1][1] + 0.5f * (accNow[1] + accLast[1]) * AccDeltTWindow[i];
+                            velocityQueue[i][2] = velocityQueue[i - 1][2] + 0.5f * ((accNow[2] - myMath.G) + (accLast[2] - myMath.G)) * AccDeltTWindow[i];
+
+                            //记录上一次加速度
+                            accLast = accNow.clone();
+
+                            positionQ[i][0] = positionQ[i - 1][0] + 0.5f * (velocityQueue[i][0] + velocityQueue[i - 1][0]) * AccDeltTWindow[i];
+                            positionQ[i][1] = positionQ[i - 1][1] + 0.5f * (velocityQueue[i][1] + velocityQueue[i - 1][1]) * AccDeltTWindow[i];
+                            positionQ[i][2] = positionQ[i - 1][2] + 0.5f * (velocityQueue[i][2] + velocityQueue[i - 1][2]) * AccDeltTWindow[i]; //- freeFallPosition;
+
+                            Log.d(TAG, "position[0]" + String.valueOf(i) + ":\t" + positionQ[i][0]);
+                            Log.d(TAG, "position[1]" + String.valueOf(i) + ":\t" + positionQ[i][1]);
+                            Log.d(TAG, "position[2]" + String.valueOf(i) + ":\t" + positionQ[i][2]);
+                            float[] fitValue = {positionQ[i][0] * 100, positionQ[i][1] * 100};
+                            if(i%5==0&&myMath.isLegalArray(fitValue)) {
+                                fitData.add(fitValue);
+                            }
+                        }
+
+                        positionQueue = positionQ.clone();
+                        InterPosition = new float[DurationWindow * windowSize][3];
+                        ifNewPath = true;
+                        LinearFit linearFit = new LinearFit(fitData, 1);
+                        float[] fitParams = linearFit.Fitting();
+
+                        PathVector = linearFit.getUnitVector();//Path方向矢量
+
+                        Log.d(TAG, "fitParams[0]" + fitParams[0]);
+                        Log.d(TAG, "fitParams[1]" + fitParams[1]);
+                    }
+                }
+            }).start();
+        }
+    }
+
+    private void VehicleThread() {
+        // Fre & ifVehicle Thread
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                while (!threadDisable_data_update) {
+                    try {
+                        Thread.sleep(FFT_SampleInterval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    updateStateThreshold();
+
+                    if (ifVehicle_STFT()) {
+                        onVehicleProbability = PeakFreMLP.filter(1.0f);
+                    } else {
+                        onVehicleProbability = PeakFreMLP.filter(0.0f);
+                    }
+                    Log.d(TAG, "ifOnvehicle\t" + onVehicleProbability);
+                    if (onVehicleProbability > VEHICLE_PROBABILITY_THRESHOLD) {
+                        onVehicle = true;
+                    } else {
+                        onVehicle = false;
+                    }
+                }
+            }
+        }).start();
+
+    }
+
+    private void AttitudeAndStateThread() {
+        //Attitude & State & cal-data Thread
+        new Thread(new Runnable() {///////////////////// Thread 1: Task to calculate attitude params
+            @Override
+            public void run() {
+                int count = 0;
+                long time = 0;
+                long timeOld = System.nanoTime();
+                float dt = sampleIntervalReal / 1000f;
+
+                try {
+                    Thread.sleep(windowSize * sampleInterval);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                while (!threadDisable_data_update) {
+                    try {
+                        Thread.sleep(sampleIntervalReal);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    updateStateThreshold();
+                    //EKF
+                    if (AccOriOriNew && MagOriNew && GyroOriNew) {
+                        //myLog.log(TAG,"x_apo",ekf.x_apo);
+                        //myLog.log(TAG,"P_apo",ekf.P_apo);
+                        float[] accOri = acc.clone();
+                        float[] gyroOri = gyro.clone();
+                        float[] magOri = mag.clone();
+
+                        if (AttitudeMode == PhoneState.Attitude_GDF) {
+                            //用EKF初始化GDF
+                            if (gdf.InitCount < 100) {
+                                ekfAtt(accOri, gyroOri, magOri, dt);
+                                Euler = ekf.euler.clone();
+                                //DCM = ekf.Rot_matrix.clone();
+                                Quarternion = ekf.q.clone();
+                                gdf.InitCount++;
+                                gdf.q = ekf.q.clone();
+                            } else {
+                                gdfAtt(accOri, gyroOri, magOri, dt, true);
+                                Euler = gdf.Euler.clone();
+                                //DCM = gdf.Rot_Matrix.clone();
+                                Quarternion = gdf.q.clone();
+                            }
+                            //myLog.log(TAG, "gdf q:", Quarternion);
+                        }
+                        if (AttitudeMode == PhoneState.Attitude_EKF) {
+                            ekfAtt(accOri, gyroOri, magOri, dt);
+                            Euler = ekf.euler.clone();
+                            //DCM = ekf.Rot_matrix.clone();
+                            if(myMath.isLegalArray(ekf.q)) {
+                                Quarternion = ekf.q.clone();
+                            }
+                            //myLog.log(TAG, "ekf q:", Quarternion);
+                        }
+                        if (AttitudeMode == PhoneState.Attitude_FCF) {
+                            fcfAtt(accOri, gyroOri, magOri, dt);
+                            Euler = fcf.euler.clone();
+                            //DCM = fcf.Rot_matrix.clone();
+                            Quarternion = fcf.q.clone();
+                            //myLog.log(TAG, "fcf q:", Quarternion);
+                        }
+
+                        if (AttitudeMode == PhoneState.Attitude_ANDROID) {
+                            androidAtt(accOri, magOri);
+                            //DCM = androidDCM.clone();
+                            Quarternion = androidQ.clone();
+                            Euler = myMath.Q2Euler(Quarternion);
+                        }
+
+                        if (AttitudeMode == PhoneState.Attitude_GYRO) {
+                            if (count++ == DurationWindow * windowSize) {
+                                androidAtt(accOri, magOri);
+                                //DCM = androidDCM.clone();
+                                Quarternion = androidQ.clone();
+                                Euler = myMath.Q2Euler(Quarternion);
+                                gyroAtt = new GyroAtt(Quarternion);
+                                count = 0;
+                            } else {
+                                gyroAtt.Filter(gyroOri, dt);
+                                Quarternion = gyroAtt.q.clone();
+                                Euler = myMath.Q2Euler(Quarternion);
+                            }
+                        }
+                        Euler[2] -= myMath.DECLINATION / 180 * myMath.PI;//去除磁偏角
+                    }
+                    PhoneState.Euler = Euler.clone();
+                    PhoneState.Quarternion = Quarternion.clone();
+
+                    time = System.nanoTime();
+                    dt = (time - timeOld) / 1000000000f;
+                    timeOld = time;
+                    //Log.d(TAG,"thread DT\t"+dt);
+
+                    myMath.addData(timeStampQueue, System.currentTimeMillis());
+                    myMath.addData(qQueue, Quarternion);
+
+                    float accLow = myMath.getMoulding(acc) + myMath.G;
+                    float accHigh = accLow - accMouldingLPF.filter(accLow);
+
+                    myMath.addData(accNormQueue, accHigh);
+
+                    float[] naccSum = new float[windowSize];
+                    for (int i = (DurationWindow - 1) * windowSize; i < DurationWindow * windowSize; i++) {
+                        naccSum[i - (DurationWindow - 1) * windowSize] = (naccQueue[i][0] * naccQueue[i][0] + naccQueue[i][1] * naccQueue[i][1]);
+                    }
+                    stateValues[0] = myMath.getMean(naccSum);
+                    stateValues[1] = myMath.getVar(naccSum);
+
+                    Window_STATE = stateRecognizeUseAccel(stateValues[0], stateValues[1]);
+                }
+            }
+        }).start();
+
     }
 
     @Override
@@ -657,7 +767,6 @@ public class TrackSensorListener implements SensorEventListener {
         // TODO Auto-generated method stub
     }
 
-    //////////////////////// Sensor Data Update
     @Override
     public void onSensorChanged(SensorEvent event) {
         // TODO Auto-generated method stub
@@ -716,7 +825,6 @@ public class TrackSensorListener implements SensorEventListener {
                 break;
         }
     }
-    //////////////////////////////////////////////////
 
 
     public void setAttitudeMode(int mode) {
@@ -792,10 +900,6 @@ public class TrackSensorListener implements SensorEventListener {
 
     public boolean ifNewPath() {
         return ifNewPath;
-    }
-
-    public int getPosition_mark() {
-        return position_mark;
     }
 
     public int getNowState() {
@@ -951,75 +1055,55 @@ public class TrackSensorListener implements SensorEventListener {
         }
     }
 
-
-    private boolean ifVehicle() {
-        Complex[] input = new Complex[FFT_SIZE];
-        for (int i = 0; i < input.length; i++) {
-            input[i] = new Complex(accNormQueue[i], 0);
-        }
-        Complex[] _output = myFFT.fft(input);
-
-        float[] output = new float[_output.length];
-        for (int i = 0; i < FFT_SIZE / 2; i++) {
-            if(i != 0) {
-                output[i] = (float) _output[i].abs();
-                SpectrumID[i] = i /5.0f;
-                Spectrum[i] = (float) Math.log(output[i]);
-            }
-        }
-        //myLog.log(TAG, "FFT result\t", output);
-        return false;
-    }
-
     private boolean ifVehicle_STFT() {
-        STFT stft = new STFT(FFT_SIZE/8,1000/sampleInterval,1,"Hanning");
+        STFT stft = new STFT(FFT_SIZE / 8, 1000 / sampleInterval, 1, "Hanning");
         //wndName: Bartlett, Hanning, Blackman, Blackman Harris, Kaiser, a=2.0/3.0/4.0
         float[] input = accNormQueue.clone();
         stft.feedData(input);
         double[] output = stft.getSpectrumAmpDB();
         stft.calculatePeak();
         maxFrequency = (float) stft.maxAmpFreq;
-        Log.d(TAG,"Max Frequency\t"+maxFrequency);
+        Log.d(TAG, "Max Frequency\t" + maxFrequency);
 
-        SpectrumID  = new float[output.length];
-        Spectrum  = new float[output.length];
+        SpectrumID = new float[output.length];
+        Spectrum = new float[output.length];
         for (int i = 0; i < output.length; i++) {
-            Spectrum[i] = (float) output[i]/10.f;
-            SpectrumID[i] = (i * (0.5f*50.f/(output.length-1)));
+            Spectrum[i] = (float) output[i] / 10.f;
+            SpectrumID[i] = (i * (0.5f * 50.f / (output.length - 1)));
         }
         //myLog.log(TAG, "FFT result\t", Spectrum);
-        if(maxFrequency>PEAK_FRE_THRESHOLD){
+        if (maxFrequency > PEAK_FRE_THRESHOLD) {
             return true;
         }
         return false;
     }
 
-    public float getMaxFrequency(){
+    public float getMaxFrequency() {
         return maxFrequency;
     }
 
     public float[] getSpectrum() {
-        if(Spectrum!=null) {
+        if (Spectrum != null) {
             return Spectrum;
-        }
-        else
-            return null;
+        } else return null;
     }
 
     public float[] getSpectrumID() {
-        if(Spectrum!=null) {
+        if (Spectrum != null) {
             return SpectrumID;
-        }
-        else
-            return null;
+        } else return null;
     }
 
     public boolean getIfOnVehicle() {
-            return onVehicle;
+        return onVehicle;
     }
 
     public static float getIfOnVehicleProbability() {
         return onVehicleProbability;
+    }
+
+    public float[] getPathVector() {
+        return PathVector;
     }
 
 }

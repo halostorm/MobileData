@@ -75,6 +75,19 @@ public class myMath {
         return 31 - Integer.numberOfLeadingZeros(n);
     }
 
+    public synchronized static boolean isLegalNumber(float v){
+        return !(Float.isNaN(v));
+    }
+
+    public synchronized static boolean isLegalArray(float[] v){
+        for(int i = 0;i<v.length;i++) {
+            if(Float.isNaN(v[i])){
+                return false;
+            }
+        }
+        return true;
+    }
+
     public synchronized static float getMoulding(float[] value) {
         float temp = 0;
         for (int i = 0; i < value.length; i++) {
@@ -437,5 +450,6 @@ public class myMath {
         valuesEarth[2] = values[0] * 2.0f * (Q[1] * Q[3] - Q[0] * Q[2]) + values[1] * 2.0f * (Q[0] * Q[1] + Q[2] * Q[3]) + values[2] * (q0q0 - q1q1 - q2q2 + q3q3);
         return valuesEarth.clone();
     }
+
 
 }

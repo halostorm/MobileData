@@ -37,10 +37,7 @@ public class LogSensorListener implements SensorEventListener {
     private String[] accData;
     private String[] gyroData;
     private String[] magData;
-    private String[] bearData;
-    private String[] velocityData;
     private String[] rotData;
-    private String[] proData;
 
     private String accNow;
     private String gyroNow;
@@ -50,18 +47,12 @@ public class LogSensorListener implements SensorEventListener {
     private int acc_cur;
     private int gyro_cur;
     private int mag_cur;
-    private int bear_cur;
-    private int velocity_cur;
-    private int pro_cur;
     private int rot_cur;
     // 当前读取位置
 
     private int acc_old;
     private int gyro_old;
     private int mag_old;
-    private int bear_old;
-    private int velocity_old;
-    private int pro_old;
     private int rot_old;
 
     private EKF ekf;
@@ -92,17 +83,12 @@ public class LogSensorListener implements SensorEventListener {
         acc_cur = 0;
         gyro_cur = 0;
         mag_cur = 0;
-        bear_cur = 0;
         rot_cur = 0;
-        pro_cur = 0;
 
         accData = new String[Data_Size];
         gyroData = new String[Data_Size];
         magData = new String[Data_Size];
-        bearData = new String[Data_Size];
         rotData = new String[Data_Size];
-        velocityData = new String[Data_Size];
-        proData = new String[Data_Size];
 
         //传感器量程
         AccRange = accMaxRange;
@@ -179,36 +165,10 @@ public class LogSensorListener implements SensorEventListener {
                     timeOld = time;
 
                     ekfAtt(acc,gyro,mag,dt);
-
-                    rotNow = (new RotationData(ekf.q)).toString();
-                    setRotData();
-
-                    String gpsBear = DetectorLocationListener.getCurrentBear();
-                    if (gpsBear != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
-                        //Log.d(TAG,"GPS__bear："+gpsBear);
-                        setBearData(gpsBear);
-                    } else{
-                        //String bear = String.valueOf(ekf.euler[2]/ Math.PI*180 -myMath.DECLINATION);
-                        String bear = "*";
-                        setBearData(bear);
-                        //Log.d(TAG,"AM__bear："+ bear);
+                    if(myMath.isLegalArray(ekf.q)) {
+                        rotNow = (new RotationData(ekf.q)).toString();
+                        setRotData();
                     }
-
-                    String gpsVelocity = DetectorLocationListener.getCurrentVelocity();
-                    if (gpsVelocity != null && Math.abs(Float.valueOf(gpsBear)) >= 0.001) {
-                        //Log.d(TAG,"GPS__bear："+gpsBear);
-                        setVelocityData(gpsVelocity);
-                    } else{
-                        //String bear = String.valueOf(ekf.euler[2]/ Math.PI*180 -myMath.DECLINATION);
-                        String Velocity = "*";
-                        setVelocityData(Velocity);
-                        //Log.d(TAG,"AM__bear："+ bear);
-                    }
-                    String onVehicleProbability ="*";
-                    if(TrackSensorListener.getIfOnVehicleProbability()>-0.1f){
-                        onVehicleProbability = String.valueOf(TrackSensorListener.getIfOnVehicleProbability());
-                    }
-                    setProData(onVehicleProbability);
                 }
         }
     }
@@ -257,53 +217,6 @@ public class LogSensorListener implements SensorEventListener {
             }
             rot_cur = (rot_cur + 1) % Data_Size;
         }
-    }
-
-    private void setBearData(String bear) {
-        if (((bear_cur + 1) % Data_Size != bear_old)) {// 不满
-            //Log.d(TAG,"bear"+bear);
-            this.bearData[bear_cur] = bear;
-            bear_cur = (bear_cur + 1) % Data_Size;
-        }
-    }
-
-    private void setVelocityData(String velocity) {
-        if (((velocity_cur + 1) % Data_Size != velocity_old)) {// 不满
-            //Log.d(TAG,"velocity"+velocity);
-            this.velocityData[velocity_cur] = velocity;
-            velocity_cur = (velocity_cur + 1) % Data_Size;
-        }
-    }
-
-    private void setProData(String proData) {
-        if (((pro_cur + 1) % Data_Size != pro_old)) {// 不满
-            this.proData[pro_cur] = proData;
-            pro_cur = (pro_cur + 1) % Data_Size;
-        }
-    }
-
-    public String getProData() {
-        if (pro_cur != pro_old) { // 不空
-            int i = pro_old;
-            pro_old = (pro_old + 1) % Data_Size;
-            return proData[i];
-        } else return null;
-    }
-
-    public String getBearData() {
-        if (bear_cur != bear_old) { // 不空
-            int i = bear_old;
-            bear_old = (bear_old + 1) % Data_Size;
-            return bearData[i];
-        } else return null;
-    }
-
-    public String getVelocityData() {
-        if (velocity_cur != velocity_old) { // 不空
-            int i = velocity_old;
-            velocity_old = (velocity_old + 1) % Data_Size;
-            return velocityData[i];
-        } else return null;
     }
 
 

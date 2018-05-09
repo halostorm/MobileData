@@ -152,7 +152,7 @@ public class PathService extends Service {
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,true,true);
+        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,true,true,true,false);
         if(enableInterPath) {
             sensorListener.ifInterpolation = true;
         }

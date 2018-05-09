@@ -82,7 +82,6 @@ public class ChartingDemoActivity extends Activity {
         EuleryAxis = (TextView) findViewById(R.id.value_y);
         EulerzAxis = (TextView) findViewById(R.id.value_z);
 
-        initSensor();
         if (ACCELERATOR_EXIST && GYROSCROPE_EXIST && MAGNETIC_EXIST) {
             WindowSize = sensorListener.windowSize * sensorListener.DurationWindow;
             sampleInterval = sensorListener.sampleInterval;
@@ -241,7 +240,7 @@ public class ChartingDemoActivity extends Activity {
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        sensorListener = new TrackSensorListener(accMax, gyroMax, magMax, false,true);
+        sensorListener = new TrackSensorListener(accMax, gyroMax, magMax, true,false,true,false);
         if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator, SensorManager.SENSOR_DELAY_GAME);
         }

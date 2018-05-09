@@ -398,7 +398,7 @@ public class CalibrateStateActivity extends Activity {
             t.setGravity(Gravity.CENTER, 0, 0);
             t.show();
         }
-        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,true,false);
+        sensorListener = new TrackSensorListener(accMax,gyroMax,magMax,true,true,false,false);
         if (ACCELERATOR_EXIST) {
             sm.registerListener(sensorListener, accelerator,SensorManager.SENSOR_DELAY_GAME );
         }
