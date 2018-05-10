@@ -583,9 +583,9 @@ public class TrackSensorListener implements SensorEventListener {
                             positionQ[i][1] = positionQ[i - 1][1] + 0.5f * (velocityQueue[i][1] + velocityQueue[i - 1][1]) * AccDeltTWindow[i];
                             positionQ[i][2] = positionQ[i - 1][2] + 0.5f * (velocityQueue[i][2] + velocityQueue[i - 1][2]) * AccDeltTWindow[i]; //- freeFallPosition;
 
-                            Log.d(TAG, "position[0]" + String.valueOf(i) + ":\t" + positionQ[i][0]);
-                            Log.d(TAG, "position[1]" + String.valueOf(i) + ":\t" + positionQ[i][1]);
-                            Log.d(TAG, "position[2]" + String.valueOf(i) + ":\t" + positionQ[i][2]);
+                            //Log.d(TAG, "position[0]" + String.valueOf(i) + ":\t" + positionQ[i][0]);
+                            //Log.d(TAG, "position[1]" + String.valueOf(i) + ":\t" + positionQ[i][1]);
+                            //Log.d(TAG, "position[2]" + String.valueOf(i) + ":\t" + positionQ[i][2]);
                             float[] fitValue = {positionQ[i][0] * 100, positionQ[i][1] * 100};
                             if(i%5==0&&myMath.isLegalArray(fitValue)) {
                                 fitData.add(fitValue);

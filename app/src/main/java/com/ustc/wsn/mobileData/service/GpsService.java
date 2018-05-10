@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.Toast;
 
 import com.ustc.wsn.mobileData.bean.StoreData;
 import com.ustc.wsn.mobileData.Listenter.DetectorLocationListener;
@@ -26,6 +28,9 @@ public class GpsService extends Service {
         // TODO Auto-generated method stub
         super.onCreate();
         Log.d(TAG,"GPS Service Start");
+        Toast t = Toast.makeText(this, "采集GPS辅助信息！", Toast.LENGTH_SHORT);
+        t.setGravity(Gravity.CENTER, 0, 0);
+        t.show();
         sd = new StoreData(true,false);//create data store class
         location = new String();
         sgps = new DetectorLocationListener(mContext);// start gps

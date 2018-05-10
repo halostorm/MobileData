@@ -159,16 +159,20 @@ public class DetectorActivity extends Activity implements OnClickListener {
                         Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivityForResult(intent, 0);
                     }
-                    Log.d(TAG, "Gps manual Start--------------------------");
-                    startService(GpsserviceIntent);
-                    gpsStart = true;
-                    String notificationS;
-                    if (pathStart) {
-                        notificationS = "当前记录数据：(1)Sensors\t(2)GPS\t(3)轨迹";
-                    } else {
-                        notificationS = "当前记录数据：(1)Sensors\t(2)GPS";
+                    if(loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        Log.d(TAG, "Gps manual Start--------------------------");
+                        startService(GpsserviceIntent);
+                        gpsStart = true;
+                        String notificationS;
+                        if (pathStart) {
+                            notificationS = "当前记录数据：(1)Sensors\t(2)GPS\t(3)轨迹";
+                        } else {
+                            notificationS = "当前记录数据：(1)Sensors\t(2)GPS";
+                        }
+                        addIconToStatusbar(notificationS);
+                    }else {
+                        btnGps.setChecked(false);
                     }
-                    addIconToStatusbar(notificationS);
                 }
             } else {
                 gpsEnabled = false;
@@ -373,6 +377,14 @@ public class DetectorActivity extends Activity implements OnClickListener {
                     btnStartService.setTextColor(Color.BLUE);
                     detectorStart = true;
                     String notificationS = "当前记录数据：(1)Sensors\t";
+
+                    if (pathEnabled) {
+                        startService(PathserviceIntent);
+                        Log.d(TAG, "Path Together Start--------------------------");
+                        notificationS += "(2)轨迹\t";
+                        pathStart = true;
+                    }
+
                     if (gpsEnabled) {
                         loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                         // 判断GPS是否正常启动
@@ -384,16 +396,14 @@ public class DetectorActivity extends Activity implements OnClickListener {
                             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                             startActivityForResult(intent, 0);
                         }
-                        startService(GpsserviceIntent);
-                        Log.d(TAG, "Gps Together Start--------------------------");
-                        notificationS += "(2)GPS\t";
-                        gpsStart = true;
-                    }
-                    if (pathEnabled) {
-                        startService(PathserviceIntent);
-                        Log.d(TAG, "Path Together Start--------------------------");
-                        notificationS += "(3)轨迹\t";
-                        pathStart = true;
+                        if(loc_int.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                            startService(GpsserviceIntent);
+                            Log.d(TAG, "Gps Together Start--------------------------");
+                            notificationS += "(3)GPS\t";
+                            gpsStart = true;
+                        }else {
+                            btnGps.setChecked(false);
+                        }
                     }
                     addIconToStatusbar(notificationS);
                 }

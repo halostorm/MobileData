@@ -328,6 +328,8 @@ public class DetectorService extends Service {
         // TODO Auto-generated method stub
         super.onDestroy();
         sm.unregisterListener(sensorListener);
+        sm.unregisterListener(trackSensorListener);
+        trackSensorListener.closeSensorThread();
         threadDisable_sensor = true;
         threadDisable_sensorPackage = true;
 

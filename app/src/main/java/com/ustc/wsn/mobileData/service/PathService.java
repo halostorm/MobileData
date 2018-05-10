@@ -54,8 +54,11 @@ public class PathService extends Service {
     public void onCreate() {
         // TODO Auto-generated method stub
         super.onCreate();
-
         Log.d(TAG,"Path Service Start");
+        Toast t = Toast.makeText(this, "采集：静动切换点轨迹信息！", Toast.LENGTH_SHORT);
+        t.setGravity(Gravity.CENTER, 0, 0);
+        t.show();
+
         pathFile = outputFile.getPathFile();
         if(enableInterPath) {
             InterPathFile = outputFile.getInterPathFile();
@@ -172,6 +175,7 @@ public class PathService extends Service {
         // TODO Auto-generated method stub
         super.onDestroy();
         threadDisable = true;
+        sm.unregisterListener(sensorListener);
         sensorListener.closeSensorThread();
         sm.unregisterListener(sensorListener);
     }
