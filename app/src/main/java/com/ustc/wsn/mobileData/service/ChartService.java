@@ -174,15 +174,10 @@ public class ChartService extends Service {
         for (int i = 0; i <x.length; i++) {
             xSeries.add(x[i], y[i]);
             ySeries.add(x[i],ThresholdY);
-        }
-        for(int j = (int)zSeries.getMinY();j<(int)zSeries.getMaxY();j++){
-            zSeries.add(ThresholdX,j);
-        }
 
+            //zSeries.add(ThresholdX,-8);
+        }
         xGraphicalView.repaint();//此处也可以调用invalidate()
-    }
-    public void updateChart(){
-
     }
 
     public void rightUpdateChart(float addY_X,float addY_Y,float addY_Z) {

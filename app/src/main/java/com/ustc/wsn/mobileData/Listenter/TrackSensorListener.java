@@ -1060,6 +1060,7 @@ public class TrackSensorListener implements SensorEventListener {
         //wndName: Bartlett, Hanning, Blackman, Blackman Harris, Kaiser, a=2.0/3.0/4.0
         float[] input = accNormQueue.clone();
         stft.feedData(input);
+        stft.getSpectrumAmp();
         double[] output = stft.getSpectrumAmpDB();
         stft.calculatePeak();
         maxFrequency = (float) stft.maxAmpFreq;
@@ -1070,9 +1071,13 @@ public class TrackSensorListener implements SensorEventListener {
         for (int i = 0; i < output.length; i++) {
             Spectrum[i] = (float) output[i] / 10.f;
             SpectrumID[i] = (i * (0.5f * 50.f / (output.length - 1)));
+            //myLog.log(TAG," SpectrumID\t",SpectrumID);
         }
         //myLog.log(TAG, "FFT result\t", Spectrum);
         if (maxFrequency > PEAK_FRE_THRESHOLD) {
+            return true;
+        }
+        if(stft.calculateMeanAmpDB(PEAK_FRE_THRESHOLD)> 0.75*PhoneState.AMPDB_THRESHOLD){
             return true;
         }
         return false;

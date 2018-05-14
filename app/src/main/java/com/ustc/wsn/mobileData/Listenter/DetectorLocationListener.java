@@ -100,7 +100,7 @@ public class DetectorLocationListener {
     }
 
     public static String getCurrentBear() {
-        if (bear != null&&bear_same_count<256*2)// 非空且bear相同时间不超过两个窗口
+        if (bear != null&&bear_same_count<2)// 非空且bear相同时间不超过两个窗口
         {
             if(bear_count==last_bear_count)//相等则bear没更新
             {
@@ -118,7 +118,7 @@ public class DetectorLocationListener {
     }
 
     public static String getCurrentVelocity() {
-        if (Velocity != null&&Velocity_same_count<256*2)// 非空且Velocity相同时间不超过两个窗口
+        if (Velocity != null&&Velocity_same_count<2)// 非空且Velocity相同时间不超过两个窗口
         {
             if(Velocity_count==last_Velocity_count)//相等则Velocity没更新
             {

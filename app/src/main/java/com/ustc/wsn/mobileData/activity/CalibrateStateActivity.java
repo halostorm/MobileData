@@ -91,14 +91,14 @@ public class CalibrateStateActivity extends Activity {
 
         EditText editTextPROBABILITY = (EditText) findViewById(R.id.ifVehicleProbability);
 
-        editTextAccMean_Ab.setHint("输入绝对静止-acc均值阈值（当前值：" + PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD + "）");
-        editTextAccVar_Ab.setHint("输入绝对静止-acc方差阈值（当前值：" + PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD + ")");
-        editTextAccMean_User.setHint("输入相对静止-acc均值阈值（当前值：" + PhoneState.ACC_MEAN_STATIC_THRESHOLD + "）");
-        editTextAccVar_User.setHint("输入相对静止-acc方差阈值(当前值：" + PhoneState.ACC_VAR_STATIC_THRESHOLD + "）");
+        editTextAccMean_Ab.setHint("绝对静止-acc均值阈值（当前值：" + PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD + "）");
+        editTextAccVar_Ab.setHint("绝对静止-acc方差阈值（当前值：" + PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD + ")");
+        editTextAccMean_User.setHint("相对静止-acc均值阈值（当前值：" + PhoneState.ACC_MEAN_STATIC_THRESHOLD + "）");
+        editTextAccVar_User.setHint("相对静止-acc方差阈值(当前值：" + PhoneState.ACC_VAR_STATIC_THRESHOLD + "）");
 
-        editTextAMPDB.setHint("输入幅值显著性阈值（当前值：" + PhoneState.AMPDB_THRESHOLD + "）");
-        editTextPEAKFRE.setHint("输入峰值频率阈值（当前值：" + PhoneState.PEAK_FRE_THRESHOLD + ")");
-        editTextPROBABILITY.setHint("输入车内识别概率阈值（当前值：" + PhoneState.VEHICLE_PROBABILITY_THRESHOLD + "）");
+        editTextAMPDB.setHint("幅值显著性阈值（当前值：" + PhoneState.AMPDB_THRESHOLD + "）");
+        editTextPEAKFRE.setHint("峰值频率阈值（当前值：" + PhoneState.PEAK_FRE_THRESHOLD + ")");
+        editTextPROBABILITY.setHint("车内识别概率阈值（当前值：" + PhoneState.VEHICLE_PROBABILITY_THRESHOLD + "）");
 
         TextView confirmText = (TextView) findViewById(R.id.btnconfirmParams);
 
@@ -268,7 +268,7 @@ public class CalibrateStateActivity extends Activity {
             if (VehicleProParams.length() == 0) {
                 out += PhoneState.VEHICLE_PROBABILITY_THRESHOLD + "\t";
             } else {
-                PhoneState.PEAK_FRE_THRESHOLD = Float.parseFloat(VehicleProParams);
+                PhoneState.VEHICLE_PROBABILITY_THRESHOLD = Float.parseFloat(VehicleProParams);
                 out += VehicleProParams;
             }
 
@@ -290,14 +290,14 @@ public class CalibrateStateActivity extends Activity {
             t6.setText("");
             t7.setText("");
 
-            t1.setHint("输入绝对静止-acc均值阈值（当前值：" + PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD + "）");
-            t2.setHint("输入绝对静止-acc方差阈值（当前值：" + PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD + ")");
-            t3.setHint("输入相对静止-acc均值阈值（当前值：" + PhoneState.ACC_MEAN_STATIC_THRESHOLD + "）");
-            t4.setHint("输入相对静止-acc方差阈值(当前值：" + PhoneState.ACC_VAR_STATIC_THRESHOLD + "）");
+            t1.setHint("绝对静止-acc均值阈值（当前值：" + PhoneState.ACC_MEAN_ABSOLUTE_STATIC_THRESHOLD + "）");
+            t2.setHint("绝对静止-acc方差阈值（当前值：" + PhoneState.ACC_VAR_ABSOLUTE_STATIC_THRESHOLD + ")");
+            t3.setHint("相对静止-acc均值阈值（当前值：" + PhoneState.ACC_MEAN_STATIC_THRESHOLD + "）");
+            t4.setHint("相对静止-acc方差阈值(当前值：" + PhoneState.ACC_VAR_STATIC_THRESHOLD + "）");
 
-            t5.setHint("输入幅值显著性阈值（当前值：" + PhoneState.AMPDB_THRESHOLD + "）");
-            t6.setHint("输入峰值频率阈值（当前值：" + PhoneState.PEAK_FRE_THRESHOLD + ")");
-            t7.setHint("输入车内识别概率阈值（当前值：" + PhoneState.VEHICLE_PROBABILITY_THRESHOLD + "）");
+            t5.setHint("幅值显著性阈值（当前值：" + PhoneState.AMPDB_THRESHOLD + "）");
+            t6.setHint("峰值频率阈值（当前值：" + PhoneState.PEAK_FRE_THRESHOLD + ")");
+            t7.setHint("车内识别概率阈值（当前值：" + PhoneState.VEHICLE_PROBABILITY_THRESHOLD + "）");
 
         }
     };

@@ -51,11 +51,11 @@ public class PhoneState {
 
     public static float AMPDB_THRESHOLD_DEFAULT = -11;
     public static float PEAK_FRE_THRESHOLD_DEFAULT = 10;
-    public static float VEHICLE_PROBABILITY_THRESHOLD_DEFAULT = 0.8f;
+    public static float VEHICLE_PROBABILITY_THRESHOLD_DEFAULT = 0.3f;
 
     public static float AMPDB_THRESHOLD = -11;
     public static float PEAK_FRE_THRESHOLD = 10;
-    public static float VEHICLE_PROBABILITY_THRESHOLD = 0.8f;
+    public static float VEHICLE_PROBABILITY_THRESHOLD = 0.3f;
 
     //加速度校准参数
     private static float[] params = {1,0,0, 0,1,0, 0,0,1, 0,0,0};

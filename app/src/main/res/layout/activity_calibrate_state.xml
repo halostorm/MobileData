@@ -232,11 +232,11 @@
 
                 <EditText
                     android:id="@+id/accMean_Ab"
-                    android:layout_width="@dimen/x180"
+                    android:layout_width="@dimen/x150"
                     android:layout_height="@dimen/y12"
                     android:layout_marginBottom="@dimen/y9"
                     android:background="@layout/button_label"
-                    android:hint="输入绝对静止-加速度均值阈值（默认）"
+                    android:hint="绝对静止-加速度均值阈值（默认）"
                     android:inputType="phone"
                     android:maxLines="1"
                     android:textColor="@color/dark_orange"
@@ -245,11 +245,11 @@
 
                 <EditText
                     android:id="@+id/accVar_Ab"
-                    android:layout_width="@dimen/x180"
+                    android:layout_width="@dimen/x150"
                     android:layout_height="@dimen/y12"
                     android:layout_marginBottom="@dimen/y9"
                     android:background="@layout/button_label"
-                    android:hint="输入绝对静止-加速度方差阈值（默认）"
+                    android:hint="绝对静止-加速度方差阈值（默认）"
                     android:inputType="phone"
                     android:maxLines="1"
                     android:textColor="@color/dark_orange"
@@ -258,11 +258,11 @@
 
                 <EditText
                     android:id="@+id/accMean_User"
-                    android:layout_width="@dimen/x180"
+                    android:layout_width="@dimen/x150"
                     android:layout_height="@dimen/y12"
                     android:layout_marginBottom="@dimen/y9"
                     android:background="@layout/button_label"
-                    android:hint="输入相对静止-加速度均值阈值（默认）"
+                    android:hint="相对静止-加速度均值阈值（默认）"
                     android:inputType="phone"
                     android:maxLines="1"
                     android:textColor="@color/dark_orange"
@@ -271,10 +271,10 @@
 
                 <EditText
                     android:id="@+id/accVar_User"
-                    android:layout_width="@dimen/x180"
+                    android:layout_width="@dimen/x150"
                     android:layout_height="@dimen/y12"
                     android:background="@layout/button_label"
-                    android:hint="输入相对静止-加速度方差阈值（默认）"
+                    android:hint="相对静止-加速度方差阈值（默认）"
                     android:inputType="phone"
                     android:maxLines="1"
                     android:textColor="@color/dark_orange"
@@ -293,7 +293,7 @@
 
                 <EditText
                     android:id="@+id/AmpDBThreshold"
-                    android:layout_width="@dimen/x110"
+                    android:layout_width="@dimen/x140"
                     android:layout_height="@dimen/y12"
                     android:layout_marginBottom="@dimen/y9"
                     android:background="@layout/button_label"
@@ -306,7 +306,7 @@
 
                 <EditText
                     android:id="@+id/PeakFreThreshold"
-                    android:layout_width="@dimen/x110"
+                    android:layout_width="@dimen/x140"
                     android:layout_height="@dimen/y12"
                     android:layout_marginBottom="@dimen/y9"
                     android:background="@layout/button_label"
@@ -319,7 +319,7 @@
 
                 <EditText
                     android:id="@+id/ifVehicleProbability"
-                    android:layout_width="@dimen/x110"
+                    android:layout_width="@dimen/x140"
                     android:layout_height="@dimen/y12"
                     android:layout_marginBottom="@dimen/y9"
                     android:background="@layout/button_label"
@@ -336,7 +336,7 @@
                     android:orientation="horizontal">
                     <Button
                         android:id="@+id/btninitParams"
-                        android:layout_width="@dimen/x50"
+                        android:layout_width="@dimen/x65"
                         android:layout_height="@dimen/y12"
                         android:layout_marginRight="@dimen/x10"
                         android:background="@layout/button_label"
@@ -347,7 +347,7 @@
 
                     <Button
                         android:id="@+id/btnconfirmParams"
-                        android:layout_width="@dimen/x50"
+                        android:layout_width="@dimen/x65"
                         android:layout_height="@dimen/y12"
                         android:background="@layout/button_label"
                         android:gravity="center"

@@ -230,7 +230,7 @@ public class STFT {
     }
 
     final public double[] getSpectrumAmpDB() {
-        getSpectrumAmp();
+        //getSpectrumAmp();
         return spectrumAmpOutDB;
     }
 
@@ -258,8 +258,21 @@ public class STFT {
 
     public double maxAmpFreq = Double.NaN, maxAmpDB = Double.NaN;
 
+    public float calculateMeanAmpDB(float cutOff){
+        float meanAmpDB = 0;
+        float length = 0;
+        for (int i = 1; i < spectrumAmpOutDB.length; i++) {  // skip the direct current term
+            float fre = (float) i /(float) spectrumAmpOutDB.length* (float) sampleRate;
+            if (fre> cutOff) {
+                meanAmpDB +=  spectrumAmpOutDB[i]/10f;
+                length++;
+            }
+        }
+        return meanAmpDB/length;
+    }
+
     public void calculatePeak() {
-        getSpectrumAmpDB();
+        //getSpectrumAmpDB();
         // Find and show peak amplitude
         maxAmpDB  = 20 * Math.log10(0.125/32768);
         maxAmpDB = PhoneState.AMPDB_THRESHOLD*10;
