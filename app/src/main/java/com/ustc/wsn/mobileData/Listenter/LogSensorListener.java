@@ -178,7 +178,7 @@ public class LogSensorListener implements SensorEventListener {
     private void setAccData() {
         if (((acc_cur + 1) % Data_Size != acc_old) && accNow != null) {// 不满
             if (accNow != null) {
-                this.accData[acc_cur] = System.nanoTime() + "\t" + accNow;
+                this.accData[acc_cur] = System.currentTimeMillis() + "\t" + accNow;
             } else {
                 this.accData[acc_cur] = null;
             }

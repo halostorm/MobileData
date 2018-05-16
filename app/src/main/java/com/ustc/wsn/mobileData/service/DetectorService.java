@@ -209,10 +209,9 @@ public class DetectorService extends Service {
                         PathVector = pathVector[0]+"\t"+pathVector[1]+"\t"+pathVector[2];
                         trackSensorListener.ifNewPath = false;
                     }
-                    GlobelStateBuffer.append(PathVector+"\t");
+                    GlobelStateBuffer.append(PathVector+"\n");
 
                     try {
-                        GlobelStateBuffer.append("\n");
                         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(globalFile, true)));
                         writer.write(GlobelStateBuffer.toString());
                         writer.flush();

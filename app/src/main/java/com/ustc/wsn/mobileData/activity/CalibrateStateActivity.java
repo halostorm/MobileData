@@ -247,7 +247,7 @@ public class CalibrateStateActivity extends Activity {
                 out += accMeanUserParams + "\t";
             }
             if (accVarUserParams.length() == 0) {
-                out += PhoneState.ACC_VAR_STATIC_THRESHOLD + "\n";
+                out += PhoneState.ACC_VAR_STATIC_THRESHOLD + "\t";
             } else {
                 PhoneState.ACC_VAR_STATIC_THRESHOLD = Float.parseFloat(accVarUserParams);
                 out += accVarUserParams + "\t";
