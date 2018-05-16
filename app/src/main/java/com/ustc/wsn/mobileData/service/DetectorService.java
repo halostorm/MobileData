@@ -108,7 +108,7 @@ public class DetectorService extends Service {
         sensorDataStore();//begin reading sensor data
         globalFile = outputFile.getStateFile();
         try {
-            sensorDataPackage();
+            sensorDataPackage(false);
         } catch (InterruptedException e2) {
             // TODO Auto-generated catch block
             e2.printStackTrace();
@@ -203,10 +203,15 @@ public class DetectorService extends Service {
 
                     GlobelStateBuffer.append(onVehicleProbability+"\t");
 
-                    String PathVector = "*";
+                    String PathVector = "*\t*\t*";
                     if(trackSensorListener.ifNewPath()){
                         float[] pathVector = trackSensorListener.getPathVector();
-                        PathVector = pathVector[0]+"\t"+pathVector[1]+"\t"+pathVector[2];
+                        if(pathVector[0]<-50f) {
+                            PathVector = "*\t*\t*";
+                        }else {
+                            PathVector = pathVector[0]+"\t"+pathVector[1]+"\t"+pathVector[2];
+                        }
+
                         trackSensorListener.ifNewPath = false;
                     }
                     GlobelStateBuffer.append(PathVector+"\n");
@@ -226,8 +231,10 @@ public class DetectorService extends Service {
         }).start();
     }
 
-    public void sensorDataPackage() throws InterruptedException {
-
+    public void sensorDataPackage( boolean ifDoing) throws InterruptedException {
+        if(ifDoing){
+            return;
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {

@@ -48,6 +48,7 @@ public class CalibrateStateActivity extends Activity {
     private TextView stateParams;
 
     private TextView ifVehicle;
+    private TextView phoneUseOnVehicle;
     private TextView  maxFreText;
     private TrackSensorListener sensorListener;
 
@@ -76,6 +77,8 @@ public class CalibrateStateActivity extends Activity {
         stateParams = (TextView) findViewById(R.id.state_param);
 
         ifVehicle = (TextView)findViewById(R.id.ifVehicle);
+
+        phoneUseOnVehicle = (TextView)findViewById(R.id.phoneUseOnVehicle);
 
         EditText editTextAccMean_Ab = (EditText) findViewById(R.id.accMean_Ab);
 
@@ -360,6 +363,13 @@ public class CalibrateStateActivity extends Activity {
                 ifVehicle.setText("在车上");
             }else {
                 ifVehicle.setText("不在车上");
+            }
+
+            boolean ifPhoneUseOnVehicle = sensorListener.getIfPhoneUseOnVehicle();
+            if(ifPhoneUseOnVehicle){
+                phoneUseOnVehicle.setText("在使用手机");
+            }else {
+                phoneUseOnVehicle.setText("未使用手机");
             }
         }
     };

@@ -7,7 +7,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="@dimen/y20"
-        android:layout_marginLeft="@dimen/x22"
+        android:layout_marginLeft="@dimen/x5"
         android:layout_marginRight="@dimen/x8"
         android:gravity="center_vertical"
         android:orientation="vertical">
@@ -44,6 +44,16 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/x8"
                 android:layout_toRightOf="@+id/state_param"
+                android:background="@layout/button_label"
+                android:text="状态初始化"
+                android:textColor="@color/dark_orange" />
+
+            <Button
+                android:id="@+id/phoneUseOnVehicle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/x8"
+                android:layout_toRightOf="@+id/ifVehicle"
                 android:background="@layout/button_label"
                 android:text="状态初始化"
                 android:textColor="@color/dark_orange" />

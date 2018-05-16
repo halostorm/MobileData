@@ -40,9 +40,12 @@ public class TrackSensorListener implements SensorEventListener {
     public int FFT_SampleInterval = 256 * sampleInterval;
     private int FFT_SIZE = 256;
 
-    private static float onVehicleProbability = 0.0f;
+    private float onVehicleProbability = 0.0f;
+
+    private float phoneUseonVehicleProbability = 0.0f;
 
     private boolean onVehicle = false;
+    private boolean phoneUseOnVehicle = false;
 
     //姿态滤波器选择
     private int AttitudeMode = PhoneState.Attitude_EKF;
@@ -76,18 +79,20 @@ public class TrackSensorListener implements SensorEventListener {
     private volatile float[][] gyroQueue = new float[DurationWindow * windowSize][3];//
     private volatile float[][] magQueue = new float[DurationWindow * windowSize][3];//
     private volatile float[][] accQueue = new float[DurationWindow * windowSize][3];//
-    private volatile float[] accNormQueue = new float[DurationWindow * windowSize];//
+    private volatile float[] accNormQueue = new float[FFT_SIZE];//
     private volatile float[][] naccQueue = new float[DurationWindow * windowSize][3];
     private volatile float[][] positionQueue = new float[DurationWindow * windowSize][3];//位置队列
     private volatile float[] AccDeltTQueue = new float[DurationWindow * windowSize];//积分步长
     private volatile float[] GyroDeltTQueue = new float[DurationWindow * windowSize];//积分步长
     private volatile float[][] qQueue = new float[DurationWindow * windowSize][4];//姿态队列
     private volatile long[] timeStampQueue = new long[DurationWindow * windowSize];//积分时间
-    private volatile int position_mark = DurationWindow * windowSize;
     private volatile int RemainingDataSize = 0;
 
     //Path 方向矢量
     private volatile float[] PathVector = new float[3];
+    //Vehicle Attitude State
+    private volatile float[][] EulerOnVehicle = new float[windowSize][2];
+    private float[] attStateValues = {0, 0};
     //传感器参数
 
     private float AccRange;
@@ -145,7 +150,9 @@ public class TrackSensorListener implements SensorEventListener {
 
     private LPF_I accMouldingLPF;
 
-    MeanFilter PeakFreMLP;
+    MeanFilter VehicleProMLP;
+
+    MeanFilter phoneUseonVehicleProMLP;
 
     //加速度校准参数
     private static float[] params;
@@ -178,7 +185,8 @@ public class TrackSensorListener implements SensorEventListener {
 
         accMouldingLPF = new LPF_I();
 
-        PeakFreMLP = new MeanFilter(10);
+        VehicleProMLP = new MeanFilter(10);
+        phoneUseonVehicleProMLP = new MeanFilter(10);
 
         ekfPH = new ekfParamsHandle();
         ekfP = new ekfParams();
@@ -271,6 +279,8 @@ public class TrackSensorListener implements SensorEventListener {
                             float[][] naccWindow = naccQueue.clone();
                             float[][] magWindow = magQueue.clone();
                             float[][] qWindow = qQueue.clone();
+
+                            int PhoneStateDuringPath = Window_STATE;
 
                             //申明首末窗口，大小为 2*windowSize
                             float[] accStartWindow = new float[2 * windowSize];//开始窗口
@@ -494,13 +504,10 @@ public class TrackSensorListener implements SensorEventListener {
 
                                 positionQueue = positionQ.clone();
 
-                                LinearFit linearFit = new LinearFit(fitData, 1);
-                                float[] fitParams = linearFit.Fitting();
+                                LinearFit linearFit = new LinearFit(fitData, 1, PhoneStateDuringPath);
+                                linearFit.Fitting();
 
                                 PathVector = linearFit.getUnitVector();//Path方向矢量
-
-                                Log.d(TAG, "fitParams[0]" + fitParams[0]);
-                                Log.d(TAG, "fitParams[1]" + fitParams[1]);
 
                                 //Path插值(默认不执行)
                                 if (ifInterpolation && PathLength > windowSize) {
@@ -551,6 +558,8 @@ public class TrackSensorListener implements SensorEventListener {
                         float[] GyroDeltTWindow = GyroDeltTQueue.clone();
                         float[][] accWindow = accQueue.clone();
 
+                        int PhoneStateDuringPath = Window_STATE;
+
                         float[][] positionQ = new float[DurationWindow * windowSize][3];
                         float[][] velocityQueue = new float[DurationWindow * windowSize][3];
 
@@ -587,7 +596,7 @@ public class TrackSensorListener implements SensorEventListener {
                             //Log.d(TAG, "position[1]" + String.valueOf(i) + ":\t" + positionQ[i][1]);
                             //Log.d(TAG, "position[2]" + String.valueOf(i) + ":\t" + positionQ[i][2]);
                             float[] fitValue = {positionQ[i][0] * 100, positionQ[i][1] * 100};
-                            if(i%5==0&&myMath.isLegalArray(fitValue)) {
+                            if (i % 5 == 0 && myMath.isLegalArray(fitValue)) {
                                 fitData.add(fitValue);
                             }
                         }
@@ -595,13 +604,10 @@ public class TrackSensorListener implements SensorEventListener {
                         positionQueue = positionQ.clone();
                         InterPosition = new float[DurationWindow * windowSize][3];
                         ifNewPath = true;
-                        LinearFit linearFit = new LinearFit(fitData, 1);
-                        float[] fitParams = linearFit.Fitting();
+                        LinearFit linearFit = new LinearFit(fitData, 1, PhoneStateDuringPath);
+                        linearFit.Fitting();
 
                         PathVector = linearFit.getUnitVector();//Path方向矢量
-
-                        Log.d(TAG, "fitParams[0]" + fitParams[0]);
-                        Log.d(TAG, "fitParams[1]" + fitParams[1]);
                     }
                 }
             }).start();
@@ -611,6 +617,8 @@ public class TrackSensorListener implements SensorEventListener {
     private void VehicleThread() {
         // Fre & ifVehicle Thread
         new Thread(new Runnable() {
+            int ThreadLoopCount = 0;
+
             @Override
             public void run() {
                 try {
@@ -620,27 +628,62 @@ public class TrackSensorListener implements SensorEventListener {
                 }
                 while (!threadDisable_data_update) {
                     try {
-                        Thread.sleep(FFT_SampleInterval);
+                        Thread.sleep(FFT_SampleInterval / 10);
+                        ThreadLoopCount++;
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     updateStateThreshold();
 
-                    if (ifVehicle_STFT()) {
-                        onVehicleProbability = PeakFreMLP.filter(1.0f);
+                    if (onVehiclePhoneUseRecognize(EulerOnVehicle)) {
+                        phoneUseonVehicleProbability = phoneUseonVehicleProMLP.filter(1.0f);
                     } else {
-                        onVehicleProbability = PeakFreMLP.filter(0.0f);
+                        phoneUseonVehicleProbability = phoneUseonVehicleProMLP.filter(0.0f);
                     }
-                    Log.d(TAG, "ifOnvehicle\t" + onVehicleProbability);
-                    if (onVehicleProbability > VEHICLE_PROBABILITY_THRESHOLD) {
-                        onVehicle = true;
-                    } else {
-                        onVehicle = false;
+                    Log.d(TAG, "phoneUseOnVehicle\t" + phoneUseonVehicleProbability);
+
+                    if(phoneUseonVehicleProbability>0.5){
+                        phoneUseOnVehicle = true;
+                    }else {
+                        phoneUseOnVehicle = false;
+                    }
+
+                    if (ThreadLoopCount == 10) {
+                        if (ifVehicle_STFT()) {
+                            onVehicleProbability = VehicleProMLP.filter(1.0f);
+                        } else {
+                            onVehicleProbability = VehicleProMLP.filter(0.0f);
+                        }
+
+                        Log.d(TAG, "ifOnVehicle\t" + onVehicleProbability);
+
+                        if (onVehicleProbability > VEHICLE_PROBABILITY_THRESHOLD) {
+                            onVehicle = true;
+                        } else {
+                            onVehicle = false;
+                        }
+                        ThreadLoopCount = 0;
                     }
                 }
             }
         }).start();
 
+    }
+
+    private boolean onVehiclePhoneUseRecognize(float[][] Euler) {
+        float[] eulerSum = new float[windowSize];
+        for (int i = 0; i < windowSize; i++) {
+            eulerSum[i] = (float) Math.sqrt(Euler[i][0] * Euler[i][0] + Euler[i][1] * Euler[i][1]);
+        }
+        //float attStateMean = myMath.getMean(eulerSum);
+        float attStateVar = myMath.getVar(eulerSum);
+        attStateVar = (float) Math.log10(attStateVar);
+        Log.d(TAG, "attStateVar\t" + attStateVar);
+        if (attStateVar < PhoneState.PHONE_USE_ON_VEHICLE_EULER_THRESHOLD) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     private void AttitudeAndStateThread() {
@@ -696,7 +739,7 @@ public class TrackSensorListener implements SensorEventListener {
                             ekfAtt(accOri, gyroOri, magOri, dt);
                             Euler = ekf.euler.clone();
                             //DCM = ekf.Rot_matrix.clone();
-                            if(myMath.isLegalArray(ekf.q)) {
+                            if (myMath.isLegalArray(ekf.q)) {
                                 Quarternion = ekf.q.clone();
                             }
                             //myLog.log(TAG, "ekf q:", Quarternion);
@@ -756,6 +799,10 @@ public class TrackSensorListener implements SensorEventListener {
                     stateValues[1] = myMath.getVar(naccSum);
 
                     Window_STATE = stateRecognizeUseAccel(stateValues[0], stateValues[1]);
+
+
+                    float[] EulerVehicle = {Euler[0], Euler[1]};
+                    myMath.addData(EulerOnVehicle, EulerVehicle);
                 }
             }
         }).start();
@@ -1024,7 +1071,7 @@ public class TrackSensorListener implements SensorEventListener {
             return PhoneState.UNKONW_STATE;
         }
     }
-
+/*
     private int stateRecognizeUseAccelVar(float laccSumVar) {
         if (laccSumVar < ACC_VAR_ABSOLUTE_STATIC_THRESHOLD) {//gyroSumMean < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumMean < ACC_ABSOLUTE_STATIC_THRESHOLD && gyroSumVar < GYRO_ABSOLUTE_STATIC_THRESHOLD && laccSumVar < ACC_ABSOLUTE_STATIC_THRESHOLD) {
             return PhoneState.ABSOLUTE_STATIC_STATE;
@@ -1044,19 +1091,10 @@ public class TrackSensorListener implements SensorEventListener {
             return PhoneState.UNKONW_STATE;
         }
     }
-
-    private int stateRecognizeUseEuler(float[] eulerDelt) {
-        if (Math.abs(eulerDelt[0]) + Math.abs(eulerDelt[1]) < PhoneState.EULER_ABSOLUTE_STATIC_THRESHOLD) {
-            return PhoneState.ABSOLUTE_STATIC_STATE;
-        } else if (Math.abs(eulerDelt[0]) + Math.abs(eulerDelt[1]) < PhoneState.EULER_STATIC_THRESHOLD) {
-            return PhoneState.USER_STATIC_STATE;
-        } else {
-            return PhoneState.UNKONW_STATE;
-        }
-    }
+*/
 
     private boolean ifVehicle_STFT() {
-        STFT stft = new STFT(FFT_SIZE / 8, 1000 / sampleInterval, 1, "Hanning");
+        STFT stft = new STFT(FFT_SIZE, 1000 / sampleInterval, 1, "Hanning");
         //wndName: Bartlett, Hanning, Blackman, Blackman Harris, Kaiser, a=2.0/3.0/4.0
         float[] input = accNormQueue.clone();
         stft.feedData(input);
@@ -1073,11 +1111,11 @@ public class TrackSensorListener implements SensorEventListener {
             SpectrumID[i] = (i * (0.5f * 50.f / (output.length - 1)));
             //myLog.log(TAG," SpectrumID\t",SpectrumID);
         }
-        //myLog.log(TAG, "FFT result\t", Spectrum);
+        myLog.log(TAG, "FFT result\t", Spectrum);
         if (maxFrequency > PEAK_FRE_THRESHOLD) {
             return true;
         }
-        if(stft.calculateMeanAmpDB(PEAK_FRE_THRESHOLD)> 0.75*PhoneState.AMPDB_THRESHOLD){
+        if (stft.calculateMeanAmpDB(PEAK_FRE_THRESHOLD) > 0.75 * PhoneState.AMPDB_THRESHOLD) {
             return true;
         }
         return false;
@@ -1103,7 +1141,11 @@ public class TrackSensorListener implements SensorEventListener {
         return onVehicle;
     }
 
-    public static float getIfOnVehicleProbability() {
+    public boolean getIfPhoneUseOnVehicle() {
+        return phoneUseOnVehicle;
+    }
+
+    public float getIfOnVehicleProbability() {
         return onVehicleProbability;
     }
 

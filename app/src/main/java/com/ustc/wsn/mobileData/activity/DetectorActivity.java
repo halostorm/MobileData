@@ -133,6 +133,7 @@ public class DetectorActivity extends Activity implements OnClickListener {
         PhoneState.initStateParams();
 
         DetectorserviceIntent = new Intent(this, DetectorService.class);
+        //DetectorserviceIntent.putExtra("ifPackage",false);
         GpsserviceIntent = new Intent(this, GpsService.class);
         SimpleActivityIntent = new Intent(this, SimulationActivity.class);
         LabelActivityIntent = new Intent(this, LabelActivity.class);
