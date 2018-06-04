@@ -1,0 +1,501 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_marginLeft="@dimen/x6"
+        android:layout_marginRight="@dimen/x6"
+        android:layout_marginBottom="@dimen/x1"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TableLayout
+            android:id="@+id/acctable_statistics_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TableRow
+                android:id="@+id/acctable_statistics_left_row_0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="2dip" >
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x6"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/AframeType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/mid_orange"
+                        android:text="手机坐标系"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x6"
+                    android:layout_weight="1" >
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/x1"
+                        android:text="3D校准加速度(m2/s)" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x6"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/label_accx_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="X:"
+                        android:textSize="@dimen/x10" />
+
+                    <TextView
+                        android:id="@+id/value_accx_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_accx_axis"
+                        android:text="0.00"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/label_accy_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Y:"
+                        android:textSize="@dimen/x10" />
+
+                    <TextView
+                        android:id="@+id/value_accy_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_accy_axis"
+                        android:text="0.00"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/x6"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/label_accz_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Z:"
+                        android:textSize="@dimen/x10" />
+
+                    <TextView
+                        android:id="@+id/value_accz_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_accz_axis"
+                        android:text="0.00"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+
+            </TableRow>
+        </TableLayout>
+
+        <LinearLayout
+            android:id="@+id/acc_curve"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"></LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_marginLeft="@dimen/x6"
+        android:layout_marginRight="@dimen/x6"
+        android:layout_marginBottom="@dimen/x1"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TableLayout
+            android:id="@+id/lineartable_statistics_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TableRow
+                android:id="@+id/lineartable_statistics_left_row_0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="2dip" >
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x6"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/LframeType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/mid_orange"
+                        android:text="手机坐标系"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x6"
+                    android:layout_weight="1" >
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/x1"
+                        android:text="未校准加速度(m2/s)" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x6"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/label_linearx_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="X:"
+                        android:textSize="@dimen/x10" />
+
+                    <TextView
+                        android:id="@+id/value_linearx_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_linearx_axis"
+                        android:text="0.00"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/label_lineary_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Y:"
+                        android:textSize="@dimen/x10" />
+
+                    <TextView
+                        android:id="@+id/value_lineary_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_lineary_axis"
+                        android:text="0.00"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/x6"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/label_linearz_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Z:"
+                        android:textSize="@dimen/x10" />
+
+                    <TextView
+                        android:id="@+id/value_linearz_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_linearz_axis"
+                        android:text="0.00"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+            </TableRow>
+        </TableLayout>
+
+        <LinearLayout
+            android:id="@+id/linear_acc_curve"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"></LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_marginLeft="@dimen/x6"
+        android:layout_marginRight="@dimen/x6"
+        android:layout_marginBottom="@dimen/x1"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TableLayout
+            android:id="@+id/gyrotable_statistics_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TableRow
+                android:id="@+id/gyrotable_statistics_left_row_0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="2dip" >
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x6"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/GframeType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/mid_orange"
+                        android:text="手机坐标系"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x6"
+                    android:layout_weight="1" >
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/x1"
+                        android:text="3D角速度(rad/s)" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x6"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/label_gyrox_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="X:"
+                        android:textSize="@dimen/x10" />
+
+                    <TextView
+                        android:id="@+id/value_gyrox_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_gyrox_axis"
+                        android:text="0.00"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/label_gyroy_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Y:"
+                        android:textSize="@dimen/x10" />
+
+                    <TextView
+                        android:id="@+id/value_gyroy_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_gyroy_axis"
+                        android:text="0.00"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/x6"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/label_gyroz_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Z:"
+                        android:textSize="@dimen/x10" />
+
+                    <TextView
+                        android:id="@+id/value_gyroz_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_gyroz_axis"
+                        android:text="0.00"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+            </TableRow>
+        </TableLayout>
+
+        <LinearLayout
+            android:id="@+id/gyro_curve"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"></LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_marginLeft="@dimen/x6"
+        android:layout_marginRight="@dimen/x6"
+        android:layout_marginBottom="@dimen/x1"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TableLayout
+            android:id="@+id/magtable_statistics_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TableRow
+                android:id="@+id/magtable_statistics_left_row_0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="2dip" >
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x6"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/MframeType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/mid_orange"
+                        android:text="手机坐标系"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x6"
+                    android:layout_weight="1" >
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/x1"
+                        android:text="3D磁感应强度(uT)" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x6"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/label_magx_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="X:"
+                        android:textSize="@dimen/x10" />
+
+                    <TextView
+                        android:id="@+id/value_magx_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_magx_axis"
+                        android:text="0.00"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/label_magy_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Y:"
+                        android:textSize="@dimen/x10" />
+
+                    <TextView
+                        android:id="@+id/value_magy_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_magy_axis"
+                        android:text="0.00"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/x6"
+                    android:layout_weight="1" >
+
+                    <TextView
+                        android:id="@+id/label_magz_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Z:"
+                        android:textSize="@dimen/x10" />
+
+                    <TextView
+                        android:id="@+id/value_magz_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_magz_axis"
+                        android:text="0.00"
+                        android:textSize="@dimen/x10" />
+                </RelativeLayout>
+            </TableRow>
+        </TableLayout>
+
+        <LinearLayout
+            android:id="@+id/mag_curve"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"></LinearLayout>
+    </LinearLayout>
+
+
+</LinearLayout>

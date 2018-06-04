@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="__local_jars__:E.\Android Project\MyDataApp\app\libs\commons-compress-1.9.jar:unspecified@jar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/libs/commons-compress-1.9.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

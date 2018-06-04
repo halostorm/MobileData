@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/y20"
+        android:layout_marginLeft="@dimen/x5"
+        android:layout_marginRight="@dimen/x8"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/x8"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/stateLogo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:background="@layout/button_label"
+                android:gravity="center"
+                android:text="状态监控窗口"
+                android:textColor="@color/grey" />
+
+            <Button
+                android:id="@+id/state_param"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/x8"
+                android:layout_toRightOf="@+id/stateLogo"
+                android:background="@layout/button_label"
+                android:text="***"
+                android:textColor="@color/dark_orange" />
+
+            <Button
+                android:id="@+id/ifVehicle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/x8"
+                android:layout_toRightOf="@+id/state_param"
+                android:background="@layout/button_label"
+                android:text="状态初始化"
+                android:textColor="@color/dark_orange" />
+
+            <Button
+                android:id="@+id/phoneUseOnVehicle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/x8"
+                android:layout_toRightOf="@+id/ifVehicle"
+                android:background="@layout/button_label"
+                android:text="状态初始化"
+                android:textColor="@color/dark_orange" />
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/y6"
+        android:layout_marginLeft="@dimen/x8"
+        android:layout_marginRight="@dimen/x8"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="2dip">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x8"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/x1"
+                        android:text="加速度状态统计量"
+                        android:textColor="@color/mid_orange"
+                        android:textStyle="bold" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x8"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/label_accMean_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Mean:"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                    <TextView
+                        android:id="@+id/value_accMean_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_accMean_axis"
+                        android:text="0.00"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="@color/dark_orange" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/label_accVar_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="Variance:"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                    <TextView
+                        android:id="@+id/value_accVar_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_accVar_axis"
+                        android:text="0.00"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="@color/dark_orange" />
+                </RelativeLayout>
+            </TableRow>
+        </TableLayout>
+
+        <LinearLayout
+            android:id="@+id/state_value_curve"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"></LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/y6"
+        android:layout_marginLeft="@dimen/x8"
+        android:layout_marginRight="@dimen/x8"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="2dip">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x8"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/x1"
+                        android:text="加速度频谱"
+                        android:textColor="@color/mid_orange"
+                        android:textStyle="bold" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/x8"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/label_frequency_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:text="峰值频率:"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                    <TextView
+                        android:id="@+id/value_frequency_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/label_frequency_axis"
+                        android:text=""
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="@color/dark_orange" />
+                </RelativeLayout>
+
+            </TableRow>
+        </TableLayout>
+
+        <LinearLayout
+            android:id="@+id/frequency_value_curve"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"></LinearLayout>
+    </LinearLayout>
+
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/paramsLogo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="参数调整"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/dark_orange" />
+
+        <TableRow>
+
+            <LinearLayout
+                android:id="@+id/paramsleft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/x8"
+                android:layout_marginTop="@dimen/y6"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/accMean_Ab"
+                    android:layout_width="@dimen/x150"
+                    android:layout_height="@dimen/y12"
+                    android:layout_marginBottom="@dimen/y9"
+                    android:background="@layout/button_label"
+                    android:hint="绝对静止-加速度均值阈值（默认）"
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    android:textColor="@color/dark_orange"
+                    android:textColorHint="@color/lightGrey"
+                    android:textSize="@dimen/x8" />
+
+                <EditText
+                    android:id="@+id/accVar_Ab"
+                    android:layout_width="@dimen/x150"
+                    android:layout_height="@dimen/y12"
+                    android:layout_marginBottom="@dimen/y9"
+                    android:background="@layout/button_label"
+                    android:hint="绝对静止-加速度方差阈值（默认）"
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    android:textColor="@color/dark_orange"
+                    android:textColorHint="@color/lightGrey"
+                    android:textSize="@dimen/x8" />
+
+                <EditText
+                    android:id="@+id/accMean_User"
+                    android:layout_width="@dimen/x150"
+                    android:layout_height="@dimen/y12"
+                    android:layout_marginBottom="@dimen/y9"
+                    android:background="@layout/button_label"
+                    android:hint="相对静止-加速度均值阈值（默认）"
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    android:textColor="@color/dark_orange"
+                    android:textColorHint="@color/lightGrey"
+                    android:textSize="@dimen/x8" />
+
+                <EditText
+                    android:id="@+id/accVar_User"
+                    android:layout_width="@dimen/x150"
+                    android:layout_height="@dimen/y12"
+                    android:background="@layout/button_label"
+                    android:hint="相对静止-加速度方差阈值（默认）"
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    android:textColor="@color/dark_orange"
+                    android:textColorHint="@color/lightGrey"
+                    android:textSize="@dimen/x8" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/y12"
+                android:layout_marginLeft="@dimen/x8"
+                android:layout_marginRight="@dimen/x8"
+                android:layout_marginTop="@dimen/y6"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/AmpDBThreshold"
+                    android:layout_width="@dimen/x140"
+                    android:layout_height="@dimen/y12"
+                    android:layout_marginBottom="@dimen/y9"
+                    android:background="@layout/button_label"
+                    android:hint="幅值显著性阈值："
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    android:textColor="@color/dark_orange"
+                    android:textColorHint="@color/lightGrey"
+                    android:textSize="@dimen/x8" />
+
+                <EditText
+                    android:id="@+id/PeakFreThreshold"
+                    android:layout_width="@dimen/x140"
+                    android:layout_height="@dimen/y12"
+                    android:layout_marginBottom="@dimen/y9"
+                    android:background="@layout/button_label"
+                    android:hint="峰值频率阈值："
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    android:textColor="@color/dark_orange"
+                    android:textColorHint="@color/lightGrey"
+                    android:textSize="@dimen/x8" />
+
+                <EditText
+                    android:id="@+id/ifVehicleProbability"
+                    android:layout_width="@dimen/x140"
+                    android:layout_height="@dimen/y12"
+                    android:layout_marginBottom="@dimen/y9"
+                    android:background="@layout/button_label"
+                    android:hint="车内识别概率阈值："
+                    android:inputType="phone"
+                    android:maxLines="1"
+                    android:textColor="@color/dark_orange"
+                    android:textColorHint="@color/lightGrey"
+                    android:textSize="@dimen/x8" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <Button
+                        android:id="@+id/btninitParams"
+                        android:layout_width="@dimen/x65"
+                        android:layout_height="@dimen/y12"
+                        android:layout_marginRight="@dimen/x10"
+                        android:background="@layout/button_label"
+                        android:gravity="center"
+                        android:text="默认值"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="@color/dark_green" />
+
+                    <Button
+                        android:id="@+id/btnconfirmParams"
+                        android:layout_width="@dimen/x65"
+                        android:layout_height="@dimen/y12"
+                        android:background="@layout/button_label"
+                        android:gravity="center"
+                        android:text="保存"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="@color/grey" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </TableRow>
+    </TableLayout>
+</LinearLayout>

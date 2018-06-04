@@ -1,10 +1,38 @@
 <resources>
     <!-- Base application theme, dependent on API level. This theme is replaced by AppBaseTheme from res/values-vXX/styles.xml on newer devices. -->
-    -<style parent="android:Theme.Light" name="AppBaseTheme">
-    <!-- Theme customizations available in newer API levels can go in res/values-vXX/styles.xml, while customizations related to backward-compatibility can go here. -->
-</style>
+    -
+
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!-- Theme customizations available in newer API levels can go in res/values-vXX/styles.xml, while customizations related to backward-compatibility can go here. -->
+    </style>
     <!-- Application theme. -->
-    -<style parent="AppBaseTheme" name="AppTheme">
-    <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-</style>
+    -
+
+    <style name="AppTheme" parent="AppBaseTheme">
+        <item name="android:textColorPrimary">@color/black_overlay</item>
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+    <style name="FullscreenTheme" parent="AppTheme">
+        <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
+        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+    </style>
+    @android:style/Theme.Material
+
+    @android:style/Theme.Material.Light
+
+    @android:style/Theme.Material.Light.DarkActionBar
+    <style name="FullscreenActionBarStyle" parent="android:Widget.Holo.ActionBar">
+        <item name="android:background">@color/black_overlay</item>
+    </style>
+    <style name="mylucency">
+        <item name="android:windowBackground">@color/lucency</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Translucent</item>
+    </style>
+
 </resources>

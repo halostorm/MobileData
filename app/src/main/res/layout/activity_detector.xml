@@ -1,104 +1,116 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <Button
         android:id="@+id/btnStartService"
         android:layout_width="fill_parent"
+        android:layout_height="@dimen/y30"
+        android:layout_marginLeft="@dimen/x20"
+        android:layout_marginRight="@dimen/x20"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:elevation="@dimen/x6"
+        android:text="采集数据" />
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="启动服务" />
+        android:layout_marginLeft="@dimen/x20"
+        android:layout_marginRight="@dimen/x20"
+        android:layout_marginTop="@dimen/y4">
+
+        <CheckBox
+            android:id="@+id/checkboxEnableGPS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@layout/button_round1"
+            android:layout_marginLeft="@dimen/x1"
+            android:layout_marginRight="@dimen/x20"
+            android:elevation="@dimen/x6"
+            android:checked="true"
+            android:text="启动GPS" />
+
+        <CheckBox
+            android:id="@+id/checkboxEnablePath"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@layout/button_round1"
+            android:layout_toRightOf="@id/checkboxEnableGPS"
+            android:checked="true"
+            android:elevation="@dimen/x6"
+            android:text="是否在车内？(启动轨迹)" />
+
+    </RelativeLayout>
 
     <Button
         android:id="@+id/btnStopService"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="停止服务" />
+        android:layout_height="@dimen/y30"
+        android:layout_marginLeft="@dimen/x20"
+        android:layout_marginRight="@dimen/x20"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:elevation="@dimen/x6"
+        android:text="停止采集" />
+
     <Button
-        android:id="@+id/btnStartUpload"
+        android:id="@+id/btnStartLabel"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/y30"
+        android:layout_marginLeft="@dimen/x20"
+        android:layout_marginRight="@dimen/x20"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:elevation="@dimen/x6"
+        android:text="标记数据" />
+
+    <Button
+        android:id="@+id/btnViewData"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/y30"
+        android:layout_marginLeft="@dimen/x20"
+        android:layout_marginRight="@dimen/x20"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:elevation="@dimen/x6"
+        android:text="查看数据视图" />
+
+    <Button
+        android:id="@+id/btnAttView"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/y30"
+        android:layout_marginLeft="@dimen/x20"
+        android:layout_marginRight="@dimen/x20"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:elevation="@dimen/x6"
+        android:text="手机实时姿态视图" />
+
+    <Button
+        android:id="@+id/btnTrack"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/y30"
+        android:layout_marginBottom="@dimen/x6"
+        android:layout_marginLeft="@dimen/x20"
+        android:layout_marginRight="@dimen/x20"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:elevation="@dimen/x6"
+        android:text="轨迹还原" />
+
+    <Button
+        android:id="@+id/btnBeginUploadActivity"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/y30"
+        android:layout_marginBottom="@dimen/x6"
+        android:layout_marginLeft="@dimen/x20"
+        android:layout_marginRight="@dimen/x20"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:elevation="@dimen/x6"
         android:text="上传数据" />
-    <Button
-        android:id="@+id/btnStatic"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="标记静止" />
 
-
-    <Button
-        android:id="@+id/btnWalk"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="标记步行" />
-    <Button
-        android:id="@+id/btnRun"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="标记跑步" />
-
-    <Button
-        android:id="@+id/btnElevator"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="标记乘电梯" />
-    <Button
-        android:id="@+id/btnBike"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="标记骑自行车" />
-
-
-    <Button
-        android:id="@+id/btnCar"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="标记坐车" />
-
-    <Button
-        android:id="@+id/btnUpstairs"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="标记上楼梯" />
-    <Button
-        android:id="@+id/btnDownstairs"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="标记下楼梯" />
-    <Button
-        android:id="@+id/btnStopLabel"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="关闭标记" />
-
-
-</LinearLayout><!-- <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" -->
-<!-- xmlns:tools="http://schemas.android.com/tools" -->
-<!-- android:layout_width="match_parent" -->
-<!-- android:layout_height="match_parent" -->
-<!-- tools:context=".Detector" > -->
-
-
-<!-- <TextView -->
-<!-- android:id="@+id/accX" -->
-<!-- android:layout_width="wrap_content" -->
-<!-- android:layout_height="wrap_content" -->
-<!-- android:layout_centerHorizontal="true" -->
-<!-- android:layout_centerVertical="true" -->
-<!-- android:text="@string/hello_world" /> -->
-<!-- <TextView -->
-<!-- android:id="@+id/accY" -->
-<!-- android:layout_width="wrap_content" -->
-<!-- android:layout_height="wrap_content" -->
-<!-- android:layout_centerHorizontal="true" -->
-<!-- android:layout_centerVertical="true" -->
-<!-- android:text="@string/hello_world" /> -->
-<!-- <TextView -->
-<!-- android:id="@+id/accZ" -->
-<!-- android:layout_width="wrap_content" -->
-<!-- android:layout_height="wrap_content" -->
-<!-- android:layout_centerHorizontal="true" -->
-<!-- android:layout_centerVertical="true" -->
-<!-- android:text="@string/hello_world" /> -->
-<!-- </RelativeLayout> -->
+</LinearLayout>
 

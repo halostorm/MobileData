@@ -2,64 +2,31 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/imageview"
+        android:layout_width="@dimen/x240"
+        android:layout_height="@dimen/y169"
+        android:layout_marginLeft="@dimen/x6"
+        android:layout_marginRight="@dimen/x6"
+        android:layout_marginTop="@dimen/x6"
+        android:contentDescription="login image"
+        android:gravity="center_horizontal"
+        android:src="@drawable/ic_launcher"
+        android:visibility="visible" />
 
     <Button
-        android:id="@+id/btnStartService"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="启动服务" />
-
-    <Button
-        android:id="@+id/btnStopService"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="停止服务" />
-
-    <Button
-        android:id="@+id/btnStatic"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="静止" />
-
-    <Button
-        android:id="@+id/btnWalk"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="步行" />
-    <Button
-        android:id="@+id/btnRun"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="跑步" />
-
-    <Button
-        android:id="@+id/btnElevator"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="乘电梯" />
-    <Button
-        android:id="@+id/btnBike"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="骑自行车" />
-
-
-    <Button
-        android:id="@+id/btnCar"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="坐车" />
-
-    <Button
-        android:id="@+id/btnUpstairs"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="上楼梯" />
-    <Button
-        android:id="@+id/btnDownstairs"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="下楼梯" />
-
+        android:id="@+id/btnPass"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y30"
+        android:layout_marginBottom="@dimen/y17"
+        android:layout_marginLeft="@dimen/x24"
+        android:layout_marginRight="@dimen/x24"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:gravity="center"
+        android:text="已登陆，点击进入">
+    </Button>
 </LinearLayout>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y250"
+        android:orientation="horizontal">
+
+        <com.nulana.NChart.NChartView
+            android:id="@+id/surface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical" />
+
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="@dimen/x150"
+            android:layout_height="@dimen/y50"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="@dimen/x2"
+            android:gravity="center_horizontal"
+            android:src="@drawable/ic_launcher4"
+            android:visibility="visible" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/x10"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:id="@+id/ncattView"
+            android:layout_width="@dimen/x225"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/x3"
+            android:layout_marginLeft="@dimen/x3"
+            android:layout_marginRight="@dimen/x3"
+            android:gravity="left"
+            android:orientation="vertical"></RelativeLayout>
+
+        <ImageView
+            android:id="@+id/FrameView"
+            android:layout_width="@dimen/x45"
+            android:layout_height="@dimen/y32"
+            android:layout_marginLeft="@dimen/x7"
+            android:layout_marginRight="@dimen/x7"
+            android:layout_marginTop="@dimen/x7"
+            android:gravity="center_horizontal"
+            android:src="@drawable/ic_launcher3"
+            android:visibility="visible" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/attView"
+            android:layout_alignStart="@+id/attView"
+            android:layout_below="@+id/FrameView"
+            android:layout_marginLeft="@dimen/x12"
+            android:layout_marginStart="@dimen/x12"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/x7"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/EulerX"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:text="Euler_X:  "
+                    android:textColor="@color/light_orange" />
+
+                <TextView
+                    android:id="@+id/value_x"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/EulerX"
+                    android:text="0"
+                    android:textColor="@color/light_orange" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/value_x"
+                    android:text=" °"
+                    android:textColor="@color/light_orange" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/x7"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/EulerY"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:text="Euler_Y:  "
+                    android:textColor="@color/light_orange" />
+
+                <TextView
+                    android:id="@+id/value_y"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/EulerY"
+                    android:text="0"
+                    android:textColor="@color/light_orange" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/value_y"
+                    android:text=" °"
+                    android:textColor="@color/light_orange" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/x7"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/EulerZ"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:text="Euler_Z:  "
+                    android:textColor="@color/light_orange" />
+
+                <TextView
+                    android:id="@+id/value_z"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/EulerZ"
+                    android:text="0"
+                    android:textColor="@color/light_orange" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/value_z"
+                    android:text=" °"
+                    android:textColor="@color/light_orange" />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/ncattView"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <RadioGroup
+                android:id="@+id/IfInterpolation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@layout/button_round1"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                android:saveEnabled="true">
+
+                <RadioButton
+                    android:id="@+id/InterNo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/y6"
+                    android:checked="true"
+                    android:text="线性插值"
+                    android:textColor="@color/mid_blue" />
+
+                <RadioButton
+                    android:id="@+id/InterYes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="球面插值"
+                    android:textColor="@color/mid_orange" />
+
+            </RadioGroup>
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="@dimen/x180"
+        android:layout_height="@dimen/y127"
+        android:layout_marginLeft="@dimen/x6"
+        android:layout_marginRight="@dimen/x6"
+        android:layout_marginTop="@dimen/x6"
+        android:contentDescription="login image"
+        android:gravity="center_horizontal"
+        android:src="@drawable/ic_launcher"
+        android:visibility="visible" />
+
+    <EditText
+        android:id="@+id/userID"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y26"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="@dimen/x24"
+        android:layout_marginRight="@dimen/x24"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:gravity="center_vertical"
+        android:hint="请输入手机号码"
+        android:inputType="phone"
+        android:maxLines="1"
+        android:textColorHint="@color/grey"
+        android:textSize="@dimen/x9" />
+
+    <EditText
+        android:id="@+id/age"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y26"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="@dimen/x24"
+        android:layout_marginRight="@dimen/x24"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:gravity="center_vertical"
+        android:hint="年龄"
+        android:inputType="phone"
+        android:maxLines="1"
+        android:textColorHint="@color/grey"
+        android:textSize="@dimen/x9" />
+
+    <RadioGroup
+        android:id="@+id/gender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:saveEnabled="true">
+
+        <RadioButton
+            android:id="@+id/btnMale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="男" />
+
+        <RadioButton
+            android:id="@+id/btnFemale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="女" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/btnLogin"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y26"
+        android:layout_marginBottom="@dimen/y17"
+        android:layout_marginLeft="@dimen/x24"
+        android:layout_marginRight="@dimen/x24"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:gravity="center"
+        android:hint="登录"
+        android:textColorHint="@color/grey" />
+</LinearLayout>

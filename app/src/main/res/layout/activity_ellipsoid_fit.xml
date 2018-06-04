@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/imageview"
+        android:layout_width="@dimen/x300"
+        android:layout_height="@dimen/y210"
+        android:layout_marginTop="@dimen/x6"
+        android:contentDescription="login image"
+        android:gravity="center_horizontal"
+        android:src="@drawable/ic_launcher2"
+        android:visibility="visible" />
+
+    <Button
+        android:id="@+id/btnStartEllipsoidFit"
+        android:layout_width="@dimen/x240"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/x18"
+        android:layout_marginRight="@dimen/x18"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:elevation="@dimen/x6"
+        android:text="开始校准" />
+
+    <Button
+        android:id="@+id/btnStopEllipsoidFit"
+        android:layout_width="@dimen/x240"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/x18"
+        android:layout_marginRight="@dimen/x18"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:elevation="@dimen/x6"
+        android:text="结束校准" />
+
+    <Button
+        android:id="@+id/btnSaveEllipsoidFit"
+        android:layout_width="@dimen/x240"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/x18"
+        android:layout_marginRight="@dimen/x18"
+        android:layout_marginTop="@dimen/x6"
+        android:background="@layout/button_round1"
+        android:elevation="@dimen/x6"
+        android:text="保存" />
+
+</LinearLayout>
