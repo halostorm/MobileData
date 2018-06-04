@@ -176,7 +176,7 @@ public class ChartingDemoActivity extends Activity {
 
     private void loadView() {
         // Paste your license key here.
-        mNChartView.getChart().setLicenseKey("BLZHEYklLSsef/cFzOar6FI2jJyTFUPCZtg+WwSIMHH+AVD3JFv22uK8YebZfPWm10IZvA59H5H/sQOWiGUbfnSrdS7Oofs+gwe1gGY0ScOr0RutFoil1vbib42bA37rIeXovoJvTZqZtt1gjEFgVU2WpnuwiZrs4huwjXP0S+9ITRbblPJPd3DM4L8ruon8OMYpt5JW9C+9sfJMaeDtzEBT6wXoBPVbbcKy2qNPwtuy1BwMwmvlxhy2CjVgPVpyKcgaRo4V51Swqk19pdJ+yin/vQP2zXz02Vq9BhCHCXZEVYiURx4+0c5luJWVJLRd7WlQtyqZ1PBRI5HsI39weHoam/80qjBNUkPBLAg9Eh2EXuHYOCPj66ruJl9pkhQJ4UsxTRe5O0hnsJu1Mes9yG+AKL8ovwcDQhsCZNBJG/6OzmHlEF68IBAnPQPSraHqBBH3Xw0a5dIJq3KS/sgpTJ5IhuViFTQ/eBvYTSiJDi/yjJvKsrJn/3RDE6FdzvuYwkbWzWOj9N6HBUyGyp7NprDDl84R/KbInLYeELf0aX1KNJju5nSHyNw6QDi2dwZU9yJlhtz5sLmS7DFaspN+vonMcGp8MIoNww1ja2HfIr8HMICTf0XsZ/YlKZukmY+EJbInWUmR+talhQHdZBGU2hUYmBGfGhMrH4hSiKBAi38=");
+        mNChartView.getChart().setLicenseKey("Xw2f+e+5GVoEAKky3PR2zsMNI4nQ3KE6dIy1YOEqofD7OXlMc6w0OMtOrbmHFfZunPxd7uYp5TY0j9hB7mJMN/feIngo7DK1l7q9ya0zbkBoxEVFoIhrwrl5ua+azYv787LvNYG7DsjHDA67Aa8lSyzXgNXTt5rdPNTHHNzGe5gt/vmNnOI6miQY6fTBOE0XEitnst9X+SVaBfFQXuUODLZVAlKKl+wdlr2nuT+gqFw+0e9SJS6MV/ZlStMjSR/Cr+UnKZzdUm+RPggC2vLbnKTLewkEB70dUFIx1Dr4zuqLaZqmzHdfuujTiFterq3u7aJ30FgrFxG6rE1QCTBWMSNCkhRJH91vhmIADeu1UrDUs60R/yVauoG0k242c+gCmeaMrSyOrfvgUb3Dhk8Rt0cPahZDfOpA96BlEb8yL+Ns0/+hiAQaV66e0mOgPjzOTV1ta3JdqY6xHYg5XzyIHecMUomwPeApTh0QaAyc0EfpTwK0XIbk/VsUD3hcoTOasLVMiir6FixgBaYWp3cNtnQcuqh9hd2cACO4vxN+JAoBBL5OOmzxOci1H28r9LWZqXZympN/Huz+oxTSmztB+epFXbo6dzDlDLcopjmP9OVYnyN2tkrpLBTJfBKwXfDm1AorurVD4KEzxDkYErpxkKUFnWNwiLyi9Hqanjr2RTs=");
         track = new TrackService(true, mNChartView, this, WindowSize);
         track.initView(0);
         track.updateData(0);

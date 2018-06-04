@@ -258,7 +258,7 @@ public class STFT {
 
     public double maxAmpFreq = Double.NaN, maxAmpDB = Double.NaN;
 
-    public float calculateMeanAmpDB(float cutOff){
+    public float calculateMeanHighFreqzAmpDB(float cutOff){
         float meanAmpDB = 0;
         float length = 0;
         for (int i = 1; i < spectrumAmpOutDB.length; i++) {  // skip the direct current term

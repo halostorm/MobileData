@@ -38,6 +38,7 @@ public class TrackSensorListener implements SensorEventListener {
     public volatile int sampleIntervalReal = sampleInterval;//ms
 
     public int FFT_SampleInterval = 256 * sampleInterval;
+    public int STFT_SECTIONS = 1;
     private int FFT_SIZE = 256;
 
     private float onVehicleProbability = 0.0f;
@@ -1094,7 +1095,7 @@ public class TrackSensorListener implements SensorEventListener {
 */
 
     private boolean ifVehicle_STFT() {
-        STFT stft = new STFT(FFT_SIZE, 1000 / sampleInterval, 1, "Hanning");
+        STFT stft = new STFT(FFT_SIZE/STFT_SECTIONS, 1000 / sampleInterval, 1, "Hanning");
         //wndName: Bartlett, Hanning, Blackman, Blackman Harris, Kaiser, a=2.0/3.0/4.0
         float[] input = accNormQueue.clone();
         stft.feedData(input);
@@ -1106,6 +1107,7 @@ public class TrackSensorListener implements SensorEventListener {
 
         SpectrumID = new float[output.length];
         Spectrum = new float[output.length];
+        Log.d(TAG," Spectrum Length\t"+output.length);
         for (int i = 0; i < output.length; i++) {
             Spectrum[i] = (float) output[i] / 10.f;
             SpectrumID[i] = (i * (0.5f * 50.f / (output.length - 1)));
@@ -1115,7 +1117,7 @@ public class TrackSensorListener implements SensorEventListener {
         if (maxFrequency > PEAK_FRE_THRESHOLD) {
             return true;
         }
-        if (stft.calculateMeanAmpDB(PEAK_FRE_THRESHOLD) > 0.75 * PhoneState.AMPDB_THRESHOLD) {
+        if (stft.calculateMeanHighFreqzAmpDB(PEAK_FRE_THRESHOLD) > 0.8 * PhoneState.AMPDB_THRESHOLD) {
             return true;
         }
         return false;
