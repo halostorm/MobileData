@@ -11,7 +11,7 @@ import com.ustc.wsn.mobileData.bean.math.myMath;
 public class GDF {
     private final String TAG = GDF.class.toString();
     // Definitions
-    private final float betaDef = 0.1f;        // 2 * proportional gain
+    private final float betaDef = 0.01f;        // 2 * proportional gain
     // Variable definitions
     public volatile float beta = betaDef;
     public int InitCount = 0;// 2 * proportional gain (Kp)
