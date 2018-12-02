@@ -18,6 +18,7 @@ public class outputFile {
     private static File stateParamsFile;
     private static File accelParamsFile;
     private static File rawFile;
+    private static File featureFile;
     private static File pathFile;
     private static File GlobalStateFile;
     private static File InterpathFile;
@@ -142,6 +143,12 @@ public class outputFile {
         current_time = System.currentTimeMillis();
         rawFile = new File(dir, "raw" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
         return rawFile;
+    }
+
+    public static File getFeatureFile() {
+        current_time = System.currentTimeMillis();
+        featureFile = new File(dir, "feature" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
+        return featureFile;
     }
 
     public static File getStateFile() {

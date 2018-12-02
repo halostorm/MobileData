@@ -1,41 +1,31 @@
 package com.ustc.wsn.mobileData.activity;
 
 import android.annotation.SuppressLint;
-import android.app.Service;
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.app.Activity;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Button;
 import android.widget.Toast;
+
 import com.ustc.wsn.mobileData.Listenter.DetectorLocationListener;
 import com.ustc.wsn.mobileData.Listenter.LogSensorListener;
 import com.ustc.wsn.mobileData.Listenter.TrackSensorListener;
 import com.ustc.wsn.mobileData.R;
-import com.ustc.wsn.mobileData.bean.PhoneState;
+import com.ustc.wsn.mobileData.bean.harTools.HAR;
 import com.ustc.wsn.mobileData.bean.math.myMath;
 import com.ustc.wsn.mobileData.utils.TimeUtil;
-
-import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math3.transform.DftNormalization;
-import org.apache.commons.math3.transform.FastFourierTransformer;
-import org.apache.commons.math3.transform.TransformType;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.sql.BatchUpdateException;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -62,6 +52,8 @@ public class HarActivity extends Activity {
     private String[] ROT = new String[windowSize];
 
     private String recMsg = "No Reply";
+    
+    private String harState = "unknow";
 
     private Button Har;
 
@@ -89,7 +81,7 @@ public class HarActivity extends Activity {
         @Override
         //定时更新图表
         public void handleMessage(Message msg) {
-            Har.setText(PhoneState.HAR);
+            Har.setText(harState);
         }
     };
 
@@ -104,7 +96,6 @@ public class HarActivity extends Activity {
                         e.printStackTrace();
                     }
                     int i = 0;
-                    StringBuffer dataBuffer = new StringBuffer();
                     String accData;
                     String gyroData;
                     String magData;
@@ -195,7 +186,7 @@ public class HarActivity extends Activity {
                     try {
                         Socket s = new Socket(Data.getHost(), Data.getPORT());
                         DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-                        StringBuffer dataBuffer = featureExtract(message);
+                        StringBuffer dataBuffer = new HAR().featureExtract(message);
                         String str = dataBuffer.toString();
 //                        Log.d(TAG, "myData: "+str);
                         dos.write(str.getBytes("utf-8"));
@@ -212,19 +203,24 @@ public class HarActivity extends Activity {
                             int har = Integer.parseInt(recMsg);
                             switch (har) {
                                 case 1:
-                                    PhoneState.HAR = "静止";
+                                   harState = "静止";
+                                   break;
                                 case 2:
-                                    PhoneState.HAR = "步行";
+                                   harState = "步行";
+                                   break;
                                 case 3:
-                                    PhoneState.HAR = "跑步";
+                                   harState = "跑步";
+                                   break;
                                 case 5:
-                                    PhoneState.HAR = "骑行";
+                                   harState = "骑行";
+                                   break;
                                 case 6:
-                                    PhoneState.HAR = "乘车";
+                                   harState = "乘车";
+                                   break;
 
                             }
 
-                        } else PhoneState.HAR = "Unknow";
+                        } else harState = "Unknow";
 
                         Log.d(TAG, "HarServer reply: " + recMsg);
 
@@ -243,59 +239,6 @@ public class HarActivity extends Activity {
 
             }
         }.start();
-    }
-
-    private StringBuffer featureExtract(float[] accNorm) {
-        StringBuffer features = new StringBuffer();
-        //时域特征
-        DescriptiveStatistics stats = new DescriptiveStatistics();
-        double[] data = new double[accNorm.length];
-        for (int i = 0; i < accNorm.length; i++) {
-            stats.addValue(accNorm[i]);
-            data[i] = accNorm[i];
-        }
-        double mean = stats.getMean();
-        double std = stats.getStandardDeviation();
-        double skew = stats.getSkewness();
-        double kurtosis = stats.getKurtosis();
-        double maxTopKMean = new myStat().getMaxTopKMean(data, 20);
-        double minTopKMean = new myStat().getMinTopKMean(data, 20);
-
-        features.append(mean);
-        features.append("\t" + std);
-        features.append("\t" + skew);
-        features.append("\t" + kurtosis);
-        features.append("\t" + maxTopKMean);
-        features.append("\t" + minTopKMean);
-
-        // 频谱特征
-        FastFourierTransformer fft = new FastFourierTransformer(DftNormalization.STANDARD);
-        Complex[] freSpectrum = fft.transform(data, TransformType.FORWARD);
-        ArrayList<Double> Spectrum = new ArrayList<>();
-        for (int i = 0; i <= freSpectrum.length / 2; i++) {
-            Spectrum.add(freSpectrum[i].abs());
-        }
-        ArrayList<Double>[] SpectrumPoints = new ArrayList[11];
-        double[] SpectrumFeatures = new double[11];
-        for (int i = 0; i < 11; i++)
-            SpectrumPoints[i] = new ArrayList<>();
-        final double SampleRate = 50.0;
-        final int SpectrumLength = Spectrum.size() - 1;
-
-        final double density = (SampleRate * 0.5) / SpectrumLength;
-
-        for (int i = 1; i <= SpectrumLength; i++) {
-            double frequency = density * i;
-            int k = (int) Math.floor(frequency);
-            if (k < 10) SpectrumPoints[k].add(Spectrum.get(i));
-            else SpectrumPoints[10].add(Spectrum.get(i));
-        }
-
-        for (int k = 0; k < SpectrumPoints.length; k++) {
-            SpectrumFeatures[k] = new myStat().getMean(SpectrumPoints[k]);
-            features.append("\t" + SpectrumFeatures[k]);
-        }
-        return features;
     }
 
     @SuppressLint("InlinedApi")
@@ -389,80 +332,3 @@ class Data {
 }
 
 
-class myStat {
-    int partionMin(double a[], int first, int end) {
-        int i = first;
-        double main = a[end];
-        for (int j = first; j < end; j++) {
-            if (a[j] < main) {
-                double temp = a[j];
-                a[j] = a[i];
-                a[i] = temp;
-                i++;
-            }
-        }
-        a[end] = a[i];
-        a[i] = main;
-        return i;
-    }
-
-    int partionMax(double a[], int first, int end) {
-        int i = first;
-        double main = a[end];
-        for (int j = first; j < end; j++) {
-            if (a[j] > main) {
-                double temp = a[j];
-                a[j] = a[i];
-                a[i] = temp;
-                i++;
-            }
-        }
-        a[end] = a[i];
-        a[i] = main;
-        return i;
-    }
-
-    void getTopKMinBySort(double a[], int first, int end, int k) {
-        if (first < end) {
-            int partionIndex = partionMin(a, first, end);
-            if (partionIndex == k - 1) return;
-            else if (partionIndex > k - 1) getTopKMinBySort(a, first, partionIndex - 1, k);
-            else getTopKMinBySort(a, partionIndex + 1, end, k);
-        }
-    }
-
-    void getTopKMaxBySort(double a[], int first, int end, int k) {
-        if (first < end) {
-            int partionIndex = partionMax(a, first, end);
-            if (partionIndex == k - 1) return;
-            else if (partionIndex > k - 1) getTopKMaxBySort(a, first, partionIndex - 1, k);
-            else getTopKMaxBySort(a, partionIndex + 1, end, k);
-        }
-    }
-
-    double getMinTopKMean(double[] a, int k) {
-        double mean = 0;
-        getTopKMinBySort(a, 0, a.length - 1, k);
-        for (int i = 0; i < k; i++) {
-            mean += a[i] / k;
-        }
-        return mean;
-    }
-
-    double getMaxTopKMean(double[] a, int k) {
-        double mean = 0;
-        getTopKMaxBySort(a, 0, a.length - 1, k);
-        for (int i = 0; i < k; i++) {
-            mean += a[i] / k;
-        }
-        return mean;
-    }
-
-    double getMean(ArrayList<Double> a) {
-        double mean = 0;
-        for (int i = 0; i < a.size(); i++) {
-            mean += a.get(i) / a.size();
-        }
-        return mean;
-    }
-}

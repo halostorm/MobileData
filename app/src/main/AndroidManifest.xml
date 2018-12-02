@@ -105,7 +105,8 @@
             android:label="@string/title_activity_login" />
         <activity
             android:name=".activity.HarActivity"
-            android:label="@string/title_activity_har" />
+            android:label="@string/title_activity_har"
+            android:launchMode="singleTask" />
 
         <service
             android:name=".service.HarService"

@@ -20,6 +20,8 @@ import com.ustc.wsn.mobileData.Listenter.LogSensorListener;
 import com.ustc.wsn.mobileData.Listenter.TrackSensorListener;
 import com.ustc.wsn.mobileData.bean.CellInfo;
 import com.ustc.wsn.mobileData.bean.StoreData;
+import com.ustc.wsn.mobileData.bean.harTools.HAR;
+import com.ustc.wsn.mobileData.bean.math.myMath;
 import com.ustc.wsn.mobileData.bean.outputFile;
 import com.ustc.wsn.mobileData.utils.TimeUtil;
 import com.ustc.wsn.mobileData.utils.z7Compression;
@@ -61,6 +63,8 @@ public class DetectorService extends Service {
     private String[] GYRO = new String[windowSize];
     private String[] MAG = new String[windowSize];
     private String[] ROT = new String[windowSize];
+
+    private File featureFile = outputFile.getFeatureFile();
     /**
      * 返回一个Binder对象
      */
@@ -159,9 +163,14 @@ public class DetectorService extends Service {
                         }
 
                     }
-                    for (int i_2 = 0; i_2 < windowSize; i_2++) {
-                        outStoreRaw[i_2] = cLabel + "\t" + ACC[i_2] + "\t" + GYRO[i_2] + "\t" + MAG[i_2] + "\t" + ROT[i_2];
+                    float[] accNorm = new float[windowSize];
+                    for (int j = 0; j < windowSize; j++) {
+                        outStoreRaw[j] = cLabel + "\t" + ACC[j] + "\t" + GYRO[j] + "\t" + MAG[j] + "\t" + ROT[j];
+                        String[] acc_j = ACC[j].split("\t");
+                        accNorm[j] = (float) Math.sqrt(Math.pow(Float.parseFloat(acc_j[1]), 2) + Math.pow(Float.parseFloat(acc_j[2]), 2) + Math.pow(Float.parseFloat(acc_j[3]), 2)) + myMath.G;
                     }
+
+                    storeFeatures(accNorm,cLabel);
 
                     while (rawFileReadFlag == true) {
                         try {
@@ -226,6 +235,32 @@ public class DetectorService extends Service {
                     }catch (IOException e) {
                         e.printStackTrace();
                     }
+                }
+            }
+        }).start();
+    }
+
+    private void storeFeatures(final float[] accNorm,final int Label){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                BufferedWriter writer = null;
+                try {
+                    writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(featureFile, true)));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                StringBuffer featureBuffer = new StringBuffer();
+                featureBuffer.append(Label+"\t");
+                featureBuffer.append(new HAR().featureExtract(accNorm));
+                featureBuffer.append("\n");
+
+                try {
+                    Log.d(TAG, " write features");
+                    writer.write(featureBuffer.toString());
+                    writer.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }).start();

@@ -23,7 +23,6 @@ import com.ustc.wsn.mobileData.Listenter.TrackSensorListener;
 import com.ustc.wsn.mobileData.R;
 import com.ustc.wsn.mobileData.bean.PhoneState;
 import com.ustc.wsn.mobileData.bean.cubeView.MyRender;
-import com.ustc.wsn.mobileData.service.HarService;
 
 import java.text.DecimalFormat;
 import java.util.Timer;

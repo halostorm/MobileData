@@ -288,6 +288,9 @@ public class DetectorActivity extends Activity implements OnClickListener {
             case R.id.menu_settings_help:
                 showHelpDialog();
                 return true;
+            case R.id.HarActivity:
+                startActivity(new Intent(this, HarActivity.class));
+                return true;
             case R.id.open_path:
                 openSystemFile();
                 return true;
