@@ -3,6 +3,7 @@ package com.ustc.wsn.mobileData.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -22,6 +23,7 @@ import com.ustc.wsn.mobileData.Listenter.TrackSensorListener;
 import com.ustc.wsn.mobileData.R;
 import com.ustc.wsn.mobileData.bean.PhoneState;
 import com.ustc.wsn.mobileData.bean.cubeView.MyRender;
+import com.ustc.wsn.mobileData.service.HarService;
 
 import java.text.DecimalFormat;
 import java.util.Timer;
@@ -30,6 +32,8 @@ import java.util.TimerTask;
 public class AttitudeViewActivity extends Activity implements View.OnClickListener {
 
     private final String TAG = AttitudeViewActivity.class.toString();
+
+    private Intent intent;
 
     private boolean threadDisable_data_update = false;
     private boolean ACCELERATOR_EXIST = false;
@@ -50,6 +54,8 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
     private Button GDF;
     private Button ANDROID;
     private Button GYRO;
+
+    private Button Har;
 
     TextView EulerxAxis;
     TextView EuleryAxis;
@@ -129,6 +135,8 @@ public class AttitudeViewActivity extends Activity implements View.OnClickListen
             }
         }, 0, 50);
 
+//        intent = new Intent(this, HarService.class);
+//        startService(intent);
     }
 
     private Handler handler = new Handler() {

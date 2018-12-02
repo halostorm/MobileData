@@ -66,6 +66,8 @@ public class PhoneState {
     public static float[] Euler = {0.0f,0f,0f};
     public static float[] Quarternion = {1.0f,0f,0f,0f};
 
+    public static String HAR ="Unknow";
+
     public synchronized static void initAccCalibrateParams(){
 
         File accparams = outputFile.getAccParamsFile();

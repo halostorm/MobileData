@@ -107,5 +107,6 @@
     <string name="title_activity_data_upload">DataUploadActivity</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_view_test">ViewTestActivity</string>
+    <string name="title_activity_har">HarActivity</string>
 
 </resources>

@@ -641,7 +641,7 @@ public class TrackSensorListener implements SensorEventListener {
                     } else {
                         phoneUseonVehicleProbability = phoneUseonVehicleProMLP.filter(0.0f);
                     }
-                    Log.d(TAG, "phoneUseOnVehicle\t" + phoneUseonVehicleProbability);
+//                    Log.d(TAG, "phoneUseOnVehicle\t" + phoneUseonVehicleProbability);
 
                     if(phoneUseonVehicleProbability>0.5){
                         phoneUseOnVehicle = true;
@@ -679,7 +679,7 @@ public class TrackSensorListener implements SensorEventListener {
         //float attStateMean = myMath.getMean(eulerSum);
         float attStateVar = myMath.getVar(eulerSum);
         attStateVar = (float) Math.log10(attStateVar);
-        Log.d(TAG, "attStateVar\t" + attStateVar);
+//        Log.d(TAG, "attStateVar\t" + attStateVar);
         if (attStateVar < PhoneState.PHONE_USE_ON_VEHICLE_EULER_THRESHOLD) {
             return false;
         } else {
@@ -1103,17 +1103,17 @@ public class TrackSensorListener implements SensorEventListener {
         double[] output = stft.getSpectrumAmpDB();
         stft.calculatePeak();
         maxFrequency = (float) stft.maxAmpFreq;
-        Log.d(TAG, "Max Frequency\t" + maxFrequency);
+//        Log.d(TAG, "Max Frequency\t" + maxFrequency);
 
         SpectrumID = new float[output.length];
         Spectrum = new float[output.length];
-        Log.d(TAG," Spectrum Length\t"+output.length);
+//        Log.d(TAG," Spectrum Length\t"+output.length);
         for (int i = 0; i < output.length; i++) {
             Spectrum[i] = (float) output[i] / 10.f;
             SpectrumID[i] = (i * (0.5f * 50.f / (output.length - 1)));
             //myLog.log(TAG," SpectrumID\t",SpectrumID);
         }
-        myLog.log(TAG, "FFT result\t", Spectrum);
+//        myLog.log(TAG, "FFT result\t", Spectrum);
         if (maxFrequency > PEAK_FRE_THRESHOLD) {
             return true;
         }

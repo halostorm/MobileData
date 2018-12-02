@@ -67,7 +67,6 @@ public class GpsService extends Service {
     }
 
     // TODO: Return the communication channel to the service.
-    // throw new UnsupportedOperationException("Not yet implemented");
     public class MsgBinder extends Binder {
         /**
          * 获取当前Service的实例

@@ -129,7 +129,7 @@ public class MainActivity extends Activity {
         @Override
         public void onClick(View view) {
 
-            Intent intent = new Intent(MainActivity.this, DetectorActivity.class);
+            Intent intent = new Intent(MainActivity.this, HarActivity.class);
             intent.putExtra("userId", userID);
             startActivity(intent);
             finish();
