@@ -74,7 +74,7 @@ public class HarActivity extends Activity {
             public void run() {
                 handler.sendMessage(handler.obtainMessage());
             }
-        }, 0, 2500);
+        }, 0, 100);
     }
 
     private Handler handler = new Handler() {
@@ -132,6 +132,7 @@ public class HarActivity extends Activity {
                     }
 
                     //Send Sensor Data
+                    harState = "Unknow";
                     Message(accNorm);
 
                     //Globel State File //usualTime, timeStamp, Bear, velocity, onVehicleProbability, pathVector
@@ -202,22 +203,21 @@ public class HarActivity extends Activity {
                             recMsg = new String(recvStr, 0, rn);
                             int har = Integer.parseInt(recMsg);
                             switch (har) {
-                                case 1:
+                                case 0:
                                    harState = "静止";
                                    break;
-                                case 2:
+                                case 1:
                                    harState = "步行";
                                    break;
-                                case 3:
+                                case 2:
                                    harState = "跑步";
                                    break;
-                                case 5:
+                                case 3:
                                    harState = "骑行";
                                    break;
-                                case 6:
+                                case 4:
                                    harState = "乘车";
                                    break;
-
                             }
 
                         } else harState = "Unknow";

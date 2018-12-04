@@ -147,7 +147,7 @@ public class outputFile {
 
     public static File getFeatureFile() {
         current_time = System.currentTimeMillis();
-        featureFile = new File(dir, "feature" + "_" + TimeUtil.getTime_name(current_time) + ".txt");
+        featureFile = new File(appDir, "feature.txt");
         return featureFile;
     }
 
