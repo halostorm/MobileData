@@ -63,6 +63,9 @@ public class DetectorService extends Service {
     private String[] GYRO = new String[windowSize];
     private String[] MAG = new String[windowSize];
     private String[] ROT = new String[windowSize];
+    private String[] ROT1 = new String[windowSize];
+    private String[] ROT2 = new String[windowSize];
+    private String[] ROT3 = new String[windowSize];
 
     private File featureFile = outputFile.getFeatureFile();
     /**
@@ -137,6 +140,9 @@ public class DetectorService extends Service {
                     String gyroData;
                     String magData;
                     String rotData;
+                    String rotData1;
+                    String rotData2;
+                    String rotData3;
 
                     int cLabel = stateLabel;
                     while (i < windowSize) {
@@ -144,6 +150,9 @@ public class DetectorService extends Service {
                         gyroData = sensorListener.getGyroData();
                         magData = sensorListener.getMagData();
                         rotData = sensorListener.getRotData();
+                        rotData1 = sensorListener.getRotData1();
+                        rotData2 = sensorListener.getRotData2();
+                        rotData3 = sensorListener.getRotData3();
 
                         // 转化数据
                         if (accData != null && gyroData != null && magData != null) {
@@ -151,6 +160,9 @@ public class DetectorService extends Service {
                             GYRO[i] = gyroData;
                             MAG[i] = magData;
                             ROT[i] = rotData;
+                            ROT1[i] = rotData1;
+                            ROT2[i] = rotData2;
+                            ROT3[i] = rotData3;
                             i++;
                         }
                         // 如果出現緩衝池空，則停止讀取，等待5s
@@ -165,7 +177,7 @@ public class DetectorService extends Service {
                     }
                     float[] accNorm = new float[windowSize];
                     for (int j = 0; j < windowSize; j++) {
-                        outStoreRaw[j] = cLabel + "\t" + ACC[j] + "\t" + GYRO[j] + "\t" + MAG[j] + "\t" + ROT[j];
+                        outStoreRaw[j] = cLabel + "\t" + ACC[j] + "\t" + GYRO[j] + "\t" + MAG[j] + "\t" + ROT[j];//+ "\t" + ROT1[j]+ "\t" + ROT2[j]+ "\t" + ROT3[j];
                         String[] acc_j = ACC[j].split("\t");
                         accNorm[j] = (float) Math.sqrt(Math.pow(Float.parseFloat(acc_j[1]), 2) + Math.pow(Float.parseFloat(acc_j[2]), 2) + Math.pow(Float.parseFloat(acc_j[3]), 2)) + myMath.G;
                     }
