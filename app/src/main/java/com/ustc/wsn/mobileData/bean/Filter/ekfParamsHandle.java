@@ -30,14 +30,14 @@ public class ekfParamsHandle {
         moment_inertia_J[2] = 0.0037f;
         use_moment_inertia = 0;
     */
-        q0 = 1e-1f;
-        q1 = 5f;
-        q2 = 5f;
-        q3 = 5f;
+        q0 = 1e-3f;
+        q1 = 5e-1f;
+        q2 = 5e-1f;
+        q3 = 5e-1f;
 
-        r0 = 0.08f;
-        r1 = 10000.0f;
-        r2 = 100.0f;
+        r0 = 8e-3f;
+        r1 = 1e5f;
+        r2 = 1e3f;
 
         moment_inertia_J[0] = 0.0018f;
         moment_inertia_J[1] = 0.0018f;

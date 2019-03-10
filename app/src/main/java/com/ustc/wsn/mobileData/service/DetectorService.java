@@ -182,7 +182,7 @@ public class DetectorService extends Service {
                         accNorm[j] = (float) Math.sqrt(Math.pow(Float.parseFloat(acc_j[1]), 2) + Math.pow(Float.parseFloat(acc_j[2]), 2) + Math.pow(Float.parseFloat(acc_j[3]), 2)) + myMath.G;
                     }
 
-                    storeFeatures(accNorm,cLabel);
+                    //storeFeatures(accNorm,cLabel);
 
                     while (rawFileReadFlag == true) {
                         try {

@@ -87,12 +87,14 @@ public class DetectorActivity extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
+        /*
         File accParams = outputFile.getAccParamsFile();
         if (!accParams.exists()) {
             Toast.makeText(DetectorActivity.this, "请先校准加速度计！", Toast.LENGTH_SHORT).show();
             Intent intent1 = new Intent(DetectorActivity.this, EllipsoidFitActivity.class);
             startActivity(intent1);
         }
+        */
 
         setContentView(R.layout.activity_detector);
         loc_int = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
