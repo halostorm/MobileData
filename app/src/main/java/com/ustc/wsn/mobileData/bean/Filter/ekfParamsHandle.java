@@ -35,8 +35,8 @@ public class ekfParamsHandle {
         q2 = 5e-1f;
         q3 = 5e-1f;
 
-        r0 = 8e-3f;
-        r1 = 1e5f;
+        r0 = 8e-4f;
+        r1 = 1e4f;
         r2 = 1e3f;
 
         moment_inertia_J[0] = 0.0018f;

@@ -311,7 +311,7 @@ public class HarActivity extends Activity {
 
 class Data {
     private static String localHOST = "localhost";
-    private static String HOST = "192.168.1.106";
+    private static String HOST = "192.168.1.111";
     private static int PORT = 10087;
 
     public static int getPORT() {
